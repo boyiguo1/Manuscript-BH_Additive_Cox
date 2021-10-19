@@ -1,8 +1,15 @@
+library(targets)
+library(tarchetypes)
+
+options(tidyverse.quiet = TRUE)
+
+tar_option_set(packages = c("tidyverse", "knitr", "rmarkdown"))
+
 ## Load your packages, e.g. library(targets).
-source("./packages.R")
+# source("./packages.R")
 
 ## Load your R files
-lapply(list.files("./R", full.names = TRUE), source)
+lapply(list.files("./R", full.names = TRUE, recursive = TRUE), source)
 
 ## tar_plan supports drake-style targets and also tar_target()
 tar_plan(

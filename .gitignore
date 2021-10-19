@@ -42,7 +42,6 @@ _targets/
 *.html
 
 # renv via capsule
-renv/
 .Rproj.user
 .Rdata
 .DS_Store
