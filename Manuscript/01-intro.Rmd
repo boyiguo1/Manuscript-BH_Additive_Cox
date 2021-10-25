@@ -1,5 +1,27 @@
 # Introduction
 
+Risk prediction. Sometimes simplies to a classification function. Look through finer length via survival analysis.
+
+While the survival analysis is based on linearity assumption where each perdictor have linear effect on the predictive scale. There has been efforts to relax the linear assumption, for example xxx xxx xxx. 
+
+Messages:
+1. Easily generalized to partial linear structure or semi parametric additive model in the Cox proportional Hazard model context
+2. Clearification of the terminology (semiparametric model / Cox additive model versus survival additive model)
+
+-Omics, High-dimensional,
+
+High-dimensional additive mode has been studied under the generalized additive model 
+
+
+Significance:
+We are the firs to apply the spike-and-slab lasso prior in the cox proportional hazard additive model paradigm
+
+
+Purpose: improved prediction + Bi-level selection
+
+
+
+## Literature review
 -   @Lin2013 reviewed curve interpolation in the context of Cox proportional hazard models, with the aims to provide alternatives to models with implicit linearity with regards to model specification and variable selection. The authors used synthetic data to evaluate the variable selection and predictive performance of the state-of-the-art (by 2013) linear and nonlinear Cox proportional hazard models, i.e. COSSO, adaptive COSSO, LASSO, Adaptive LASSO. Despite the computation intensity of nonlinear (nonparametric) models, the authors suggests to compare the linear models and non-linear models to make assertion on which model is more appropriate.
 
     In the simulation, the authors examined high-dimensional problem where the author took a two-step strategy: screening + models. This strategy is a little bit surprising to me as the models can be directly applied to address the high dimension problem, even poorly. Overall, the article is very well written, and can be used as **a template for review/ evaluation articles**.
