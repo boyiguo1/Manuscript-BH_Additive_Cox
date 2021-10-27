@@ -1,1 +1,32 @@
 # Simulation Studies
+The objective o fthe simulation studies is to examine the performance of the proposed model under various settings, including different settings of 
+- sparsity, i.e. number of active variables (whose effect is not zero across covariate range) / total number of covariates included in the model
+- sample size to number of variable ratio, 
+- correlation structures among the covariates when for identifiability purpose
+- signal to noise ratio
+- mixture of additive functions
+  - linear functions
+  - sin functions
+  - quadrative functions
+  - exponential functions
+  
+Particularly relavent to survival outcomes, in addition, we consider various settings of censoring rate, underlying distributions of baseline hazard function, which include commonly used familyes, Exponential, Weibull, Gumptry
+
+
+
+While the primary focus of the this simulation studies is to examine the predictive performance of the model, and hence, we select the followings as evaluation metrics:
+-
+- Caliberation: as we know the $\eta_i$ for the test data, hence, we can compare $\eta_i$ with its estimate $\hat \eta_i$ via mean squared function mean absolute function.
+- Discrimination: We use Uno etal's concordiance index. Even though Harrel's concordiance index is more popular, it suffers from bias when censoring presents.[Cite Rahman et al. 2017]
+
+In each iteration of the simulation process, we independently generate the training and testing datasets following the previously described data generation process. We use the training dataset to construct each model of comparison and find the \`optimal\` model using 10-fold cross-validation. Then we use the fitted model to make prediction for the testing dataset and calculate the evaluation metrics.
+
+
+? How to validate the data generating process works
+
+
+As some of the evaluation metrics are relative, we compare the performance to a state-of-the-art survival model, which include
+- COSSO
+- Adaptive COSSO (maybe)
+- group penalized models, group bayesian models
+

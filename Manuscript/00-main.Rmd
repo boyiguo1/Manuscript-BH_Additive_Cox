@@ -2,31 +2,33 @@
 title: A scalable Cox proportional hazard additive model for survival prediction and associated gene detection
 author:
 - name: Boyi Guo*
-  num: a
+  department: Department of Biostatistics
+  affiliation: University of Alabama at Birmingham
+  location: Birmingham, AL
 - name: Byron C. Jaeger
-  num: b 
+  department: Department of Biostatistics and Data Science
+  affiliation: Wake Forest School of Medicine
+  location: Winston-Salem, NC
 - name: AKM Fazlur Rahman
-  num: a   
+  department: Department of Biostatistics
+  affiliation: University of Alabama at Birmingham
+  location: Birmingham, AL  
 - name: D. Leann Long
-  num: a  
+  department: Department of Biostatistics
+  affiliation: University of Alabama at Birmingham
+  location: Birmingham, AL 
 - name: Nengjun Yi*
-  num: a
-address:
-- num: a
-  org: Department of Biostatistics, University of Alabama at Birmingham, Birmingham, USA
-- num: b
-  org: Department of Biostatistics and Data Science, Wake Forest School of Medicine, Winston-Salem, USA
+  department: Department of Biostatistics
+  affiliation: University of Alabama at Birmingham
+  location: Birmingham, AL
 corres: "Boyi Guo and Nengjun Yi, Department of Biostatistics, University of Alabama at Birmingham, Birmingham, USA. \\email{boyiguo1@uab.edu},  \\email{nyi@uab.edu}"
-presentaddress: This is sample for present address text this is sample for present address text
-authormark: Guo \emph{et al}.
-articletype: Research article
-received: 2017-01-01
-revised: 2017-02-01
-accepted: 2017-03-01
 abstract: "TODO: to add intrstruc"
 keywords: Class file; \LaTeX; Statist. Med.; Rmarkdown;
 bibliography: bibfile.bib
-output: rticles::sim_article
+biblio-style: unsrt
+output: 
+  rticles::arxiv_article:
+    keep_tex: true
 ---
 
 ```{r setup, include=FALSE}
@@ -46,20 +48,20 @@ tar_load(disc_path)
 ```{r intro, child = "01-intro.Rmd"}
 ```
 
-
+\newpage
 ```{r method, child = "02-method.Rmd"}
 ```
-
+\newpage
 
 ```{r child="03-simulation.Rmd"}
 ```
-
+\newpage
 
 ```{r child="04-real_data.Rmd"}
 ```
-
+\newpage
 
 ```{r child="05-conclusion.Rmd"}
 ```
- 
+\newpage
 
