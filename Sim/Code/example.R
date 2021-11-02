@@ -1,44 +1,76 @@
 library(simsurv)
 library(MASS)
 library(tidyverse)
+library(ggpubr)
 
+source("Sim/Code/helper_functions.R")
 
 # Simulation Parameters ---------------------------------------------------
 
-
-n <- 100
-p <- c(4, 10, 50, 100, 200)[1]
+n_test <- 100
+n_train <- 10000
+p <- c(4, 10, 50, 100, 200)[2]
 rho <- c(0, 0.5)[1]
+k <- 10
+pi_cns <- c(0.15, 0.3, 0.4)
+dist_hzd <- c("exponential",
+              "weibull",
+              "gompertz")
+
+
+f_1 <- function(x) (x+1)^2/2
+f_2 <- function(x) exp(x+1)/15
+f_3 <- function(x) 3*sin(x)/2
+f_4 <- function(x) 1.4*x+0.5
+
+# Plot the functions
+list(f_1, f_2, f_3, f_4) %>%
+  map(.f = function(fun){
+    ggplot() +
+      xlim(-4, 4) +
+      geom_function(fun = fun) +
+       theme(axis.title.y = element_blank())
+  }) %>%
+  ggarrange(plotlist = .,label.y = "Log Hazard Ratio")
+
+
+set.seed(3)
+
+
+
+# Data Generating Process -------------------------------------------------
+n_total <- n_train + n_test
 
 AR <- function(p, rho){
   rho^abs(outer(1:p,1:p,"-"))
 }
 
-k <- 10
 
-cov_mat <- diag(p)
 
-set.seed(2)
 
-f_1 <- function(x) (x+1)^2/2
-f_2 <- function(x) exp(x+1)/2
-f_3 <- function(x) 3*sin(x)/2
-f_4 <- function(x) 1.4*x+0.5
+
+
+
+
+
 
 # Aimed censoring rate 20%
 
 # Simulate Raw X ----------------------------------------------------------
-x <- mvrnorm(n, rep(0, p), AR(p, rho)) %>%
+x_all <- mvrnorm(n_train+n_test, rep(0, p), AR(p, rho)) %>%
   data.frame
 
-# Calculate Proportional Hazards ------------------------------------------
-eta <- with(x, f_1(X1) + f_2(X2) + f_3(X3) + f_4(X4))
+# Calculate Log Proportional Hazards ------------------------------------------
+eta_all <- with(x_all, f_1(X1) + f_2(X2) + f_3(X3) + f_4(X4))
 
+
+find_cenor_parameter(lambda = exp(-1*eta_all/1.2))
 
 # Simulate Survival Time --------------------------------------------------
-dat <- simsurv::simsurv(dist = "exponential",
-                        lambdas = 0.1,
-                        x = data.frame(eta) ,
+dat_all <- simsurv::simsurv(dist = "weibull",
+                        lambdas = 1.2,
+                        gammas = 0.5,
+                        x = data.frame(eta = eta_all) ,
                         beta = c(eta = 1)) %>%
   # mutate(status = as.numeric(eventtime <= 1.5)) %>%
   data.frame(

@@ -1,0 +1,32 @@
+---
+title: "Outline"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Target Journals
+
+- Biostatistics
+- Biometrics
+- annal of applied statistics
+- Bioinformatics
+- BMC Bioinfomatics
+- Journal of Computational and Graphical Statistics 
+- Computational Statistics and Data Analysis 
+- Statistics and Computing
+- Plos One
+
+# Introduction
+
+- Literature review: 
+- Contribuitino
+  - Study how the Bayesian framework would be performed for high-dimensional data anlaysis. Previous shows good
+  - 
+
+# Cox Proportional Hazard Model with Spike-and-slab Prior
+
+# Simulation Study
+
+# Metaboliomics Data Analysis
