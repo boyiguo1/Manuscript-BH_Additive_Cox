@@ -1,1 +1,5 @@
 # Cox Proportional Hazard Additive Model
+- Defining Cox propostional Hazard
+  - Handling intercept term
+- Introduce the reparmeterization
+- Display the new formulation

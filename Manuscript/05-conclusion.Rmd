@@ -1,2 +1,12 @@
 # Discussion
-sdfadfs
+
+- Summarize the contribution
+
+- Summarize the study results
+  - Simulation shows prediction wise improvement
+  - Variable selection wise
+  - COmputation speed wise
+
+
+
+From the software perspective, the proposed model can be easily extend to delayed entry, stratified Cox models. Explain why and how.
