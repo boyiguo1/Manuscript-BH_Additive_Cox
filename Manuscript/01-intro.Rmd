@@ -16,8 +16,17 @@ High-dimensional additive mode has been studied under the generalized additive m
 To the best of knowledge, there is yet efforts on studying bayesian heiarchical models, particularaly the spike-and-slab lasso prior under the high-dimensional additive model under Cox proportional hazard paradigm. We ackowledge, there are other additive models for studying survival outcomes. However, those model focus on studying the risk differences instead of risk ratio, and hence have different utilities. 
 
 
+
+Where there are tremendous amount of literature that explored Bayesian regularized model for modeling continuous or binary outcome in the context of additive models, there are yet any Bayesian efforts to expand to model survival outcomes as far of our knowledge. We are the first to apply spike-and-slab prior on Cox additive model for the purpose of survival prediction and funciton selection in the context of high-dimensional survival outcome modeling. We see a broad range of applications in precision medicine research, particularly genomics data analysis.
+
+ 
 Significance:
 We are the firs to apply the spike-and-slab lasso prior in the cox proportional hazard additive model paradigm
+
+
+The main objectives of this project is to 1) expand current weaponary for non-linear effect modeling of time-to-event outcome via the bayesian hierarchical venue, which has been proved improvement in the realm of generalized linear models  and generalized additive models compared to penalized model. Hence, we hypothesize that using Bayesian hierarhichy prior will improve the prediction performance for Cox additive model. Meanwhile, depending on the way we construct our basis matrix, as well as the prior set up, we can achieve an bi-level selection for the smoothing function. Here, we define the bi-level function as selection of the variable in the model, and selection of the linear versus non-linear effect of the variable. 
+
+One of the critism that penalized model receive in the context of additive model is that the sparsity regularization will over smooth the the smoothing function by forceing many, and hence impact on the accuracy of the risk prediction. this phenomenon was previously observed in the context of generalized linear model.
 
 
 Purpose: improved prediction + Bi-level selection
