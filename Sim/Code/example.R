@@ -61,7 +61,7 @@ x_all <- mvrnorm(n_train+n_test, rep(0, p), AR(p, rho)) %>%
   data.frame
 
 # Calculate Log Proportional Hazards ------------------------------------------
-eta_all <- with(x_all, f_1(X1) + f_2(X2) + f_3(X3) + f_4(X4))
+eta_all <- with(x_all, f_4(X4))
 
 
 find_cenor_parameter(lambda = exp(-1*eta_all/1.2))

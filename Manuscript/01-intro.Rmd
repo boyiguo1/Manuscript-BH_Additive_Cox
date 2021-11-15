@@ -1,5 +1,10 @@
 # Introduction
 
+Cox propotional hazard (PH) model have a long history and is one of the most popular tools to model time-to-event outcome and predict survival risk. While the classical Cox PH model assumes linear effect of a predictor on the log hazard scale, many extensions has been made to consider more flexible way to model nonlinear effects, and yield great success in the dose-repsonse curve modeling literature. These efforts in clude xxx, xxx, xxx.  The main idea is to replace eahc predictor in the model with a smoothing function. Common choice of the smoothign function include cublic spline, xxx.,xxx.
+
+With the lower cost of data storage and computation, large volume of data are generated in an exploding speed, and wait to be analyzed. One particularly type of large volume data is the high-demension data, where the number of predictors/dimensions are close if not more than the number of the . The type of data are very common in the realm of public health/precision medicine studies, for example genomes data analysis, high-resolution image data analysis. Nevertheless, high-dimensional data creates analytic challenges due to the correaltion structures among predictors as well as model overfitting. Regularize models are proposed to address these challenges. Among which, lasso models are the most popular choice. Tibshrani (1997) first applied lasso model in the Cox model, and since then, there are many other improvement has been made (citation/expand). Meanwhile, the Bayesian models are expanded. Other Bayesian models.[Insert spike-and-slab models]. While there
+
+
 Risk prediction. Sometimes simplies to a classification function. Look through finer length via survival analysis.
 
 While the survival analysis is based on linearity assumption where each perdictor have linear effect on the predictive scale. There has been efforts to relax the linear assumption, for example xxx xxx xxx. 
