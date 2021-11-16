@@ -2,6 +2,17 @@
 
 
 - Defining Cox propostional Hazard
-  - Handling intercept term
+
+- Handling intercept term
+
 - Introduce the reparmeterization
+
+To encourage proper smoothing of the functions, we adopt the idea of smoothing penalties from smoothing spline models [@Wood2017].
+<!-- The basic idea is to set up a smoothing penalty, described in Equation (\ref{eq:smoothpen}), in the prior density function. However, the direct integration of smoothing penalty with sparsity penalty is not obvious. -->
+While it is hard to directly integrate smoothing penalty with sparsity penalty, @Marra2011 proposed a reparameterization to implement smoothing penalty in the design matrix. Given the smoothing penalty matrix $\bs S_j$ is symmetric and positive semi-definite for univariate smoothing functions, we apply eigendecomposition on the penalty matrix $\bs S = \bs U \bs D \bs U^T$ , where eigenvectors and eigenvalues are arranged in the matrices $\bs U$ and $\bs D$ respectively. The zero eigenvalue and its corresponding eigenvector span the linear space of the smoothing function, which allows us to separate the linear space from the smoothing function. By multiplying the design matrix $X$ and eigenvector matrix $U$ and properly scaling with eigenvalues, we can have a new design matrix such that the smoothing function of variable $x_j$ can be written as
+$$
+B_j(x_j) = B_j^0(x_j) + B_j^\tp (x_j) = \beta_j X^0_j + \bs {\beta_j^\tp}^T \bs X_j^\tp ,
+$$
+where $\bs X_j \equiv \begin{bmatrix} X_j^0 : \bs X_j^{\tp} \end{bmatrix}$ as the basis function matrix for the $j$th variable; the coefficients $\bs \beta_j \equiv \begin{bmatrix} \beta_j : \bs \beta^\tp_j \end{bmatrix}$ is an augmentation of the coefficient scalar $\beta_j$ of linear space and the coefficient vector $\bs \beta^\tp_j$ of non-linear space.
+
 - Display the new formulation

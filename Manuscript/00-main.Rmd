@@ -29,18 +29,25 @@ biblio-style: unsrt
 output: 
   rticles::arxiv_article:
     keep_tex: true
+header-includes:
+  - \usepackage{amsmath}
+
 ---
+
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\tp}{*}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(targets)
 
-tar_load(bib_path)
-tar_load(intro_path)
-tar_load(method_path)
-tar_load(sim_path)
-tar_load(real_data_path)
-tar_load(disc_path)
+tar_load(manu_path)
+# tar_load(bib_path)
+# tar_load(intro_path)
+# tar_load(method_path)
+# tar_load(sim_path)
+# tar_load(real_data_path)
+# tar_load(disc_path)
 
 ```
 
@@ -50,6 +57,7 @@ tar_load(disc_path)
 
 \newpage
 ```{r method, child = "02-method.Rmd"}
+
 ```
 \newpage
 
@@ -65,3 +73,5 @@ tar_load(disc_path)
 ```
 \newpage
 
+
+<!-- Tables and Figures start here -->
