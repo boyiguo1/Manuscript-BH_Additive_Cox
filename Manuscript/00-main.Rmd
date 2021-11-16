@@ -35,12 +35,13 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(targets)
 
-tar_load(bib_path)
-tar_load(intro_path)
-tar_load(method_path)
-tar_load(sim_path)
-tar_load(real_data_path)
-tar_load(disc_path)
+tar_load(manu_path)
+# tar_load(bib_path)
+# tar_load(intro_path)
+# tar_load(method_path)
+# tar_load(sim_path)
+# tar_load(real_data_path)
+# tar_load(disc_path)
 
 ```
 
