@@ -1,0 +1,32 @@
+#!/bin/bash
+#SBATCH --share
+#SBATCH --partition=express
+#
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+# TODO: Specify number of replications
+#SBATCH --array=1-10
+#
+#
+#SBATCH --time=2:00:00
+#SBATCH --mem-per-cpu=5000
+#
+#
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=boyiguo1@uab.edu
+
+# Module list
+module load R/4.1.0-foss-2018a-X11-20180131-bare
+
+
+# Create a directory to store your log files
+# Import to debuging
+resPath=/data/user/boyiguo1/bcam/Res/$SLURM_JOB_NAME/
+logPath=/data/user/boyiguo1/bcam/Log/$SLURM_JOB_NAME/
+mkdir -p $logPath $resPath
+
+# Run simulation with simulation parameters using R batch --args flag
+## TODO: Replace with your simulation parameters
+###      The $ sign helps to fetch the simulation parameters passed from start_sim.R
+R CMD BATCH  --vanilla "--args n=$n" ~/Manuscript-BH_Additive_Cox/Sim/Code/main.R $logPath${SLURM_ARRAY_TASK_ID}.out

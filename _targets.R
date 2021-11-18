@@ -26,17 +26,16 @@ tar_plan(
 
   # Simulation --------------------------------------------------------------
 
-  tar_target(cns_pi, c(0.15, 0.3, 0.45)),
-  tar_target(sim_it, 1:10),
+  # tar_target(cns_pi, c(0.15, 0.3, 0.45)),
+  # tar_target(sim_it, 1:10),
 
   # ** Examine Find Censoring Rate Function ---------------------------------
-  tar_target(cns_rate_batch, run_cns_rate_test(cns_pi), pattern = cross(cns_pi, map(sim_it))),
+  # tar_target(cns_rate_batch, run_cns_rate_test(cns_pi), pattern = cross(cns_pi, map(sim_it))),
 
 
 
 
   # Manuscript --------------------------------------------------------------
-
   #* Section Paths ####
   tar_files(manu_path,
             setdiff(
