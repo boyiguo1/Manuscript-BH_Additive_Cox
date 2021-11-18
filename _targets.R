@@ -5,8 +5,8 @@ options(tidyverse.quiet = TRUE)
 
 tar_option_set(
   packages = c("tidyverse", "knitr", "rmarkdown",
-              "simsurv")
-  )
+               "simsurv")
+)
 
 ## Load your packages, e.g. library(targets).
 # source("./packages.R")
@@ -39,31 +39,14 @@ tar_plan(
 
   #* Section Paths ####
   tar_files(manu_path,
-            setdiff(grep("*.Rmd|*.bib", list.files("Manuscript", full.names = TRUE),value = TRUE, ), 'Manuscript/00-main.Rmd')
-            ),
-  # tar_target(bib_path,
-  #            "Manuscript/bibfile.bib",
-  #            format = "file"),
-  #
-  # tar_target(intro_path,
-  #            "Manuscript/01-intro.Rmd",
-  #            format = "file"),
-  #
-  # tar_target(method_path,
-  #            "Manuscript/02-method.Rmd",
-  #            format = "file"),
-  #
-  # tar_target(sim_path,
-  #            "Manuscript/03-simulation.Rmd",
-  #            format = "file"),
-  #
-  # tar_target(real_data_path,
-  #            "Manuscript/04-real_data.Rmd",
-  #            format = "file"),
-  #
-  # tar_target(disc_path,
-  #            "Manuscript/05-conclusion.Rmd",
-  #            format = "file"),
+            setdiff(
+              grep("*.Rmd|*.bib",
+                   list.files("Manuscript", full.names = TRUE),
+                   value = TRUE
+              ),
+              'Manuscript/00-main.Rmd'
+            )
+  ),
 
   tar_render(manu, "Manuscript/00-main.Rmd",
              output_file = "CPH_AM.pdf")

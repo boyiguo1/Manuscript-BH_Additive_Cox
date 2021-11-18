@@ -29,7 +29,13 @@ biblio-style: unsrt
 output: 
   rticles::arxiv_article:
     keep_tex: true
+header-includes:
+  - \usepackage{amsmath}
+
 ---
+
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\tp}{*}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -51,6 +57,7 @@ tar_load(manu_path)
 
 \newpage
 ```{r method, child = "02-method.Rmd"}
+
 ```
 \newpage
 
@@ -66,3 +73,5 @@ tar_load(manu_path)
 ```
 \newpage
 
+
+<!-- Tables and Figures start here -->
