@@ -68,8 +68,9 @@ find_cenor_parameter(lambda = exp(-1*eta_all/1.2))
 
 # Simulate Survival Time --------------------------------------------------
 dat_all <- simsurv::simsurv(dist = "weibull",
-                        lambdas = 1.2,
-                        gammas = 0.5,
+                        ## TODO Update the scale and shape parameter
+                        lambdas = 1.2,  # Scale parameter
+                        gammas = 0.5,   # Shape parameter
                         x = data.frame(eta = eta_all) ,
                         beta = c(eta = 1)) %>%
   # mutate(status = as.numeric(eventtime <= 1.5)) %>%
