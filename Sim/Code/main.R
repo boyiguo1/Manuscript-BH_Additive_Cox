@@ -60,7 +60,9 @@ test_dat <- dat_all[(n_train+1):n_total, ]
 
 
 ## Censoring Distribution, Weibull(alpha.c, scale.p)
-scale.p <- find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t), p.cen = pi_cns)
+scale.p <- find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t),
+                                 pi.cen = pi_cns,
+                                 shape_hazard = shape.t, shape_censor = shape.c)
 
 # TODO:: Double check if the lambda and gammas are specified correctly
 train_dat <-  train_dat %>%
