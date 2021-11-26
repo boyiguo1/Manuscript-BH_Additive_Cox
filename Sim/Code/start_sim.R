@@ -39,7 +39,7 @@ start.sim <- function(
   # Create Jobs
   system(
     paste("sbatch", job.flag, err.flag, out.flag, arg.flag,
-          "~/Manuscript-BH_Additive_Cox/Sim/Code/bcam_sim.job.job")
+          "~/Manuscript-BH_Additive_Cox/Sim/Code/bcam_sim.job")
   )
 }
 
