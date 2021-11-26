@@ -4,7 +4,7 @@
 # Wan, F. (2017). Simulating survival data with predefined censoring rates for proportional hazards models. Statistics in medicine, 36(5), 838-854.
 
 find_cenor_parameter <- function(lambda, pi = 0.5, alpha.t = 1.2, alpha.c= 0.8, ...){
-  # browser()
+  browser()
   # Estimate the density function of the linear predictor
   dens<-density(lambda,bw = "nrd0",na.rm=TRUE)
 

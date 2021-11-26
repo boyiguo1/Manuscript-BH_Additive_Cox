@@ -3,7 +3,12 @@
 ## Evaluate the simulation parameters in the R global environment
 ## For the Toy Example
 ## It is equivalent to run
-## n <- 100
+# n_test <- 100
+# n_train <- 10000
+# p <- c(4, 10, 50, 100, 200)[2]
+# rho <- c(0, 0.5)[1]
+# k <- 10
+# pi_cns <- c(0.15, 0.3, 0.4)[1]
 
 args=(commandArgs(TRUE))
 
@@ -35,14 +40,16 @@ source("~/Manuscript-BH_Additive_Cox/Sim/Code/helper_functions.R")
 
 # * Simulation Parameters -------------------------------------------------
 ## Survival & Censoring Weibull Distribution Parameter
-alpha.t<- 1.2     # Survival Distribution
-alpha.c<-0.8      # Censoring Distribution
+shape.t <- 1.2     # Shape par of hazard distribution
+scale.t <- 1       # Scale par of hazard distribution
+shape.c <- 0.8     # Shape par of censoring distribution
+
 
 ## Nonlinear Functions
-f_1 <- function(x) (x+1)^2/2
-f_2 <- function(x) exp(x+1)/15
-f_3 <- function(x) 3*sin(x)/2
-f_4 <- function(x) 1.4*x+0.5
+f_1 <- function(x) (x+1)^2/10
+f_2 <- function(x) exp(x+1)/100
+f_3 <- function(x) 3*sin(x)/20
+f_4 <- function(x) (1.4*x+0.5)/10
 
 n_total <- n_train + n_test
 
@@ -64,18 +71,18 @@ x_all <- MASS::mvrnorm(n_train+n_test, rep(0, p), AR(p, rho)) %>%
 eta_all <- with(x_all, f_1(X1) + f_2(X2) + f_3(X3) + f_4(X4))
 
 ## Censoring Distribution, Weibull(alpha.c, scale.p)
-scale.p <- find_cenor_parameter(lambda = exp(-1*eta_all/alpha.t), pi = pi_cns)
+scale.p <- find_cenor_parameter(lambda = exp(-1*eta_all/shape.t), pi = pi_cns)
 
 # TODO:: Double check if the lambda and gammas are specified correctly
 dat_all <- simsurv::simsurv(dist = "weibull",
-                            lambdas = alpha.t,
-                            gammas = 0.5,
+                            lambdas = scale.t,
+                            gammas = shape.t,
                             x = data.frame(eta = eta_all) ,
                             beta = c(eta = 1)) %>%
   data.frame(
     # TODO:: CHange the censoring distirbution here
-    c_time = rweibull(n = n, shape = alpha.c, scale = scale.p),
-    x) %>%
+    c_time = rweibull(n = n_total, shape = shape.c, scale = scale.p),
+    x_all) %>%
   # rowwise() %>%
   mutate(
     cen_ind = (c_time < eventtime),
