@@ -32,7 +32,7 @@ library(BHAM)
 library(survival)
 
 ## Helper Functions
-source("~/Manuscript-BH_Additive_Cox/Sim/Code/helper_functions.R")
+source("~/Manuscript-BH_Additive_Cox/Sim/Code/find_censor_parameter.R")
 
 
 
