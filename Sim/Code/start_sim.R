@@ -34,7 +34,6 @@ start.sim <- function(
   out.flag <- paste0("--output=",job.name,".out")
 
   # Pass simulation parameters to jobs using export flag
-  ## TODO: add other sim_prmt in this flag if necessary
   arg.flag <- paste0("--export=n_train=", n_train, ",",
                      "p=", p, ",",
                      "rho=", rho, ",",
