@@ -4,7 +4,6 @@ library(dplyr)
 # Simulation Parameters ---------------------------------------------------
 sim_prmt <- expand.grid(
   n_train = c(500),
-  n_test = c(1000),
   p = c(4, 10, 50, 100, 200),        # Number of Predictors
   rho = c(0, 0.5),                   # X Cov Structure AR(rho)
   pi_cns = c(0.15, 0.3, 0.45)        # Proportional of Censoring
@@ -16,7 +15,7 @@ sim_prmt <- expand.grid(
 
 # Helper Function for Setting Up Job --------------------------------------
 start.sim <- function(
-  n_train, n_test,
+  n_train,
   p, rho,
   pi_cns
 ) {

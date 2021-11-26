@@ -1,7 +1,7 @@
 #' Estimate the Weibull scale parameter for controlled censoring proportion
 #'
 #' @param lambda
-#' @param pi A double whose value is between 0 and 1 exclusive, i.e. (0,1). The pre-defined censoring proportion.
+#' @param p.cen A double whose value is between 0 and 1 exclusive, i.e. (0,1). The pre-defined censoring proportion.
 #' @param shape_hazard A positive double, Weibull distribution shape parameter `k` for the hazard distribution. Default to 1 for exponential distribution
 #' @param shape_censor A positive double, Weibull distribution shape parameter `k` for the censoring distribution. Default to 1 for exponential distribution
 #' @param ... Reserved arguments
@@ -12,7 +12,7 @@
 #'
 #' @examples
 find_censor_parameter <- function(
-  lambda, pi = 0.5,
+  lambda, p.cen = 0.5,
   shape_hazard = 1, shape_censor= 1,
   ...){
   # Estimate the density function of the linear predictor
@@ -66,7 +66,7 @@ find_censor_parameter <- function(
 
   theta<-uniroot(censor.prop, interval = c(0.1,200),
                  ## Argument for censor.prop
-                 p = pi, shape_hazard = shape_hazard, shape_censor = shape_censor,
+                 p = p.cen, shape_hazard = shape_hazard, shape_censor = shape_censor,
                  tol=0.00000001)$root
 
   return(theta)
