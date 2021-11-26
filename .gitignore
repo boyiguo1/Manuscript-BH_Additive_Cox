@@ -45,3 +45,8 @@ _targets/
 .Rproj.user
 .Rdata
 .DS_Store
+
+
+# Simulation Log File
+*.err
+*.out
