@@ -36,7 +36,7 @@ source("~/Manuscript-BH_Additive_Cox/Sim/Code/find_censor_parameter.R")
 
 # Data Generating Process -------------------------------------------------
 # * Simulation Parameters -------------------------------------------------
-source("~/Manuscript-BH_Additive_Cox/Sim/Code/sim_pars_funs")
+source("~/Manuscript-BH_Additive_Cox/Sim/Code/sim_pars_funs.R")
 
 
 ## Use Array ID as random seed ID

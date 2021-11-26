@@ -18,6 +18,7 @@
 
 # Module list
 module load R/4.1.0-foss-2018a-X11-20180131-bare
+module load GLPK
 
 
 # Create a directory to store your log files
