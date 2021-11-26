@@ -20,7 +20,9 @@ start.sim <- function(
   pi_cns
 ) {
   #Compose job name
-  job.name <- paste0("bcam_sim_p=", p)
+  job.name <- paste0("bcam_sim_p=", p, ",",
+                     "rho=", rho, ",",
+                     "pi_cns=", pi_cns)
 
   # NOTE:
   ## Job name has to be unique for each of your simulation settings
@@ -33,7 +35,10 @@ start.sim <- function(
 
   # Pass simulation parameters to jobs using export flag
   ## TODO: add other sim_prmt in this flag if necessary
-  arg.flag <- paste0("--export=n=", n)
+  arg.flag <- paste0("--export=n_train=", n_train, ",",
+                     "p=", p, ",",
+                     "rho=", rho, ",",
+                     "pi_cns=", pi_cns)
 
   # Create Jobs
   system(

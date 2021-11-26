@@ -29,4 +29,4 @@ mkdir -p $logPath $resPath
 # Run simulation with simulation parameters using R batch --args flag
 ## TODO: Replace with your simulation parameters
 ###      The $ sign helps to fetch the simulation parameters passed from start_sim.R
-R CMD BATCH  --vanilla "--args n=$n" ~/Manuscript-BH_Additive_Cox/Sim/Code/main.R $logPath${SLURM_ARRAY_TASK_ID}.out
+R CMD BATCH  --vanilla "--args n_train=$n_train p=$p rho=$rho pi_cns=$pi_cns" ~/Manuscript-BH_Additive_Cox/Sim/Code/main.R $logPath${SLURM_ARRAY_TASK_ID}.out
