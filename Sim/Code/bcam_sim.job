@@ -6,7 +6,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 # TODO: Specify number of replications
-#SBATCH --array=1-10
+#SBATCH --array=1-50
 #
 #
 #SBATCH --time=2:00:00
