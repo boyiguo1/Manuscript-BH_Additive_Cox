@@ -93,28 +93,44 @@ mgcv_df <- data.frame(
 mgcv_mdl <- gam(create_HD_formula(time~1, spl_df = mgcv_df), data = train_dat,
                 family = cox.ph(), weight = status)
 
-# * COSSO -------------------------------------------------------------------
+mgcv_train <- measure.cox(Surv(train_dat$time, train_dat$status) , mgcv_mdl$linear.predictors)
+mgcv_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
+                         predict(mgcv_mdl, newdata=test_dat, type = "link"))
 
-y <- dat %>% select(time, status)
-cosso_mdl <- cosso(x = train_dat %>% select(starts_with("X")),
-                   y = train_dat %>% select(time, status), family = "Cox")
+
+# * COSSO -------------------------------------------------------------------
+# y <- dat %>% select(time, status)
+# cosso_mdl <- cosso(x = train_dat %>% select(starts_with("X")),
+#                    y = train_dat %>% select(time, status), family = "Cox")
 
 
 # * BHAM ----------------------------------------------------------
 
 train_sm_dat <- construct_smooth_data(mgcv_df, train_dat)
 train_smooth_data <- train_sm_dat$data
+test_sm_dat <- BHAM::make_predict_dat(train_sm_dat$Smooth, dat = test_dat)
 
 bacox_mdl <- bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
                      prior = mde(), group = make_group(names(train_smooth_data)))
 
-
+bacox_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bacox_mdl$linear.predictors)
+# bacox_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
+#                          predict(mgcv_mdl, newdata=test_dat, type = "link"))
+bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
 
 # Save Simulation Results -------------------------------------------------
 
 ## TODO: Record Prediction Results
 # Overall
 ret <- list(
+  train_res = list(
+    mgcv = mgcv_train,
+    bacox = bacox_train
+  ),
+  test_res = list(
+    mgcv = mgcv_test,
+    bacox = bacox_test
+  ),
   p.cen = mean(train_dat$status==0)              # Censoring proportion in training data
 )
 
