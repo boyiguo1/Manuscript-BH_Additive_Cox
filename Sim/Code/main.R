@@ -31,7 +31,7 @@ library(survival)
 
 ## Helper Functions
 source("~/Manuscript-BH_Additive_Cox/Sim/Code/find_censor_parameter.R")
-
+source("~/Manuscript-BH_Additive_Cox/Sim/Code/create_HD_formula.R")
 
 
 # Data Generating Process -------------------------------------------------
@@ -64,7 +64,6 @@ scale.p <- find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t),
                                  pi.cen = pi_cns,
                                  shape_hazard = shape.t, shape_censor = shape.c)
 
-# TODO:: Double check if the lambda and gammas are specified correctly
 train_dat <-  train_dat %>%
   data.frame(
     c_time = rweibull(n = n_train, shape = shape.c, scale = scale.p)
@@ -77,42 +76,41 @@ train_dat <-  train_dat %>%
   mutate(time = min(c_time, eventtime)) %>%
   ungroup()
 
-# TODO: Make particion of the training and testing data
 
 
 # Fit Models------------------------------------------------------------------
 
+
+# * Spline Specification --------------------------------------------------
+mgcv_df <- data.frame(
+  Var = grep("X", names(train_dat), value = TRUE),
+  Func = "s",
+  Args = paste0("bs='cr', k=", k)
+)
+
+
 # * mgcv --------------------------------------------------------------------
-## TODO: Make the data matrix
-# mgcv_mdl <- gam(time~s(X1) + s(X2) + s(X3) + s(X4), data = dat,
-#                 family = cox.ph(), weight = status)
+mgcv_mdl <- gam(create_HD_formula(time~1, spl_df = mgcv_df), data = train_dat,
+                family = cox.ph(), weight = status)
 
 # * COSSO -------------------------------------------------------------------
 
-# y <- dat %>% select(time, status)
-# cosso_mdl <- cosso(x = dat %>% select(starts_with("X")),
-#                    y = dat %>% select(time, status), family = "Cox")
+y <- dat %>% select(time, status)
+cosso_mdl <- cosso(x = train_dat %>% select(starts_with("X")),
+                   y = train_dat %>% select(time, status), family = "Cox")
 
 
 # * BHAM ----------------------------------------------------------
 
+train_sm_dat <- construct_smooth_data(mgcv_df, train_dat)
+train_smooth_data <- train_sm_dat$data
 
-# spline_df <- data.frame(
-#   Var = grep("(X)", names(dat), value = TRUE),
-#   Func = "s",
-#   Args = paste0("bs='cr', k=", k)
-# )
-#
-# train_sm_dat <- construct_smooth_data(spline_df, dat)
-# train_smooth_data <- train_sm_dat$data
-#
-# bacox_mdl <- bacoxph(Surv(dat$time, dat$status) ~ ., data = train_smooth_data,
-#                      prior = mde(), group = make_group(names(train_smooth_data)))
+bacox_mdl <- bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
+                     prior = mde(), group = make_group(names(train_smooth_data)))
 
 
 
 # Save Simulation Results -------------------------------------------------
-## TODO: Record censoring rate
 
 ## TODO: Record Prediction Results
 # Overall

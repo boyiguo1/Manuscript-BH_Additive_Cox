@@ -3,7 +3,7 @@ library(dplyr)
 
 # Simulation Parameters ---------------------------------------------------
 sim_prmt <- expand.grid(
-  n_train = c(500),
+  n_train = c(200),
   p = c(4, 10, 50, 100, 200),        # Number of Predictors
   rho = c(0, 0.5),                   # X Cov Structure AR(rho)
   pi_cns = c(0.15, 0.3, 0.45)        # Proportional of Censoring
