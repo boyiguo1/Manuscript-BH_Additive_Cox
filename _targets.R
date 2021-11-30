@@ -47,6 +47,11 @@ tar_plan(
       select(-cns_rate)
   ),
 
+  tar_target(
+    sim_pred_measure_raw,
+    generate_simulation_res_raw(sim_summary)
+  ),
+
 # Manuscript --------------------------------------------------------------
 #* Section Paths ####
 tar_files(manu_path,
