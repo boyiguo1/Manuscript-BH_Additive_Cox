@@ -32,25 +32,22 @@ tar_plan(
     generate_simulation_summary(sim_res_path)
   ),
 
-
-  tar_target(
-    sim_cnr_prop_raw,
-    generate_simulation_censoring_proportion(sim_summary)
-  ),
-
-  tar_target(
-    sim_cnr_prop,
-    sim_cnr_prop_raw %>%
-      rowwise %>%
-      mutate(mean_cns = mean(c(cns_rate)), sd_cns = sd(c(cns_rate))) %>%
-      ungroup() %>%
-      select(-cns_rate)
-  ),
-
   tar_target(
     sim_pred_measure_raw,
     generate_simulation_res_raw(sim_summary)
   ),
+
+
+  tar_target(
+    sim_cnr_prop,
+    sim_pred_measure_raw %>%
+      rowwise %>%
+      mutate(mean_cns = mean(unlist(sim_pi_cns)), sd_cns = sd(unlist(sim_pi_cns))) %>%
+      ungroup() %>%
+      select(-c(sim_pi_cns, train, test))
+  ),
+
+# ,
 
 # Manuscript --------------------------------------------------------------
 #* Section Paths ####
