@@ -47,6 +47,18 @@ tar_plan(
       select(-c(sim_pi_cns, train, test))
   ),
 
+  tar_target(
+    sim_train_res,
+    sim_pred_measure_raw %>%
+      generate_sim_pred_measure("train")
+  ),
+
+  tar_target(
+    sim_test_res,
+    sim_pred_measure_raw %>%
+      generate_sim_pred_measure("test")
+  ),
+
 # ,
 
 # Manuscript --------------------------------------------------------------
