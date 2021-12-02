@@ -67,7 +67,7 @@ scale.p <- find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t),
 train_dat <-  train_dat %>%
   data.frame(
     c_time = rweibull(n = n_train, shape = shape.c, scale = scale.p)
-    ) %>%
+  ) %>%
   mutate(
     cen_ind = (c_time < eventtime),
     status = (!cen_ind)*1
@@ -99,9 +99,52 @@ mgcv_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
 
 
 # * COSSO -------------------------------------------------------------------
-# y <- dat %>% select(time, status)
-# cosso_mdl <- cosso(x = train_dat %>% select(starts_with("X")),
-#                    y = train_dat %>% select(time, status), family = "Cox")
+cosso_mdl <- cosso(x = train_dat %>% select(starts_with("X")) %>% data.matrix,
+                   y = train_dat %>% select(time, status) %>% data.matrix, family = "Cox",
+                   nbasis = k, scale = F)
+
+cosso_tn_mdl <-  tune.cosso(cosso_mdl, plot.it = FALSE)
+
+
+# if(!is.null(cosso.mdl)){
+cosso_train_lp <- predict.cosso(cosso_mdl,
+                               xnew=train_dat %>% select(starts_with("X")) %>% data.matrix,
+                               M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
+cosso_train <- measure.cox(Surv(train_dat$time, train_dat$status), cosso_train_lp)
+
+cosso_test_lp <- predict.cosso(cosso_mdl,
+                               xnew=test_dat %>% select(starts_with("X")) %>% data.matrix,
+                               M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
+cosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), cosso_test_lp)
+
+# } else{
+#   cosso_train_msr <- make_null_res(fam_fun$family)
+#   cosso_test_msr <- make_null_res(fam_fun$family)
+# }
+
+
+#### Fit ACOSSO Models ####
+acosso_mdl <- {
+  wt_mdl <- SSANOVAwt(x = train_dat %>% select(starts_with("X")) %>% data.matrix,
+                      y = train_dat %>% select(time, status) %>% data.matrix, family = "Cox", nbasis=k)
+  cosso(x = train_dat %>% select(starts_with("X")) %>% data.matrix,
+        y = train_dat %>% select(time, status) %>% data.matrix, family = "Cox",
+        wt= wt_mdl, scale = F, nbasis=k)
+}
+
+acosso_tn_mdl <- tune.cosso(acosso_mdl, plot.it = FALSE)
+
+
+# if(!is.null(acosso.mdl)){
+acosso_train_lp <- predict.cosso(acosso_mdl,
+                               xnew = train_dat %>% select(starts_with("X")) %>% data.matrix,
+                               M = ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "fit")
+acosso_train <- measure.cox(Surv(train_dat$time, train_dat$status), acosso_train_lp)
+
+acosso_test_lp <- predict.cosso(acosso_mdl,
+                               xnew=test_dat %>% select(starts_with("X")) %>% data.matrix,
+                               M=ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "fit")
+acosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), acosso_test_lp)
 
 
 # * BHAM ----------------------------------------------------------
