@@ -151,10 +151,21 @@ acosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), acosso_tes
 
 train_sm_dat <- construct_smooth_data(mgcv_df, train_dat)
 train_smooth_data <- train_sm_dat$data
+
 test_sm_dat <- BHAM::make_predict_dat(train_sm_dat$Smooth, dat = test_dat)
 
-bacox_mdl <- bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
+bacox_raw_mdl <- bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
                      prior = mde(), group = make_group(names(train_smooth_data)))
+
+s0_seq <- seq(0.005, 0.1, 0.005)    # TODO: need to be optimized
+cv_res <- tune.bgam(bacox_raw_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
+
+s0_min <- cv_res$s0[which.min(cv_res$deviance)]
+
+bacox_mdl <- bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
+                     prior = mde(s0 = s0_min), group = make_group(names(train_smooth_data)))
+
+
 
 bacox_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bacox_mdl$linear.predictors)
 # bacox_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
