@@ -1,9 +1,13 @@
 # Cox Proportional Hazard Additive Model
 
+For each individual in the datasets, we collect the the covariate variables $\bs X_i = (X_{i1}, \dots, X_{ip}) \in \mathbb{R}^{p}$ and the survival outcome $(T_i, C_i) \in {\mathbb{R}^+ \times \{0,1\}}$ where $T$ is the observed survival time, and $C$ is a binary variable, marking if the status. When $C=0$, the observation is censored at the survial time $T$ and when $C=1$, we observe the event of interest at time $T$. We assume non-informative right censoring. We also assume there is no competing risk, or multiple occurrence of the event.
 
-- Defining Cox propostional Hazard
+The most popular tools to analyze such data include Cox proportional hazard model, refered as Cox model hereafter. Cox model is a semi-parametric model that assumes proportional hazard. Each participant shares a common baseline hazard function of time $t$, $h_0(t)$, and the individual hazard given their covariates $\bs x_i$ change on the multiplicative scale, mathematically,
+$$
+h(t;\bs x_i) = h_0(t)\exp(\bs \beta^T \bs x_i).
+$$
+To note, intercept term are normally replaced with the baseline hazard function $h_0(t)$.
 
-- Handling intercept term
 
 - Introduce the reparmeterization
 
