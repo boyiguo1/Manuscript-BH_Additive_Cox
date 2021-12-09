@@ -3,8 +3,8 @@
 ## Evaluate the simulation parameters in the R global environment
 ## For the Toy Example
 ## It is equivalent to run
-# n_train <- 1000
-# p <- c(4, 10, 50, 100, 200)[2]
+# n_train <- 200
+# p <- c(4, 10, 50, 100, 200)[1]
 # rho <- c(0, 0.5)[1]
 # pi_cns <- c(0.15, 0.3, 0.4)[1]
 
@@ -116,16 +116,24 @@ cosso_mdl <-  tryCatch({cosso(x = train_dat %>% select(starts_with("X")) %>% dat
                               nbasis = k, scale = F)
 },
 error = function(err) {
-  cosso.mdl <- NULL
+  cosso_mdl <- NULL
   return(NULL)
 }
 )
 
+if(!is.null(cosso_mdl)){
+  cosso_tn_mdl <- tryCatch({
+    tune.cosso(cosso_mdl, plot.it = FALSE)
+  },
+  error = function(err) {
+    return(NULL)
+  }
+  )
+}
 
 
+if(!is.null(cosso_mdl) && !is.null(cosso_tn_mdl)){
 
-if(!is.null(cosso.mdl)){
-  cosso_tn_mdl <-  tune.cosso(cosso_mdl, plot.it = FALSE)
   cosso_train_lp <- predict.cosso(cosso_mdl,
                                   xnew=train_dat %>% select(starts_with("X")) %>% data.matrix,
                                   M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
@@ -151,15 +159,24 @@ acosso_mdl <-  tryCatch({
         wt= wt_mdl, scale = F, nbasis=k)
 },
 error = function(err) {
-  acosso.mdl <- NULL
+  acosso_mdl <- NULL
   return(NULL)
 })
 
+if(!is.null(acosso_mdl)){
+  acosso_tn_mdl <- tryCatch({
+    tune.cosso(acosso_mdl, plot.it = FALSE)
+  },
+  error = function(err) {
+    return(NULL)
+  }
+  )
+}
 
 
 
-if(!is.null(acosso.mdl)){
-  acosso_tn_mdl <- tune.cosso(acosso_mdl, plot.it = FALSE)
+if(!is.null(acosso_mdl) && !is.null(acosso_tn_mdl)){
+
   acosso_train_lp <- predict.cosso(acosso_mdl,
                                    xnew = train_dat %>% select(starts_with("X")) %>% data.matrix,
                                    M = ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "fit")
