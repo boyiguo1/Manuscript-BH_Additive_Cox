@@ -28,6 +28,7 @@ library(cosso)
 library(BhGLM)
 library(BHAM)
 library(survival)
+library(simsurv)
 
 ## Helper Functions
 source("~/Manuscript-BH_Additive_Cox/Sim/Code/find_censor_parameter.R")
@@ -165,7 +166,8 @@ train_smooth_data <- train_sm_dat$data
 
 test_sm_dat <- BHAM::make_predict_dat(train_sm_dat$Smooth, dat = test_dat)
 
-bacox_raw_mdl <- bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
+bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ ., data = data.frame(time = train_dat$time, status = train_dat$status,
+                                                                                       train_smooth_data),
                      prior = mde(), group = make_group(names(train_smooth_data)))
 
 s0_seq <- seq(0.005, 0.1, 0.005)    # TODO: need to be optimized
