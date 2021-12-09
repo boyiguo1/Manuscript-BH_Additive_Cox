@@ -3,7 +3,7 @@
 ## Evaluate the simulation parameters in the R global environment
 ## For the Toy Example
 ## It is equivalent to run
-# n_train <- 100
+# n_train <- 1000
 # p <- c(4, 10, 50, 100, 200)[2]
 # rho <- c(0, 0.5)[1]
 # pi_cns <- c(0.15, 0.3, 0.4)[1]
@@ -32,6 +32,7 @@ library(survival)
 ## Helper Functions
 source("~/Manuscript-BH_Additive_Cox/Sim/Code/find_censor_parameter.R")
 source("~/Manuscript-BH_Additive_Cox/Sim/Code/create_HD_formula.R")
+source("~/Manuscript-BH_Additive_Cox/Sim/Code/make_null_res.R")
 
 
 # Data Generating Process -------------------------------------------------
@@ -90,13 +91,23 @@ mgcv_df <- data.frame(
 
 
 # * mgcv --------------------------------------------------------------------
-mgcv_mdl <- gam(create_HD_formula(time~1, spl_df = mgcv_df), data = train_dat,
+mgcv_mdl <- tryCatch({
+  gam(create_HD_formula(time~1, spl_df = mgcv_df), data = train_dat,
                 family = cox.ph(), weight = status)
+},
+error = function(err) {
+  mgcv_mdl <- NULL
+  return(NULL)
+})
 
-mgcv_train <- measure.cox(Surv(train_dat$time, train_dat$status) , mgcv_mdl$linear.predictors)
-mgcv_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
+mgcv_train <- make_null_res("cox")
+mgcv_test <- make_null_res("cox")
+
+if(!is.null(mgcv_mdl)){
+  mgcv_train <- measure.cox(Surv(train_dat$time, train_dat$status) , mgcv_mdl$linear.predictors)
+  mgcv_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
                          predict(mgcv_mdl, newdata=test_dat, type = "link"))
-
+}
 
 # * COSSO -------------------------------------------------------------------
 cosso_mdl <- cosso(x = train_dat %>% select(starts_with("X")) %>% data.matrix,
