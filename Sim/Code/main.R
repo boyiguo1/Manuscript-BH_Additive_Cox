@@ -94,7 +94,7 @@ mgcv_df <- data.frame(
 # * mgcv --------------------------------------------------------------------
 mgcv_mdl <- tryCatch({
   gam(create_HD_formula(time~1, spl_df = mgcv_df), data = train_dat,
-                family = cox.ph(), weight = status)
+      family = cox.ph(), weight = status)
 },
 error = function(err) {
   mgcv_mdl <- NULL
@@ -107,57 +107,71 @@ mgcv_test <- make_null_res("cox")
 if(!is.null(mgcv_mdl)){
   mgcv_train <- measure.cox(Surv(train_dat$time, train_dat$status) , mgcv_mdl$linear.predictors)
   mgcv_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
-                         predict(mgcv_mdl, newdata=test_dat, type = "link"))
+                           predict(mgcv_mdl, newdata=test_dat, type = "link"))
 }
 
 # * COSSO -------------------------------------------------------------------
-cosso_mdl <- cosso(x = train_dat %>% select(starts_with("X")) %>% data.matrix,
-                   y = train_dat %>% select(time, status) %>% data.matrix, family = "Cox",
-                   nbasis = k, scale = F)
+cosso_mdl <-  tryCatch({cosso(x = train_dat %>% select(starts_with("X")) %>% data.matrix,
+                              y = train_dat %>% select(time, status) %>% data.matrix, family = "Cox",
+                              nbasis = k, scale = F)
+},
+error = function(err) {
+  cosso.mdl <- NULL
+  return(NULL)
+}
+)
 
-cosso_tn_mdl <-  tune.cosso(cosso_mdl, plot.it = FALSE)
 
 
-# if(!is.null(cosso.mdl)){
-cosso_train_lp <- predict.cosso(cosso_mdl,
-                               xnew=train_dat %>% select(starts_with("X")) %>% data.matrix,
-                               M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
-cosso_train <- measure.cox(Surv(train_dat$time, train_dat$status), cosso_train_lp)
 
-cosso_test_lp <- predict.cosso(cosso_mdl,
-                               xnew=test_dat %>% select(starts_with("X")) %>% data.matrix,
-                               M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
-cosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), cosso_test_lp)
+if(!is.null(cosso.mdl)){
+  cosso_tn_mdl <-  tune.cosso(cosso_mdl, plot.it = FALSE)
+  cosso_train_lp <- predict.cosso(cosso_mdl,
+                                  xnew=train_dat %>% select(starts_with("X")) %>% data.matrix,
+                                  M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
+  cosso_train <- measure.cox(Surv(train_dat$time, train_dat$status), cosso_train_lp)
 
-# } else{
-#   cosso_train_msr <- make_null_res(fam_fun$family)
-#   cosso_test_msr <- make_null_res(fam_fun$family)
-# }
+  cosso_test_lp <- predict.cosso(cosso_mdl,
+                                 xnew=test_dat %>% select(starts_with("X")) %>% data.matrix,
+                                 M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
+  cosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), cosso_test_lp)
+
+} else{
+  cosso_train <- make_null_res("cox")
+  cosso_test <- make_null_res("cox")
+}
 
 
 #### Fit ACOSSO Models ####
-acosso_mdl <- {
+acosso_mdl <-  tryCatch({
   wt_mdl <- SSANOVAwt(x = train_dat %>% select(starts_with("X")) %>% data.matrix,
                       y = train_dat %>% select(time, status) %>% data.matrix, family = "Cox", nbasis=k)
   cosso(x = train_dat %>% select(starts_with("X")) %>% data.matrix,
         y = train_dat %>% select(time, status) %>% data.matrix, family = "Cox",
         wt= wt_mdl, scale = F, nbasis=k)
+},
+error = function(err) {
+  acosso.mdl <- NULL
+  return(NULL)
+})
+
+
+
+
+if(!is.null(acosso.mdl)){
+  acosso_tn_mdl <- tune.cosso(acosso_mdl, plot.it = FALSE)
+  acosso_train_lp <- predict.cosso(acosso_mdl,
+                                   xnew = train_dat %>% select(starts_with("X")) %>% data.matrix,
+                                   M = ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "fit")
+  acosso_train <- measure.cox(Surv(train_dat$time, train_dat$status), acosso_train_lp)
+
+  acosso_test_lp <- predict.cosso(acosso_mdl,
+                                  xnew=test_dat %>% select(starts_with("X")) %>% data.matrix,
+                                  M=ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "fit")
+  acosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), acosso_test_lp)
+} else {
+  acosso_train <- acosso_test <- make_null_res("cox")
 }
-
-acosso_tn_mdl <- tune.cosso(acosso_mdl, plot.it = FALSE)
-
-
-# if(!is.null(acosso.mdl)){
-acosso_train_lp <- predict.cosso(acosso_mdl,
-                               xnew = train_dat %>% select(starts_with("X")) %>% data.matrix,
-                               M = ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "fit")
-acosso_train <- measure.cox(Surv(train_dat$time, train_dat$status), acosso_train_lp)
-
-acosso_test_lp <- predict.cosso(acosso_mdl,
-                               xnew=test_dat %>% select(starts_with("X")) %>% data.matrix,
-                               M=ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "fit")
-acosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), acosso_test_lp)
-
 
 # * BHAM ----------------------------------------------------------
 
@@ -167,10 +181,10 @@ train_smooth_data <- train_sm_dat$data
 test_sm_dat <- BHAM::make_predict_dat(train_sm_dat$Smooth, dat = test_dat)
 
 bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ ., data = data.frame(time = train_dat$time, status = train_dat$status,
-                                                                                       train_smooth_data),
-                     prior = mde(), group = make_group(names(train_smooth_data)))
+                                                                           train_smooth_data),
+                         prior = mde(), group = make_group(names(train_smooth_data)))
 
-s0_seq <- seq(0.005, 0.1, 0.005)    # TODO: need to be optimized
+s0_seq <- seq(0.005, 0.1, length.out = 20)    # TODO: need to be optimized
 cv_res <- tune.bgam(bacox_raw_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
 
 s0_min <- cv_res$s0[which.min(cv_res$deviance)]
@@ -192,10 +206,14 @@ bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$eventtime, test_d
 ret <- list(
   train_res = list(
     mgcv = mgcv_train,
+    cosso = cosso_train,
+    acosso = acosso_train,
     bacox = bacox_train
   ),
   test_res = list(
     mgcv = mgcv_test,
+    cosso = cosso_test,
+    acosso = acosso_test,
     bacox = bacox_test
   ),
   p.cen = mean(train_dat$status==0)              # Censoring proportion in training data
