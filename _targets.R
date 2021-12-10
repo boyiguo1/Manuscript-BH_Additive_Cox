@@ -47,6 +47,14 @@ tar_plan(
       select(-c(sim_pi_cns, train, test))
   ),
 
+
+  tar_target(
+    sim_fail_prop,
+    generate_simulation_mdl_failed_rate(sim_pred_measure_raw)
+  ),
+
+  # TODO(boyiguo1): Add function to display which model failed rate
+
   tar_target(
     sim_train_res,
     sim_pred_measure_raw %>%

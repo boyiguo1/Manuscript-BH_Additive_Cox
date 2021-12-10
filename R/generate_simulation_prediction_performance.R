@@ -11,7 +11,8 @@ generate_sim_pred_measure <- function(raw_dat, sec){
       msr_df %>%
         dplyr::summarize(
           across(.fns = list(mean = mean, sd = sd),
-                 .names = "{.col}.{.fn}")
+                 .names = "{.col}.{.fn}",
+                 na.rm = TRUE)
         ) %>%
         tibble(...,
                .)
