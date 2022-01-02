@@ -197,24 +197,43 @@ train_smooth_data <- train_sm_dat$data
 
 test_sm_dat <- BHAM::make_predict_dat(train_sm_dat$Smooth, dat = test_dat)
 
-bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ ., data = data.frame(time = train_dat$time, status = train_dat$status,
-                                                                           train_smooth_data),
-                         prior = mde(), group = make_group(names(train_smooth_data)))
 
-s0_seq <- seq(0.005, 0.1, length.out = 20)    # TODO: need to be optimized
-cv_res <- tune.bgam(bacox_raw_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
+#** bmlasso -----------------------------------------------------------------
+bamlasso_raw_mdl <- bamlasso( x = train_smooth_data, y = Surv(train_dat$time, event = train_dat$status),
+                 family = "cox", group = make_group(names(train_smooth_data)),
+            ss = c(0.04, 0.5))
 
-s0_min <- cv_res$s0[which.min(cv_res$deviance)]
+blasso_s0_seq <- seq(0.005, 0.1, length.out = 20)    # TODO: need to be optimized
+blasso_cv_res <- tune.bgam(bamlasso_raw_mdl, nfolds = 5, s0= blasso_s0_seq, verbose = FALSE)
 
-bacox_mdl <- bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
-                     prior = mde(s0 = s0_min), group = make_group(names(train_smooth_data)))
+blasso_s0_min <- blasso_cv_res$s0[which.min(blasso_cv_res$deviance)]
+bamlasso_mdl <- bamlasso( x = train_smooth_data, y = Surv(train_dat$time, event = train_dat$status),
+                          family = "cox", group = make_group(names(train_smooth_data)),
+                          ss = c(blasso_s0_min, 0.5))
+
+bamlasso_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bamlasso_mdl$linear.predictors)
+bamlasso_test <- measure.bh(bamlasso_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
+
+
+#** Bacox ----------------------------------------------------------
+# bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ ., data = data.frame(time = train_dat$time, status = train_dat$status,
+#                                                                            train_smooth_data),
+#                          prior = mde(), group = make_group(names(train_smooth_data)))
+#
+# s0_seq <- seq(0.005, 0.1, length.out = 20)    # TODO: need to be optimized
+# cv_res <- tune.bgam(bacox_raw_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
+#
+# s0_min <- cv_res$s0[which.min(cv_res$deviance)]
+#
+# bacox_mdl <- bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
+#                      prior = mde(s0 = s0_min), group = make_group(names(train_smooth_data)))
 
 
 
-bacox_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bacox_mdl$linear.predictors)
+# bacox_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bacox_mdl$linear.predictors)
 # bacox_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
 #                          predict(mgcv_mdl, newdata=test_dat, type = "link"))
-bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
+# bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
 
 # Save Simulation Results -------------------------------------------------
 
@@ -225,13 +244,15 @@ ret <- list(
     mgcv = mgcv_train,
     cosso = cosso_train,
     acosso = acosso_train,
-    bacox = bacox_train
+    # bacox = bacox_train,
+    bamlasso = bamlasso_train
   ),
   test_res = list(
     mgcv = mgcv_test,
     cosso = cosso_test,
     acosso = acosso_test,
-    bacox = bacox_test
+    # bacox = bacox_test,
+    bamlasso = bamlasso_test
   ),
   p.cen = mean(train_dat$status==0)              # Censoring proportion in training data
 )

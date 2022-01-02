@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --share
-#SBATCH --partition=express
+#SBATCH --partition=short
 #
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
