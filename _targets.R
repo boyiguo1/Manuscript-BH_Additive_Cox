@@ -5,7 +5,7 @@ options(tidyverse.quiet = TRUE)
 
 tar_option_set(
   packages = c("tidyverse", "knitr", "rmarkdown",
-               "simsurv",
+               "ggplot2", "simsurv",
                "unglue")
 )
 
@@ -67,7 +67,17 @@ tar_plan(
       generate_sim_pred_measure("test")
   ),
 
-# ,
+  # Tabulate Simulation Results
+  tar_target(
+    sim_test_tab,
+    tab_sim_res(sim_test_res)
+  ),
+
+  # Visualize Simulation Results
+  tar_target(
+    sim_test_viz,
+    viz_sim_res(sim_test_res)
+  ),
 
 # Manuscript --------------------------------------------------------------
 #* Section Paths ####
