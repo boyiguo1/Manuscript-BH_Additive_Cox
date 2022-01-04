@@ -1,22 +1,47 @@
 viz_sim_res <- function(dat, sec = c("deviance", "Cindex")){
-  browser()
+  # browser()
 
-  if(length(sec)>1) sec <- "deviance"
+  if(length(sec)>1) sec <- sec[1]
   dat %>%
     select(starts_with("sim_prmt"), contains({{sec}})) %>%
-    pivot_longer(cols = contains({{sec}})) %>%
-    filter(str_ends(name, ".mean")) %>%
+    pivot_longer(
+      cols = ends_with(c(".mean", ".sd")),
+      names_to = c("method", "measure"),
+      names_pattern = "([a-z]*)\\.[a-z]*\\.([a-z]*)",
+      values_to = "value"
+    ) %>%
+    pivot_wider(
+      names_from = "measure"
+    ) %>%
+    rename_with(.fn = str_remove, pattern = "sim_prmt.", .cols = starts_with("sim_prmt")) %>%
+    # pivot_longer(cols = contains({{sec}})) %>%
+    # mutate(name = str_remove(name, paste0(".",sec))) %>%
+    # pivot_wider()
+    # filter(str_ends(name, ".mean")) %>%
+    mutate(
+      method = factor(method,
+                    levels = c("mgcv", "cosso", "acosso", "bacox", "bamlasso")),
+      rho = factor(rho)
+    ) %>%
     ggplot(#data = binom_total_dat,
-      aes(x = name, y = value)) +
-    geom_point() +
-    # geom_violin() +
-    # geom_boxplot() +
-    theme(axis.text.x = element_text(angle = 45))+
+      aes(x = method, y = mean,
+        color=rho)) +
+    # geom_jitter(aes(color=factor(sim_prmt.rho)))+
+    geom_point(
+               position = position_dodge(0.5)) +
+    geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                  position=position_dodge(.5))+
+  # geom_violin() +
+  # geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90)) +
     # coord_flip() +
-    facet_grid(cols = vars(sim_prmt.p),
-               rows= vars(simprmt.pi_cns))
-# })
+    facet_grid(
+      cols = vars(p),
+      rows= vars(pi_cns)
+    ) +
+    labs(title = paste0("Simulaiton Restuls (",sec, ")"),
+         caption = "Error bar means 1 standard deviation")+
+    xlab(sec)
 
-ggarrange(plotlist = tmp, ncol = 1)
 
 }
