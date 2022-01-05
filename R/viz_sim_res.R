@@ -7,7 +7,7 @@ viz_sim_res <- function(dat, sec = c("deviance", "Cindex")){
     pivot_longer(
       cols = ends_with(c(".mean", ".sd")),
       names_to = c("method", "measure"),
-      names_pattern = "([a-z]*)\\.[a-z]*\\.([a-z]*)",
+      names_pattern = "([a-z]*)\\.[a-zA-Z]*\\.([a-z]*)",
       values_to = "value"
     ) %>%
     pivot_wider(

@@ -53,8 +53,6 @@ tar_plan(
     generate_simulation_mdl_failed_rate(sim_pred_measure_raw)
   ),
 
-  # TODO(boyiguo1): Add function to display which model failed rate
-
   tar_target(
     sim_train_res,
     sim_pred_measure_raw %>%
@@ -67,16 +65,43 @@ tar_plan(
       generate_sim_pred_measure("test")
   ),
 
+  tar_target(
+    metrics,
+    c("deviance", "Cindex")
+  ),
+
+
+  # Tabulate Simulation Results
+  tar_target(
+    sim_train_tab,
+    tab_sim_res(sim_train_res, sec = metrics),
+    pattern = map(metrics),
+    iteration = "list"
+  ),
+
+  # Visualize Simulation Results
+  tar_target(
+    sim_train_viz,
+    viz_sim_res(sim_train_res, sec = metrics),
+    pattern = map(metrics),
+    iteration = "list"
+  ),
+
+
   # Tabulate Simulation Results
   tar_target(
     sim_test_tab,
-    tab_sim_res(sim_test_res)
+    tab_sim_res(sim_test_res, sec = metrics),
+    pattern = map(metrics),
+    iteration = "list"
   ),
 
   # Visualize Simulation Results
   tar_target(
     sim_test_viz,
-    viz_sim_res(sim_test_res)
+    viz_sim_res(sim_test_res, sec = metrics),
+    pattern = map(metrics),
+    iteration = "list"
   ),
 
 # Manuscript --------------------------------------------------------------
