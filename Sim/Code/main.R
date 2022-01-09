@@ -252,14 +252,14 @@ ret <- list(
     mgcv = mgcv_train,
     cosso = cosso_train,
     acosso = acosso_train,
-    # bacox = bacox_train,
+    bacox = bacox_train,
     bamlasso = bamlasso_train
   ),
   test_res = list(
     mgcv = mgcv_test,
     cosso = cosso_test,
     acosso = acosso_test,
-    # bacox = bacox_test,
+    bacox = bacox_test,
     bamlasso = bamlasso_test
   ),
   p.cen = mean(train_dat$status==0)              # Censoring proportion in training data
