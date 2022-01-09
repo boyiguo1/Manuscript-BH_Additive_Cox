@@ -31,7 +31,7 @@ library(survival)
 library(simsurv)
 
 ## Helper Functions
-source("~/Manuscript-BH_Additive_Cox/Sim/Code/find_censor_parameter.R")
+# source("~/Manuscript-BH_Additive_Cox/Sim/Code/find_censor_parameter.R")
 source("~/Manuscript-BH_Additive_Cox/Sim/Code/create_HD_formula.R")
 source("~/Manuscript-BH_Additive_Cox/Sim/Code/make_null_res.R")
 
@@ -47,36 +47,38 @@ it <- Sys.getenv('SLURM_ARRAY_TASK_ID') %>% as.numeric
 set.seed(it)
 
 # * Generate Data -------------------------------------------------
-x_all <- MASS::mvrnorm(n_train+n_test, rep(0, p), AR(p, rho)) %>%
-  data.frame
-eta_all <- with(x_all, f_1(X1) + f_2(X2) + f_3(X3) + f_4(X4))
-dat_all <- simsurv::simsurv(dist = "weibull",
-                            lambdas = scale.t,
-                            gammas = shape.t,
-                            x = data.frame(eta = eta_all) ,
-                            beta = c(eta = 1)) %>%
-  data.frame( x_all, eta = eta_all, .)
+x_all <- sim.x(n=n_total, m=p, corr=rho)
+yy <-  sim.y(x = x_all[, 1:4], mu = 0, coefs = c(0.214, 0.261, -0.296, -0.422))
+
+
+dat_all <- with(data = yy,
+                data.frame(x_all,
+                           eta = eta,
+                           time = y.surv[,"time"], status = y.surv[, "status"])
+)
+
+
 
 train_dat <- dat_all[1:n_train, ]
 test_dat <- dat_all[(n_train+1):n_total, ]
 
 
 ## Censoring Distribution, Weibull(alpha.c, scale.p)
-scale.p <- find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t),
-                                 pi.cen = pi_cns,
-                                 shape_hazard = shape.t, shape_censor = shape.c)
-
-train_dat <-  train_dat %>%
-  data.frame(
-    c_time = rweibull(n = n_train, shape = shape.c, scale = scale.p)
-  ) %>%
-  mutate(
-    cen_ind = (c_time < eventtime),
-    status = (!cen_ind)*1
-  ) %>%
-  rowwise() %>%
-  mutate(time = min(c_time, eventtime)) %>%
-  ungroup()
+# scale.p <- find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t),
+#                                  pi.cen = pi_cns,
+#                                  shape_hazard = shape.t, shape_censor = shape.c)
+#
+# train_dat <-  train_dat %>%
+#   data.frame(
+#     c_time = rweibull(n = n_train, shape = shape.c, scale = scale.p)
+#   ) %>%
+#   mutate(
+#     cen_ind = (c_time < eventtime),
+#     status = (!cen_ind)*1
+#   ) %>%
+#   rowwise() %>%
+#   mutate(time = min(c_time, eventtime)) %>%
+#   ungroup()
 
 
 
@@ -85,7 +87,7 @@ train_dat <-  train_dat %>%
 
 # * Spline Specification --------------------------------------------------
 mgcv_df <- data.frame(
-  Var = grep("X", names(train_dat), value = TRUE),
+  Var = grep("x", names(train_dat), value = TRUE),
   Func = "s",
   Args = paste0("bs='cr', k=", k)
 )
@@ -106,7 +108,7 @@ mgcv_test <- make_null_res("cox")
 
 if(!is.null(mgcv_mdl)){
   mgcv_train <- measure.cox(Surv(train_dat$time, train_dat$status) , mgcv_mdl$linear.predictors)
-  mgcv_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
+  mgcv_test <- measure.cox(Surv(test_dat$time, test_dat$status),
                            predict(mgcv_mdl, newdata=test_dat, type = "link"))
 }
 
@@ -142,7 +144,7 @@ if(!is.null(cosso_mdl) && !is.null(cosso_tn_mdl)){
   cosso_test_lp <- predict.cosso(cosso_mdl,
                                  xnew=test_dat %>% select(starts_with("X")) %>% data.matrix,
                                  M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
-  cosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), cosso_test_lp)
+  cosso_test <- measure.cox(Surv(test_dat$time, test_dat$status), cosso_test_lp)
 
 } else{
   cosso_train <- make_null_res("cox")
@@ -185,7 +187,7 @@ if(!is.null(acosso_mdl) && !is.null(acosso_tn_mdl)){
   acosso_test_lp <- predict.cosso(acosso_mdl,
                                   xnew=test_dat %>% select(starts_with("X")) %>% data.matrix,
                                   M=ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "fit")
-  acosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), acosso_test_lp)
+  acosso_test <- measure.cox(Surv(test_dat$time, test_dat$status), acosso_test_lp)
 } else {
   acosso_train <- acosso_test <- make_null_res("cox")
 }
@@ -214,7 +216,7 @@ bamlasso_mdl <- bamlasso( x = train_smooth_data, y = Surv(train_dat$time, event 
                           ss = c(blasso_s0_min, 0.5))
 
 bamlasso_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bamlasso_mdl$linear.predictors)
-bamlasso_test <- measure.bh(bamlasso_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
+bamlasso_test <- measure.bh(bamlasso_mdl, test_sm_dat, Surv(test_dat$time, test_dat$status))
 
 
 #** Bacox ----------------------------------------------------------
@@ -236,9 +238,9 @@ bacox_mdl <- bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_sm
 
 if(!is.null(bacox_mdl) ){
   bacox_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bacox_mdl$linear.predictors)
-  # bacox_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
+  # bacox_test <- measure.cox(Surv(test_dat$time, test_dat$status),
   #                          predict(mgcv_mdl, newdata=test_dat, type = "link"))
-  bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
+  bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$time, test_dat$status))
 } else {
   bacox_train <- bacox_test <- make_null_res("cox")
 }
@@ -252,14 +254,14 @@ ret <- list(
     mgcv = mgcv_train,
     cosso = cosso_train,
     acosso = acosso_train,
-    # bacox = bacox_train,
+    bacox = bacox_train,
     bamlasso = bamlasso_train
   ),
   test_res = list(
     mgcv = mgcv_test,
     cosso = cosso_test,
     acosso = acosso_test,
-    # bacox = bacox_test,
+    bacox = bacox_test,
     bamlasso = bamlasso_test
   ),
   p.cen = mean(train_dat$status==0)              # Censoring proportion in training data
@@ -269,4 +271,4 @@ ret <- list(
 job_name <- Sys.getenv('SLURM_JOB_NAME')
 # Recommendation: to save the results in individual rds files
 saveRDS(ret,
-        paste0("/data/user/boyiguo1/bcam/Res/", job_name,"/it_",it,".rds"))
+        paste0("/data/user/boyiguo1/bcam/Res_linr/", job_name,"/it_",it,".rds"))

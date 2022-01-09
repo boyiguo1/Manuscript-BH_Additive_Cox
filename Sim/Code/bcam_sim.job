@@ -24,8 +24,8 @@ module load GLPK
 
 # Create a directory to store your log files
 # Import to debuging
-resPath=/data/user/boyiguo1/bcam/Res/$SLURM_JOB_NAME/
-logPath=/data/user/boyiguo1/bcam/Log/$SLURM_JOB_NAME/
+resPath=/data/user/boyiguo1/bcam/Res_linr/$SLURM_JOB_NAME/
+logPath=/data/user/boyiguo1/bcam/Log_linr/$SLURM_JOB_NAME/
 mkdir -p $logPath $resPath
 
 # Run simulation with simulation parameters using R batch --args flag
