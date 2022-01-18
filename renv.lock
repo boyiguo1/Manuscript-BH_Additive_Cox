@@ -17,9 +17,9 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "boyiguo1",
       "RemoteRepo": "BHAM",
-      "RemoteRef": "21778c0",
-      "RemoteSha": "21778c06176f6685666ffb462817fd787ef063cc",
-      "Hash": "7f0eb8e6688ea299235070ee19502917"
+      "RemoteRef": "0abdcaa",
+      "RemoteSha": "0abdcaa43cce7eb565f67f92765cca45c37e0183",
+      "Hash": "301c2d3b29d74ce7f7fe5c02f261cbf9"
     },
     "BhGLM": {
       "Package": "BhGLM",
