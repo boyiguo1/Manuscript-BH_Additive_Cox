@@ -22,7 +22,7 @@ tar_plan(
   # Simulation --------------------------------------------------------------
   tar_files(
     sim_res_path,
-    list.files("/data/user/boyiguo1/bcam/Res",
+    list.files("/data/user/boyiguo1/bcam/Res_linr",
                full.names = TRUE)
   ),
 
