@@ -5,8 +5,8 @@
 ## It is equivalent to run
 # n_train <- 200
 # p <- c(4, 10, 50, 100, 200)[1]
-# rho <- c(0, 0.5)[1]
-# pi_cns <- c(0.15, 0.3, 0.4)[1]
+# rho <- c(0, 0.5)[2]
+# pi_cns <- c(0.15, 0.3, 0.4)[2]
 
 args=(commandArgs(TRUE))
 
@@ -40,6 +40,8 @@ source("~/Manuscript-BH_Additive_Cox/Sim/Code/make_null_res.R")
 # * Simulation Parameters -------------------------------------------------
 source("~/Manuscript-BH_Additive_Cox/Sim/Code/sim_pars_funs.R")
 
+## Job Name
+job_name <- Sys.getenv('SLURM_JOB_NAME')
 
 ## Use Array ID as random seed ID
 it <- Sys.getenv('SLURM_ARRAY_TASK_ID') %>% as.numeric
@@ -61,14 +63,32 @@ train_dat <- dat_all[1:n_train, ]
 test_dat <- dat_all[(n_train+1):n_total, ]
 
 
-## Censoring Distribution, Weibull(alpha.c, scale.p)
-scale.p <- find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t),
-                                 pi.cen = pi_cns,
-                                 shape_hazard = shape.t, shape_censor = shape.c)
+## Censoring Distribution, Weibull(shape.c, scale.c)
+scale.c <- tryCatch({
+  find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t),
+                        pi.cen = pi_cns,
+                        shape_hazard = shape.t, shape_censor = shape.c)
+  },
+  error = function(err) {
+    if(!file.exists("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS"))
+      stop("Please Generate scale_vec, and use 'R/calculate_scales' to generates scale_vec.RDS")
+    scale_vec <- readRDS("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS")
+    scale.c <- scale_vec[[job_name]]
+    if(is.null(scale.c)) stop("No scale for this scenario")
+    return(scale.c)
+  })
+
+
+
+# Save Scale Parameter ----------------------------------------------------
+# TODO: if you need to generate scale vector, please uncomment the following two line
+# saveRDS(scale.c,
+#         paste0("/data/user/boyiguo1/bcam/scale/", job_name,"/it_",it,".rds"))
+
 
 train_dat <-  train_dat %>%
   data.frame(
-    c_time = rweibull(n = n_train, shape = shape.c, scale = scale.p)
+    c_time = rweibull(n = n_train, shape = shape.c, scale = scale.c)
   ) %>%
   mutate(
     cen_ind = (c_time < eventtime),
@@ -218,7 +238,7 @@ bamlasso_test <- measure.bh(bamlasso_mdl, test_sm_dat, Surv(test_dat$eventtime, 
 
 
 #** Bacox ----------------------------------------------------------
-bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ .,
+bacox_mdl <- tryCatch({bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ .,
                          data = data.frame(time = train_dat$time, status = train_dat$status,
                                            train_smooth_data),
                          prior = mde(), group = make_group(names(train_smooth_data)),
@@ -229,9 +249,14 @@ bacox_cv_res <- tune.bgam(bacox_raw_mdl, nfolds = 5, s0= bacox_s0_seq, verbose =
 #
 bacox_s0_min <- bacox_cv_res$s0[which.min(bacox_cv_res$deviance)]
 #
-bacox_mdl <- bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
+bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
                      prior = mde(s0 = bacox_s0_min), group = make_group(names(train_smooth_data)),
                      method.coef = make_group(names(train_smooth_data)))
+},
+error = function(err) {
+  return(NULL)
+})
+
 
 
 if(!is.null(bacox_mdl) ){
@@ -245,7 +270,6 @@ if(!is.null(bacox_mdl) ){
 
 # Save Simulation Results -------------------------------------------------
 
-## TODO: Record Prediction Results
 # Overall
 ret <- list(
   train_res = list(
@@ -262,11 +286,11 @@ ret <- list(
     bacox = bacox_test,
     bamlasso = bamlasso_test
   ),
+  # scale.c = scale.c,                             # The scale parameter
   p.cen = mean(train_dat$status==0)              # Censoring proportion in training data
 )
 
 
-job_name <- Sys.getenv('SLURM_JOB_NAME')
 # Recommendation: to save the results in individual rds files
 saveRDS(ret,
         paste0("/data/user/boyiguo1/bcam/Res/", job_name,"/it_",it,".rds"))
