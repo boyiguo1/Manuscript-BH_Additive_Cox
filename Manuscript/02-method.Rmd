@@ -20,3 +20,109 @@ $$
 where $\bs X_j \equiv \begin{bmatrix} X_j^0 : \bs X_j^{\tp} \end{bmatrix}$ as the basis function matrix for the $j$th variable; the coefficients $\bs \beta_j \equiv \begin{bmatrix} \beta_j : \bs \beta^\tp_j \end{bmatrix}$ is an augmentation of the coefficient scalar $\beta_j$ of linear space and the coefficient vector $\bs \beta^\tp_j$ of non-linear space.
 
 - Display the new formulation
+
+
+
+
+## Cox Proportional Hazard Model
+
+
+
+Following @Gray1992, we can express the proportional hazards model as
+$$
+\lambda(t|x_i) = \lambda_0(t)\exp\left[\bm X_i^T \bm \beta\right],
+$$
+where $\lambda_0(t)$ is an unspecified underlying hazard function. Hence the log-partial likelihood for the model is
+$$
+pl(\beta) = \sum\limits^n_{i=1}d_i\log(\frac{\exp(X_i \beta)}{\sum\limits_{j \in R(t_i)}\exp(X_j\beta)}), 
+$$
+where $R(t_i)$ is the risk set at time $t_i$.
+
+With the 'likelihood' function set up, we further impose the spike-and-slab spline priors on the vector of coefficients $\bm \beta$. The spike-and-slab spline priors are similar as introduced in the Chapter 3, where the coefficients independently follow a mixture distribution of normal distributions or $t$ distributions or double exponential distributions. For simplicity, we introduce the the mixture normal prior distribution. We defer the generalization to the mixture $t$ or mixture double exponential distribution to the following sections. A spike-and-slab normal distribution can be formulated as 
+$$ \beta_{jk} |\gamma_{jk},s_0,s_1 \sim N(0,(1-\gamma_{jk}) s_0 + \gamma_{jk} s_1), s_1 > s_0 > 0$$,
+Where $\gamma_{jk}$ is a latent indicator variable, taking value of 0 and 1; $s_0$ and $s_1$ are scale parameters, assuming given. Thus the prior is a mixture of the shrinkage prior normal(0, $s_0$) and the weakly informative prior normal(0, $s_1$), which are spike and slab components, respectively. Like any other spike and slab priors, the spike is to contain the minimum to zero effects, while the slab is to allow large effects. The scale parameters $s_0$ and $s_1$ are also considered as tuning parameters, which can be optimized via cross-validation. A discussion of how to choose the scale parameters comes later.
+
+We specify the distribution of indicator variables by incorporating the inherent group structure of basis functions. For the bases of the variable $j$, the indicator variables are assume to follow the binomial distribution with a probability spline-specific  probability $\theta_j$:
+$$
+\gamma_{jk} | \theta_j \sim Bin(\gamma_{jk}|1, \theta_j).
+$$
+This is to leverage the fact that the probability of selecting the bases of a smooth function should be similar, while allowing different degree of shrinkage for the bases. It is possible to set the indicator the same for all the bases, which is previously mentioned in Yang & Narisetty (2020) and Bai (Work in progress). Such prior set-ups ignore the null space of the smooth function, and entirely removes the variable out of the function. In contrasts, it is not problematic in our prior set up, as that the penalty for smoothness is locally adaptive for the bases and hence retain the the null space if necessary. 
+
+We further specify the parameter $\theta_j$ follows a beta distribution with given shape parameters $a$ and $b$,
+$$
+\theta_j \sim Beta(a, b).
+$$
+ The beta distribution is a conjugate prior for the binomial distribution and hence provides some computation convenience. Specifically, we focus on a special case of beta distribution, uniform (0,1) for simplicity and convenience. To note, when the variable have large effects in any of the bases, the parameter $\theta_j$ will be estimated large, which in turn encourages the model to include the rest of bases. The smoothness of each spline function will be further estimated via the individual $\gamma_jk$. Hereafter, we refer the hierarchical spline Cox Model with the group spike-and-slab mixture normal prior as the ss-Cox Spline Model.
+
+ \  
+
+## Alforithm for fitting ss Cox Spline Models
+
+Parsimonious computation is always encouraged in high-dimension data analysis. Bayesian methodology loses its advantages over Frequentest penalized model because of the computation cost. Previous Bayesian spline models heavily relies on the MCMC algorithm to establish posterior distribution of parameters. One of the exception is Bai (in progress), who took advantages of the fast computing EMVS algorithm and extended to the non-Gaussian GAM settings. He focused on the maximum a postiori (MAP) estimator of the parameters. While Bai's algorithm is fast, it lacks the ability to provide uncertainty measure of the estimates. 
+
+We develop a fast deterministic algorithm to fit the ss-Cox model. The algorithm is an extension of the previously proposed EM-IRLS. It incorporates the IRLS algorithm
+into the EM steps to iteratively find the MAP estimates. Thanks to the versatility of IRLS algorithm, the proposed algorithm can dealt with many family of outcomes. Also, the proposed can work not only for the prior previously mentioned, but also some modified priors, for example mixed double exponential.
+
+Recall the mixture normal prior set-up described , we have the prior densities,
+$$
+\begin{aligned}
+p(\bm \beta | \bm\gamma) &\propto \prod\limits_{j=1}^{p}\prod\limits_{k=1}^{K_j}((1-\gamma_{jk}) s_0 + \gamma_{jk} s_1)^{-1/2}\exp(-1/2(\beta_{jk}^2/((1-\gamma_{jk}) s_0 + \gamma_{jk} s_1)))\\
+p(\bm\gamma | \bm \theta) & = \prod\limits_{j=1}^{p}\prod\limits_{k=1}^{K_j} \theta_j^{\gamma_{jk}} (1-\theta_j)^{1-\gamma_{jk}}.
+\end{aligned}
+$$
+
+We define the parameters of interest as $\Theta = {\bm \beta, \bm \theta, \phi}$. The log posterior density of $\Theta$ requires a slight modification from the The log-posterior for ss-Cox model (up to additive constants). The log likelihood function needs to be replaced by the log partial likelihood function. The log density is still expressed with a two-part equation, which can be maximized separately,
+
+$$ \log p(\Theta, \bm \gamma| \textbf{y}, \textbf{X}) = Q_1(\beta, \phi) + Q_2 (\gamma,\theta),$$
+Where
+$$ Q_1(\bm \beta, \phi) = \log pl(\textbf{y}|\bm \beta, \phi) + \log p(\phi) + \sum\limits_{j=1}^p\sum\limits_{k=1}^{K_j} \log p(\beta_{jk}|\gamma_{jk})$$
+and $$
+Q_2(\delta,\theta) = \sum\limits_{j=1}^{p}\sum\limits_{k=1}^{K_j} \left[ \gamma_{jk}\log \theta_j + (1-\gamma_{jk}) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log p(\theta_j) .$$
+The partial log-likelihood $pl(\beta)$ can also be substitute by the Breslow or the Effron approximation in the presence of ties., and the baseline hazard function $\lambda_0$ is replaced by the Breslow estimator.
+
+Similar to the ssGAMs, we need to calculate the expecataion of the $Q_1$ and $Q_2$ with respect to the missing data $\gamma_{jk}|\Theta^{t-1}$, which yields the same estimation,
+$$
+\begin{aligned}
+E(Q_1) &= \log p(\textbf{y}|\bm \beta, \phi) + \log p(\phi) + \sum\limits_{j=1}^p\sum\limits_{k=1}^{K_j}E(S^{-1}_{jk})\beta_{jk}^2\\
+
+E(Q_2) &= \sum\limits_{j=1}^{p}\sum\limits_{k=1}^{K_j} \left[ E(\gamma_{jk})\log \theta_j + (1-E(\gamma_{jk})) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log p(\theta_j)
+\end{aligned}
+$$
+where 
+$$
+E(\gamma_{jk}) = p_{jk} = \frac{Pr(\gamma_{jk} = 1|\theta_j)f(\beta_{jk}|\gamma_{jk}=1, s_1) }{Pr(\gamma_{jk} = 1|\theta_j)f(\beta_{jk}|\gamma_{jk}=1, s_1) + Pr(\gamma_{jk} = 0|\theta_j)f(\beta_{jk}|\gamma_{jk}=0, s_0)}
+$$
+$$
+E(S^{-1}_{jk}) = \frac{1-p_{jk}}{2s_0} + \frac{p_{jk}}{2s_1}.
+$$
+We can see that the estimates of $\gamma_jk, S^{-1}_{jk}$ are larger for larger coefficients $\beta_{jk}$, leading to different shrinkage for different coefficients. Moreover, to note that, we have different shrinkage $S^{-1}_{jk}$for the coefficients $\beta_{jk}$ of the variable $x_j$, and hence, we can penalize the null space of the spline differently and allow local adaption.
+
+In the M-step, $\bm \beta, \phi$ and $\bm \theta$ can be maximized respectively via $E(Q_1)$ and $E(Q_2)$ as $Q_1$ and $Q_2$ are functions contain either $\bm \beta$ or $\bm \theta$. Therefore, the coefficients $\bm \beta$ are updated by maximizing $E(Q_1)$, where $E(Q_1)$ can be treated as $L_2$ penalized likelihood function. Such maximization can be easily achieved with IRLS. The disperse parameter $\phi$ is updated if applicable. Meanwhile, the probability parameters $\bm \theta$ are updated by maximizing $E(Q_2)$. As the beta distribution is a conjugate prior for Bernoulli distribution, $\bm \theta$ can be easily updated with a closed form equation:
+$$
+\theta_j = \frac{\sum\limits_{k = 1}^{K_j}p_{jk} + a - 1 }{K_j + a + b -2}.
+$$
+The last step is
+
+Totally, the framework of the proposed EM IRLS algorithm was summarized as follows:
+
+1) Choose a starting value $\bm \beta^0$ and $\bm \theta^0$ for $\bm \beta$ and $\bm \theta$. For example, we can initialize $\bm \beta^0 = \bm 0$ and $\bm \theta^0 = \bm 0.5$
+
+2) Iterate over the E-step and M-step until convergence
+
+E-step: calculate $E(\gamma_{jk})$ and $E(S^{-1}_{jk})$ with estimates of $\Theta$ from previous iteration
+
+M-step:
+
+a) Update $\bm \beta$ using the IRLS algorithm
+
+b) Update $\bm \theta$ using the closed form equation
+
+We assess convergence by the criterion:
+$|d^{(t)}-d^{(t-1)}|/(0.1+|d^{(t)}|)<\epsilon$, where
+$d^{(t)} = -2l(\beta^{(t)},\phi^{(t)})$ is the estimate of deviance at
+the $t^{\text{th}}$ iteration, and $\epsilon$ is a small value (say
+$10^{-5}$).
+
+
+### Other Mixture Priors and Algorithm
+Other mixture prior can be applied to the Cox Spline model, for example the mixture $t$ distribution and the mixture double exponential distribution, for either more smooth spline functions or more sparse model. The modifications requires to the accommodate the two priors are minimum. The mixture $t$ distribution can be expressed as a mixture normal distribution with additional hyper prior on the variance and can be directly plug into the IRLS estimation in the EM algorithm. The double exponential distribution can lead to the posterior likelihood in the form of a $l_1$ penalized likelihood function where the coordinate descent algorithm can be applied for coefficients estimation. 
