@@ -1,5 +1,42 @@
 # Cox Proportional Hazard Additive Model
 
+## Notation
+## Survival Analysis
+While GAMs addressed most of common type of outcomes, there is still one piece of puzzle left out, survival analysis. Survival analysis models the distribution of time to an event of interest while considering the loss of information due to un-informative censoring. We defer to @Klein2003,  @Ibrahim2001 for in-depth survey of the topic.  Among many proposed methods for survival analysis, the most popular one is Cox proportional hazards model. For the $i$th individual, a tuple of three exists ${t_i, d_i, \bm x_i}$, where $\bm x_i$ is a vector of covariates. In addition, the survival time $t_i$ and the censoring indicator $d_i$ are recorded, where $d_i$ takes the value 1 when censoring happens at the survival time $y_i$, and takes the value 0 when the event of interest happens. The Cox proportional hazard model is formulated as 
+$$
+h(t|\bm x) = h_0(t)exp(\bm x \bm \beta),
+$$
+where $h(t)$ is the hazard function and $h_0(t)$ is the baseline hazard function. The hazard function $h(t)$ describes the instantaneous rate of event occurrence among people who are still at risk at the moment. It has a one-to-one relationship with the survival function, which describes the distribution of event time. The linear predictor $\bm x \bm \beta$ is also called the __prognostic index__. To be noted, different from GLMs, there is no intercept term necessary in the design matrix $\bm x$, as the baseline hazard function $h_0(t)$ estimates an reference level of survival risk. The baseline hazard function indeed changes when additional measure were taken fro the design matrix, such as centering and scaling, while the coefficients $\bm x$ remain unchanged.
+
+Unlike the GLM, the estimation for the coefficients $\bm \beta$ doesn't directly maximize log likelihood due to the functional nature of survival analysis. The likelihood function of the censored survival data can be expressed as 
+$$
+L(\beta, h_0) = \prod\limits^n_{i=0}[h(t_i)]^{d_i}S(t_i).
+$$
+The log-likelihood function for the cox proportional hazard model can be derived as
+$$
+l(\beta, h_0) = \sum^n_{i=1}[-H_0(t_i)exp(X_i\beta) + d_i(log h_o(t_i) + X_i\beta)]
+$$
+Given $H_0(t) = \sum\limits_{t_i\leq t}h_0(t_i)$, the log-likelihood function can be reformulated as
+$$
+l(\beta, h_0) = \sum^n_{i=1}[-h_0(t_i)\sum\limits_{i^\prime \in R(t_i)}exp(X_{i^\prime}\beta) + d_i(log h_o(t_i) + X_i\beta)],
+$$
+where $R(t_i)$ is the risk set at time $t_i$, i.e. the set of all patients who still survived prior to time $t_i$. Conditional on $\beta$, the baseline hazard function $h_0(t_i)$ can be estimated using Breslow estimator (Breslow 1974),
+$$
+\hat h_0(t_i|\beta) = d_i/\sum\limits_{i^\prime \in R(t_i)} exp(X_{i^\prime}\beta).
+$$
+The resulting log-likelihood can be simplified to the partial log-likelihood(Cox 1972)
+$$
+pl(\bm \beta) = \sum\limits^n_{i=1}d_i\log\frac{\exp{\bm x_i \bm \beta}}{\sum_{j\in R(t_i)} \exp(\bm x_j \bm \beta)},
+$$
+where $R(t_i)$ denotes the risk set at time $t_i$. By maximizing the partial log-likelihood function, the coefficient vector can be estimated. When tied failure or censoring time exists, a modified partial log-likelihood function can be used [@Efron1977]. 
+
+Recent years, there are much attention on incorporating splines in survival models, i.e. survival spline models. The topic is greatly discussed in the epidemiology literature in the context of dose-response analysis [@Steenland2004]. The application of spline in the Cox proportional hazard model is not complicated. 
+$$
+h(t|\bm x) = h_0(t)exp(a + \sum\limits^p_{j=1}f_j(x_j)),\qquad E[f_j(x_j)] = 0.
+$$
+While the smoothing spline is constructed matrix form, the Cox proportional hazard model can take the smooth spline as the part of the design matrix. Estimation of the coefficients follows the estimation process in the original Cox proportional hazard model. When penalized spline is used, a penalized partial likelihood can be used to estimate. Govindarajulu and her group provided comparison of smoothing methods with Cox models use real world data [@Govindarajulu2007] and synthetic data [@Govindarajulu2009]. To the best of our knowledge, there are not a lot of research done on expanding survival spline model to high-dimensional setting.
+
+
 For each individual in the datasets, we collect the the covariate variables $\bs X_i = (X_{i1}, \dots, X_{ip}) \in \mathbb{R}^{p}$ and the survival outcome $(T_i, C_i) \in {\mathbb{R}^+ \times \{0,1\}}$ where $T$ is the observed survival time, and $C$ is a binary variable, marking if the status. When $C=0$, the observation is censored at the survial time $T$ and when $C=1$, we observe the event of interest at time $T$. We assume non-informative right censoring. We also assume there is no competing risk, or multiple occurrence of the event.
 
 The most popular tools to analyze such data include Cox proportional hazard model, refered as Cox model hereafter. Cox model is a semi-parametric model that assumes proportional hazard. Each participant shares a common baseline hazard function of time $t$, $h_0(t)$, and the individual hazard given their covariates $\bs x_i$ change on the multiplicative scale, mathematically,
