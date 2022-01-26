@@ -17,9 +17,9 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "boyiguo1",
       "RemoteRepo": "BHAM",
-      "RemoteRef": "190b084",
-      "RemoteSha": "190b0846f0fb103bd251ce48696482ee0d7dbcb6",
-      "Hash": "f076b9178d7c575ca3c05376bba89612"
+      "RemoteRef": "0abdcaa",
+      "RemoteSha": "0abdcaa43cce7eb565f67f92765cca45c37e0183",
+      "Hash": "301c2d3b29d74ce7f7fe5c02f261cbf9"
     },
     "BhGLM": {
       "Package": "BhGLM",
@@ -914,6 +914,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "d4d71a75dd3ea9eb5fa28cc21f9585e2"
+    },
+    "xtable": {
+      "Package": "xtable",
+      "Version": "1.8-4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b8acdf8af494d9ec19ccb2481a9b11c2"
     },
     "yaml": {
       "Package": "yaml",

@@ -5,8 +5,8 @@
 ## It is equivalent to run
 # n_train <- 200
 # p <- c(4, 10, 50, 100, 200)[1]
-# rho <- c(0, 0.5)[1]
-# pi_cns <- c(0.15, 0.3, 0.4)[1]
+# rho <- c(0, 0.5)[2]
+# pi_cns <- c(0.15, 0.3, 0.4)[2]
 
 args=(commandArgs(TRUE))
 
@@ -40,6 +40,8 @@ source("~/Manuscript-BH_Additive_Cox/Sim/Code/make_null_res.R")
 # * Simulation Parameters -------------------------------------------------
 source("~/Manuscript-BH_Additive_Cox/Sim/Code/sim_pars_funs.R")
 
+## Job Name
+job_name <- Sys.getenv('SLURM_JOB_NAME')
 
 ## Use Array ID as random seed ID
 it <- Sys.getenv('SLURM_ARRAY_TASK_ID') %>% as.numeric
@@ -61,14 +63,32 @@ train_dat <- dat_all[1:n_train, ]
 test_dat <- dat_all[(n_train+1):n_total, ]
 
 
-## Censoring Distribution, Weibull(alpha.c, scale.p)
-scale.p <- find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t),
-                                 pi.cen = pi_cns,
-                                 shape_hazard = shape.t, shape_censor = shape.c)
+## Censoring Distribution, Weibull(shape.c, scale.c)
+scale.c <- tryCatch({
+  find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t),
+                        pi.cen = pi_cns,
+                        shape_hazard = shape.t, shape_censor = shape.c)
+  },
+  error = function(err) {
+    if(!file.exists("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS"))
+      stop("Please Generate scale_vec, and use 'R/calculate_scales' to generates scale_vec.RDS")
+    scale_vec <- readRDS("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS")
+    scale.c <- scale_vec[[job_name]]
+    if(is.null(scale.c)) stop("No scale for this scenario")
+    return(scale.c)
+  })
+
+
+
+# Save Scale Parameter ----------------------------------------------------
+# TODO: if you need to generate scale vector, please uncomment the following two line
+# saveRDS(scale.c,
+#         paste0("/data/user/boyiguo1/bcam/scale/", job_name,"/it_",it,".rds"))
+
 
 train_dat <-  train_dat %>%
   data.frame(
-    c_time = rweibull(n = n_train, shape = shape.c, scale = scale.p)
+    c_time = rweibull(n = n_train, shape = shape.c, scale = scale.c)
   ) %>%
   mutate(
     cen_ind = (c_time < eventtime),
@@ -197,47 +217,80 @@ train_smooth_data <- train_sm_dat$data
 
 test_sm_dat <- BHAM::make_predict_dat(train_sm_dat$Smooth, dat = test_dat)
 
-bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ ., data = data.frame(time = train_dat$time, status = train_dat$status,
-                                                                           train_smooth_data),
-                         prior = mde(), group = make_group(names(train_smooth_data)))
-
-s0_seq <- seq(0.005, 0.1, length.out = 20)    # TODO: need to be optimized
-cv_res <- tune.bgam(bacox_raw_mdl, nfolds = 5, s0= s0_seq, verbose = FALSE)
-
-s0_min <- cv_res$s0[which.min(cv_res$deviance)]
-
-bacox_mdl <- bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
-                     prior = mde(s0 = s0_min), group = make_group(names(train_smooth_data)))
+bam_group <- make_group(names(train_smooth_data))
 
 
+#** bmlasso -----------------------------------------------------------------
+bamlasso_raw_mdl <- bamlasso( x = train_smooth_data, y = Surv(train_dat$time, event = train_dat$status),
+                              family = "cox", group = make_group(names(train_smooth_data)),
+                              ss = c(0.04, 0.5))
 
-bacox_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bacox_mdl$linear.predictors)
-# bacox_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
-#                          predict(mgcv_mdl, newdata=test_dat, type = "link"))
-bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
+blasso_s0_seq <- seq(0.005, 0.1, length.out = 20)    # TODO: need to be optimized
+blasso_cv_res <- tune.bgam(bamlasso_raw_mdl, nfolds = 5, s0= blasso_s0_seq, verbose = FALSE)
+
+blasso_s0_min <- blasso_cv_res$s0[which.min(blasso_cv_res$deviance)]
+bamlasso_mdl <- bamlasso( x = train_smooth_data, y = Surv(train_dat$time, event = train_dat$status),
+                          family = "cox", group = make_group(names(train_smooth_data)),
+                          ss = c(blasso_s0_min, 0.5))
+
+bamlasso_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bamlasso_mdl$linear.predictors)
+bamlasso_test <- measure.bh(bamlasso_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
+
+
+#** Bacox ----------------------------------------------------------
+bacox_mdl <- tryCatch({bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ .,
+                         data = data.frame(time = train_dat$time, status = train_dat$status,
+                                           train_smooth_data),
+                         prior = mde(), group = make_group(names(train_smooth_data)),
+                         method.coef = bam_group)
+
+bacox_s0_seq <- seq(0.005, 0.1, length.out = 20)    # TODO: need to be optimized
+bacox_cv_res <- tune.bgam(bacox_raw_mdl, nfolds = 5, s0= bacox_s0_seq, verbose = FALSE)
+#
+bacox_s0_min <- bacox_cv_res$s0[which.min(bacox_cv_res$deviance)]
+#
+bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
+                     prior = mde(s0 = bacox_s0_min), group = make_group(names(train_smooth_data)),
+                     method.coef = make_group(names(train_smooth_data)))
+},
+error = function(err) {
+  return(NULL)
+})
+
+
+
+if(!is.null(bacox_mdl) ){
+  bacox_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bacox_mdl$linear.predictors)
+  # bacox_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
+  #                          predict(mgcv_mdl, newdata=test_dat, type = "link"))
+  bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
+} else {
+  bacox_train <- bacox_test <- make_null_res("cox")
+}
 
 # Save Simulation Results -------------------------------------------------
 
-## TODO: Record Prediction Results
 # Overall
 ret <- list(
   train_res = list(
     mgcv = mgcv_train,
     cosso = cosso_train,
     acosso = acosso_train,
-    bacox = bacox_train
+    bacox = bacox_train,
+    bamlasso = bamlasso_train
   ),
   test_res = list(
     mgcv = mgcv_test,
     cosso = cosso_test,
     acosso = acosso_test,
-    bacox = bacox_test
+    bacox = bacox_test,
+    bamlasso = bamlasso_test
   ),
+  # scale.c = scale.c,                             # The scale parameter
   p.cen = mean(train_dat$status==0)              # Censoring proportion in training data
 )
 
 
-job_name <- Sys.getenv('SLURM_JOB_NAME')
 # Recommendation: to save the results in individual rds files
 saveRDS(ret,
         paste0("/data/user/boyiguo1/bcam/Res/", job_name,"/it_",it,".rds"))

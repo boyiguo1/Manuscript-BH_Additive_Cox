@@ -30,3 +30,39 @@ As some of the evaluation metrics are relative, we compare the performance to a 
 - Adaptive COSSO (maybe)
 - group penalized models, group bayesian models
 
+## Simulation Results
+
+### Algorithm Failures
+before delving into the model performance evaluation, we would like to discuss the number of algorithm fails when runing simulations for the compared methods. Supplement Tab xx shows
+* mgcv does not work for censarios where the number of coefficients is greater than the number sample size.
+* cosso and acosso experienced programming failure particularlay when p is small. Please see appendix for the explaination and bug report.
+* the proposed methods programming are robust in all conidtions.
+
+In the following evaluation, we only summarize the performance from success runs.
+
+### Deviance
+
+```{r dvn_tab, results = "asis"}
+sim_test_tab[[1]] %>%
+  xtable %>% 
+  print(comment = FALSE)
+```
+
+```{r dvn_viz}
+sim_test_viz[[1]]
+```
+
+### Cindex
+
+
+```{r cdx_tab, results = "asis"}
+sim_test_tab[[2]] %>%
+  xtable %>% 
+  print(comment = FALSE)
+```
+
+```{r cdx_viz}
+sim_test_viz[[2]] +
+  ylim(c(0.5, 1))
+```
+
