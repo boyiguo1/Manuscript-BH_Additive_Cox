@@ -1,5 +1,5 @@
 ---
-title: A scalable Cox proportional hazard additive model for survival prediction and associated gene detection
+title: A scalable and flexible Cox proportional hazard model for high-dimensional survival prediction and functional selection
 author:
 - name: Boyi Guo*
   department: Department of Biostatistics
@@ -22,8 +22,8 @@ author:
   affiliation: University of Alabama at Birmingham
   location: Birmingham, AL
 corres: "Boyi Guo and Nengjun Yi, Department of Biostatistics, University of Alabama at Birmingham, Birmingham, USA. \\email{boyiguo1@uab.edu},  \\email{nyi@uab.edu}"
-abstract: "TODO: to add intrstruc"
-keywords: Class file; \LaTeX; Statist. Med.; Rmarkdown;
+abstract: "Cox proportional hazard (PH) model is one of the most popular models in biomedical data analysis. There have been continuing efforts to improve the flexibility of such models for complex signal detection, for example, via additive functions. Nevertheless, the task is nontrivial, particular in the high-dimensional data setting (p>>n). When estimating additive functions, commonly used group sparse regularization may induce excess shrinkage, damaging predictive performance. Moreover, an “all-in-all-out” approach makes functional selection challenging to answer if nonlinear effects exist. We develop an additive Cox PH model where a novel spike-and-slab prior is embedded to select components of additive functions. A scalable and deterministic algorithm, EM-Coordinate Descent, is designed for efficient model fitting. We compare the predictive and computational performance against state-of-the-art models in simulation studies and metabolomics data analysis. The proposed model is broadly applicable to various fields of research, e.g. genomics and population health, via freely available R package BHAM (https://boyiguo1.github.io/BHAM/)"
+keywords: Cox Model; Spike-and-Slab; Scalable; Machine Learning; R Package;
 bibliography: bibfile.bib
 biblio-style: unsrt
 output: 
