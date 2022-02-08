@@ -2,7 +2,7 @@
 
 ## Notation
 ## Survival Analysis
-While GAMs addressed most of common type of outcomes, there is still one piece of puzzle left out, survival analysis. Survival analysis models the distribution of time to an event of interest while considering the loss of information due to un-informative censoring. We defer to @Klein2003,  @Ibrahim2001 for in-depth survey of the topic.  Among many proposed methods for survival analysis, the most popular one is Cox proportional hazards model. For the $i$th individual, a tuple of three exists ${t_i, d_i, \bm x_i}$, where $\bm x_i$ is a vector of covariates. In addition, the survival time $t_i$ and the censoring indicator $d_i$ are recorded, where $d_i$ takes the value 1 when censoring happens at the survival time $y_i$, and takes the value 0 when the event of interest happens. The Cox proportional hazard model is formulated as 
+While GAMs addressed most of common type of outcomes, there is still one piece of puzzle left out, survival analysis. Survival analysis models the distribution of time to an event of interest while considering the loss of information due to un-informative censoring. We defer to @Klein2003,  @Ibrahim2001 for in-depth survey of the topic.  Among many proposed methods for survival analysis, the most popular one is Cox proportional hazards model. For the $i$th individual, a tuple of three exists $\{t_i, d_i, \bm x_i\}$, where $\bm x_i$ is a vector of covariates. In addition, the survival time $t_i$ and the censoring indicator $d_i$ are recorded, where $d_i$ takes the value 1 when censoring happens at the survival time $y_i$, and takes the value 0 when the event of interest happens. The Cox proportional hazard model is formulated as 
 $$
 h(t|\bm x) = h_0(t)exp(\bm x \bm \beta),
 $$

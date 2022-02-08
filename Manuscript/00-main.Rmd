@@ -1,7 +1,8 @@
 ---
 title: A scalable and flexible Cox proportional hazard model for high-dimensional survival prediction and functional selection
-author:
-- name: Boyi Guo*
+authors:
+- name: Boyi Guo
+  thanks: Corresponding authors \\email{boyiguo1@uab.edu}
   department: Department of Biostatistics
   affiliation: University of Alabama at Birmingham
   location: Birmingham, AL
@@ -17,20 +18,19 @@ author:
   department: Department of Biostatistics
   affiliation: University of Alabama at Birmingham
   location: Birmingham, AL 
-- name: Nengjun Yi*
+- name: Nengjun Yi
+  thanks: Corresponding authors \\email{nyi@uab.edu}
   department: Department of Biostatistics
   affiliation: University of Alabama at Birmingham
   location: Birmingham, AL
-corres: "Boyi Guo and Nengjun Yi, Department of Biostatistics, University of Alabama at Birmingham, Birmingham, USA. \\email{boyiguo1@uab.edu},  \\email{nyi@uab.edu}"
 abstract: "Cox proportional hazard (PH) model is one of the most popular models in biomedical data analysis. There have been continuing efforts to improve the flexibility of such models for complex signal detection, for example, via additive functions. Nevertheless, the task is nontrivial, particular in the high-dimensional data setting (p>>n). When estimating additive functions, commonly used group sparse regularization may induce excess shrinkage, damaging predictive performance. Moreover, an “all-in-all-out” approach makes functional selection challenging to answer if nonlinear effects exist. We develop an additive Cox PH model where a novel spike-and-slab prior is embedded to select components of additive functions. A scalable and deterministic algorithm, EM-Coordinate Descent, is designed for efficient model fitting. We compare the predictive and computational performance against state-of-the-art models in simulation studies and metabolomics data analysis. The proposed model is broadly applicable to various fields of research, e.g. genomics and population health, via freely available R package BHAM (https://boyiguo1.github.io/BHAM/)"
 keywords: Cox Model; Spike-and-Slab; Scalable; Machine Learning; R Package;
-bibliography: bibfile.bib
-biblio-style: unsrt
 output: 
   rticles::arxiv_article:
     keep_tex: true
-header-includes:
-  - \usepackage{amsmath}
+    #citation_package: biblatex
+#biblio-style: apa
+bibliography: bibfile.bib
 
 ---
 
@@ -43,8 +43,8 @@ library(targets)
 library(xtable)
 
 tar_load(manu_path)
-tar_load(sim_test_tab)
-tar_load(sim_test_viz)
+# tar_load(sim_test_tab)
+# tar_load(sim_test_viz)
 
 ```
 
@@ -53,20 +53,20 @@ tar_load(sim_test_viz)
 ```
 
 \newpage
-```{r method, child = "02-method.Rmd"}
+```{r method, child = "02-method.Rmd", eval = F}
 
 ```
 \newpage
 
-```{r child="03-simulation.Rmd"}
+```{r simulation, child="03-simulation.Rmd", eval = F}
 ```
 \newpage
 
-```{r child="04-real_data.Rmd"}
+```{r real_data, child="04-real_data.Rmd", eval = F}
 ```
 \newpage
 
-```{r child="05-conclusion.Rmd"}
+```{r conclusion, child="05-conclusion.Rmd", eval = F}
 ```
 \newpage
 

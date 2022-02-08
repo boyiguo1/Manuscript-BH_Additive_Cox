@@ -42,26 +42,26 @@ In the following evaluation, we only summarize the performance from success runs
 
 ### Deviance
 
-```{r dvn_tab, results = "asis"}
+```{r dvn_tab, results = "asis", eval = FALSE}
 sim_test_tab[[1]] %>%
   xtable %>% 
   print(comment = FALSE)
 ```
 
-```{r dvn_viz}
+```{r dvn_viz, eval = FALSE}
 sim_test_viz[[1]]
 ```
 
 ### Cindex
 
 
-```{r cdx_tab, results = "asis"}
+```{r cdx_tab, results = "asis", eval = FALSE}
 sim_test_tab[[2]] %>%
   xtable %>% 
   print(comment = FALSE)
 ```
 
-```{r cdx_viz}
+```{r cdx_viz, eval = FALSE}
 sim_test_viz[[2]] +
   ylim(c(0.5, 1))
 ```
