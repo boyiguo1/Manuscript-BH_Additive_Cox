@@ -10,3 +10,9 @@
 
 
 From the software perspective, the proposed model can be easily extend to delayed entry, stratified Cox models. Explain why and how.
+
+
+The model can be expanded to accomondate more complicated functional covartiates via transformaiton. . Such complex functional covariates include domain-specific transofrmation and subject-specfic transformation (Cui, Crainiceanu, Leroux). Such modeling strategy have great potention in wearable devcies data analysis. This expansion is feasible with tensor product method in mgcv.
+
+
+How to include time dependent covariates and time varying effects.

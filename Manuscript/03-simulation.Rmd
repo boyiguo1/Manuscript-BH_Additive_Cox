@@ -12,7 +12,7 @@ The objective o fthe simulation studies is to examine the performance of the pro
   
 Particularly relavent to survival outcomes, in addition, we consider various settings of censoring rate, underlying distributions of baseline hazard function, which include commonly used familyes, Exponential, Weibull, Gumptry
 
-
+"Cross-validated Harrell’s C-index (Harrell Jr et al. 1982, 1984, 1996) and Brier score (Brier 1950) are used as measures of predictive performance."
 
 While the primary focus of the this simulation studies is to examine the predictive performance of the model, and hence, we select the followings as evaluation metrics:
 -
