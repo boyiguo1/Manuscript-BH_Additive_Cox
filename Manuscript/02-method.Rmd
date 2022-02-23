@@ -1,14 +1,14 @@
-# Cox Proportional Hazard Additive Model
+\section{Cox Proportional Hazard Additive Model}
 
-## Notation
-## Survival Analysis
-While GAMs addressed most of common type of outcomes, there is still one piece of puzzle left out, survival analysis. Survival analysis models the distribution of time to an event of interest while considering the loss of information due to un-informative censoring. We defer to @Klein2003,  @Ibrahim2001 for in-depth survey of the topic.  Among many proposed methods for survival analysis, the most popular one is Cox proportional hazards model. For the $i$th individual, a tuple of three exists $\{t_i, d_i, \bm x_i\}$, where $\bm x_i$ is a vector of covariates. In addition, the survival time $t_i$ and the censoring indicator $d_i$ are recorded, where $d_i$ takes the value 1 when censoring happens at the survival time $y_i$, and takes the value 0 when the event of interest happens. The Cox proportional hazard model is formulated as 
+\subsection{Notation}
+\subsection{Survival Analysis}
+While GAMs addressed most of common type of outcomes, there is still one piece of puzzle left out, survival analysis. Survival analysis models the distribution of time to an event of interest while considering the loss of information due to un-informative censoring. We defer to @Klein2003,  @Ibrahim2001 for in-depth survey of the topic.  Among many proposed methods for survival analysis, the most popular one is Cox proportional hazards model. For the $i$th individual, a tuple of three exists $\{t_i, d_i, \bs x_i\}$, where $\bs x_i$ is a vector of covariates. In addition, the survival time $t_i$ and the censoring indicator $d_i$ are recorded, where $d_i$ takes the value 1 when censoring happens at the survival time $y_i$, and takes the value 0 when the event of interest happens. The Cox proportional hazard model is formulated as 
 $$
-h(t|\bm x) = h_0(t)exp(\bm x \bm \beta),
+h(t|\bs x) = h_0(t)exp(\bs x \bs \beta),
 $$
-where $h(t)$ is the hazard function and $h_0(t)$ is the baseline hazard function. The hazard function $h(t)$ describes the instantaneous rate of event occurrence among people who are still at risk at the moment. It has a one-to-one relationship with the survival function, which describes the distribution of event time. The linear predictor $\bm x \bm \beta$ is also called the __prognostic index__. To be noted, different from GLMs, there is no intercept term necessary in the design matrix $\bm x$, as the baseline hazard function $h_0(t)$ estimates an reference level of survival risk. The baseline hazard function indeed changes when additional measure were taken fro the design matrix, such as centering and scaling, while the coefficients $\bm x$ remain unchanged.
+where $h(t)$ is the hazard function and $h_0(t)$ is the baseline hazard function. The hazard function $h(t)$ describes the instantaneous rate of event occurrence among people who are still at risk at the moment. It has a one-to-one relationship with the survival function, which describes the distribution of event time. The linear predictor $\bs x \bs \beta$ is also called the __prognostic index__. To be noted, different from GLMs, there is no intercept term necessary in the design matrix $\bs x$, as the baseline hazard function $h_0(t)$ estimates an reference level of survival risk. The baseline hazard function indeed changes when additional measure were taken fro the design matrix, such as centering and scaling, while the coefficients $\bs x$ remain unchanged.
 
-Unlike the GLM, the estimation for the coefficients $\bm \beta$ doesn't directly maximize log likelihood due to the functional nature of survival analysis. The likelihood function of the censored survival data can be expressed as 
+Unlike the GLM, the estimation for the coefficients $\bs \beta$ doesn't directly maximize log likelihood due to the functional nature of survival analysis. The likelihood function of the censored survival data can be expressed as 
 $$
 L(\beta, h_0) = \prod\limits^n_{i=0}[h(t_i)]^{d_i}S(t_i).
 $$
@@ -26,13 +26,13 @@ $$
 $$
 The resulting log-likelihood can be simplified to the partial log-likelihood(Cox 1972)
 $$
-pl(\bm \beta) = \sum\limits^n_{i=1}d_i\log\frac{\exp{\bm x_i \bm \beta}}{\sum_{j\in R(t_i)} \exp(\bm x_j \bm \beta)},
+pl(\bs \beta) = \sum\limits^n_{i=1}d_i\log\frac{\exp{\bs x_i \bs \beta}}{\sum_{j\in R(t_i)} \exp(\bs x_j \bs \beta)},
 $$
 where $R(t_i)$ denotes the risk set at time $t_i$. By maximizing the partial log-likelihood function, the coefficient vector can be estimated. When tied failure or censoring time exists, a modified partial log-likelihood function can be used [@Efron1977]. 
 
 Recent years, there are much attention on incorporating splines in survival models, i.e. survival spline models. The topic is greatly discussed in the epidemiology literature in the context of dose-response analysis [@Steenland2004]. The application of spline in the Cox proportional hazard model is not complicated. 
 $$
-h(t|\bm x) = h_0(t)exp(a + \sum\limits^p_{j=1}f_j(x_j)),\qquad E[f_j(x_j)] = 0.
+h(t|\bs x) = h_0(t)exp(a + \sum\limits^p_{j=1}f_j(x_j)),\qquad E[f_j(x_j)] = 0.
 $$
 While the smoothing spline is constructed matrix form, the Cox proportional hazard model can take the smooth spline as the part of the design matrix. Estimation of the coefficients follows the estimation process in the original Cox proportional hazard model. When penalized spline is used, a penalized partial likelihood can be used to estimate. Govindarajulu and her group provided comparison of smoothing methods with Cox models use real world data [@Govindarajulu2007] and synthetic data [@Govindarajulu2009]. To the best of our knowledge, there are not a lot of research done on expanding survival spline model to high-dimensional setting.
 
@@ -67,7 +67,7 @@ where $\bs X_j \equiv \begin{bmatrix} X_j^0 : \bs X_j^{\tp} \end{bmatrix}$ as th
 
 Following @Gray1992, we can express the proportional hazards model as
 $$
-\lambda(t|x_i) = \lambda_0(t)\exp\left[\bm X_i^T \bm \beta\right],
+\lambda(t|x_i) = \lambda_0(t)\exp\left[\bs X_i^T \bs \beta\right],
 $$
 where $\lambda_0(t)$ is an unspecified underlying hazard function. Hence the log-partial likelihood for the model is
 $$
@@ -75,7 +75,7 @@ pl(\beta) = \sum\limits^n_{i=1}d_i\log(\frac{\exp(X_i \beta)}{\sum\limits_{j \in
 $$
 where $R(t_i)$ is the risk set at time $t_i$.
 
-With the 'likelihood' function set up, we further impose the spike-and-slab spline priors on the vector of coefficients $\bm \beta$. The spike-and-slab spline priors are similar as introduced in the Chapter 3, where the coefficients independently follow a mixture distribution of normal distributions or $t$ distributions or double exponential distributions. For simplicity, we introduce the the mixture normal prior distribution. We defer the generalization to the mixture $t$ or mixture double exponential distribution to the following sections. A spike-and-slab normal distribution can be formulated as 
+With the 'likelihood' function set up, we further impose the spike-and-slab spline priors on the vector of coefficients $\bs \beta$. The spike-and-slab spline priors are similar as introduced in the Chapter 3, where the coefficients independently follow a mixture distribution of normal distributions or $t$ distributions or double exponential distributions. For simplicity, we introduce the the mixture normal prior distribution. We defer the generalization to the mixture $t$ or mixture double exponential distribution to the following sections. A spike-and-slab normal distribution can be formulated as 
 $$ \beta_{jk} |\gamma_{jk},s_0,s_1 \sim N(0,(1-\gamma_{jk}) s_0 + \gamma_{jk} s_1), s_1 > s_0 > 0$$,
 Where $\gamma_{jk}$ is a latent indicator variable, taking value of 0 and 1; $s_0$ and $s_1$ are scale parameters, assuming given. Thus the prior is a mixture of the shrinkage prior normal(0, $s_0$) and the weakly informative prior normal(0, $s_1$), which are spike and slab components, respectively. Like any other spike and slab priors, the spike is to contain the minimum to zero effects, while the slab is to allow large effects. The scale parameters $s_0$ and $s_1$ are also considered as tuning parameters, which can be optimized via cross-validation. A discussion of how to choose the scale parameters comes later.
 
@@ -93,7 +93,7 @@ $$
 
  \  
 
-## Alforithm for fitting ss Cox Spline Models
+\subsection{Alforithm for fitting ss Cox Spline Models}
 
 Parsimonious computation is always encouraged in high-dimension data analysis. Bayesian methodology loses its advantages over Frequentest penalized model because of the computation cost. Previous Bayesian spline models heavily relies on the MCMC algorithm to establish posterior distribution of parameters. One of the exception is Bai (in progress), who took advantages of the fast computing EMVS algorithm and extended to the non-Gaussian GAM settings. He focused on the maximum a postiori (MAP) estimator of the parameters. While Bai's algorithm is fast, it lacks the ability to provide uncertainty measure of the estimates. 
 
@@ -103,28 +103,25 @@ into the EM steps to iteratively find the MAP estimates. Thanks to the versatili
 Recall the mixture normal prior set-up described , we have the prior densities,
 $$
 \begin{aligned}
-p(\bm \beta | \bm\gamma) &\propto \prod\limits_{j=1}^{p}\prod\limits_{k=1}^{K_j}((1-\gamma_{jk}) s_0 + \gamma_{jk} s_1)^{-1/2}\exp(-1/2(\beta_{jk}^2/((1-\gamma_{jk}) s_0 + \gamma_{jk} s_1)))\\
-p(\bm\gamma | \bm \theta) & = \prod\limits_{j=1}^{p}\prod\limits_{k=1}^{K_j} \theta_j^{\gamma_{jk}} (1-\theta_j)^{1-\gamma_{jk}}.
+p(\bs \beta | \bs\gamma) &\propto \prod\limits_{j=1}^{p}\prod\limits_{k=1}^{K_j}((1-\gamma_{jk}) s_0 + \gamma_{jk} s_1)^{-1/2}\exp(-1/2(\beta_{jk}^2/((1-\gamma_{jk}) s_0 + \gamma_{jk} s_1)))\\
+p(\bs\gamma | \bs \theta) & = \prod\limits_{j=1}^{p}\prod\limits_{k=1}^{K_j} \theta_j^{\gamma_{jk}} (1-\theta_j)^{1-\gamma_{jk}}.
 \end{aligned}
 $$
 
-We define the parameters of interest as $\Theta = {\bm \beta, \bm \theta, \phi}$. The log posterior density of $\Theta$ requires a slight modification from the The log-posterior for ss-Cox model (up to additive constants). The log likelihood function needs to be replaced by the log partial likelihood function. The log density is still expressed with a two-part equation, which can be maximized separately,
+We define the parameters of interest as $\Theta = {\bs \beta, \bs \theta, \phi}$. The log posterior density of $\Theta$ requires a slight modification from the The log-posterior for ss-Cox model (up to additive constants). The log likelihood function needs to be replaced by the log partial likelihood function. The log density is still expressed with a two-part equation, which can be maximized separately,
 
-$$ \log p(\Theta, \bm \gamma| \textbf{y}, \textbf{X}) = Q_1(\beta, \phi) + Q_2 (\gamma,\theta),$$
+$$ \log p(\Theta, \bs \gamma| \textbf{y}, \textbf{X}) = Q_1(\beta, \phi) + Q_2 (\gamma,\theta),$$
 Where
-$$ Q_1(\bm \beta, \phi) = \log pl(\textbf{y}|\bm \beta, \phi) + \log p(\phi) + \sum\limits_{j=1}^p\sum\limits_{k=1}^{K_j} \log p(\beta_{jk}|\gamma_{jk})$$
+$$ Q_1(\bs \beta, \phi) = \log pl(\textbf{y}|\bs \beta, \phi) + \log p(\phi) + \sum\limits_{j=1}^p\sum\limits_{k=1}^{K_j} \log p(\beta_{jk}|\gamma_{jk})$$
 and $$
 Q_2(\delta,\theta) = \sum\limits_{j=1}^{p}\sum\limits_{k=1}^{K_j} \left[ \gamma_{jk}\log \theta_j + (1-\gamma_{jk}) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log p(\theta_j) .$$
 The partial log-likelihood $pl(\beta)$ can also be substitute by the Breslow or the Effron approximation in the presence of ties., and the baseline hazard function $\lambda_0$ is replaced by the Breslow estimator.
 
 Similar to the ssGAMs, we need to calculate the expecataion of the $Q_1$ and $Q_2$ with respect to the missing data $\gamma_{jk}|\Theta^{t-1}$, which yields the same estimation,
-$$
-\begin{aligned}
-E(Q_1) &= \log p(\textbf{y}|\bm \beta, \phi) + \log p(\phi) + \sum\limits_{j=1}^p\sum\limits_{k=1}^{K_j}E(S^{-1}_{jk})\beta_{jk}^2\\
-
+\begin{align*}
+E(Q_1) &= \log p(\textbf{y}|\bs \beta, \phi) + \log p(\phi) + \sum\limits_{j=1}^p\sum\limits_{k=1}^{K_j}E(S^{-1}_{jk})\beta_{jk}^2\\
 E(Q_2) &= \sum\limits_{j=1}^{p}\sum\limits_{k=1}^{K_j} \left[ E(\gamma_{jk})\log \theta_j + (1-E(\gamma_{jk})) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log p(\theta_j)
-\end{aligned}
-$$
+\end{align*}
 where 
 $$
 E(\gamma_{jk}) = p_{jk} = \frac{Pr(\gamma_{jk} = 1|\theta_j)f(\beta_{jk}|\gamma_{jk}=1, s_1) }{Pr(\gamma_{jk} = 1|\theta_j)f(\beta_{jk}|\gamma_{jk}=1, s_1) + Pr(\gamma_{jk} = 0|\theta_j)f(\beta_{jk}|\gamma_{jk}=0, s_0)}
@@ -134,7 +131,7 @@ E(S^{-1}_{jk}) = \frac{1-p_{jk}}{2s_0} + \frac{p_{jk}}{2s_1}.
 $$
 We can see that the estimates of $\gamma_jk, S^{-1}_{jk}$ are larger for larger coefficients $\beta_{jk}$, leading to different shrinkage for different coefficients. Moreover, to note that, we have different shrinkage $S^{-1}_{jk}$for the coefficients $\beta_{jk}$ of the variable $x_j$, and hence, we can penalize the null space of the spline differently and allow local adaption.
 
-In the M-step, $\bm \beta, \phi$ and $\bm \theta$ can be maximized respectively via $E(Q_1)$ and $E(Q_2)$ as $Q_1$ and $Q_2$ are functions contain either $\bm \beta$ or $\bm \theta$. Therefore, the coefficients $\bm \beta$ are updated by maximizing $E(Q_1)$, where $E(Q_1)$ can be treated as $L_2$ penalized likelihood function. Such maximization can be easily achieved with IRLS. The disperse parameter $\phi$ is updated if applicable. Meanwhile, the probability parameters $\bm \theta$ are updated by maximizing $E(Q_2)$. As the beta distribution is a conjugate prior for Bernoulli distribution, $\bm \theta$ can be easily updated with a closed form equation:
+In the M-step, $\bs \beta, \phi$ and $\bs \theta$ can be maximized respectively via $E(Q_1)$ and $E(Q_2)$ as $Q_1$ and $Q_2$ are functions contain either $\bs \beta$ or $\bs \theta$. Therefore, the coefficients $\bs \beta$ are updated by maximizing $E(Q_1)$, where $E(Q_1)$ can be treated as $L_2$ penalized likelihood function. Such maximization can be easily achieved with IRLS. The disperse parameter $\phi$ is updated if applicable. Meanwhile, the probability parameters $\bs \theta$ are updated by maximizing $E(Q_2)$. As the beta distribution is a conjugate prior for Bernoulli distribution, $\bs \theta$ can be easily updated with a closed form equation:
 $$
 \theta_j = \frac{\sum\limits_{k = 1}^{K_j}p_{jk} + a - 1 }{K_j + a + b -2}.
 $$
@@ -142,7 +139,7 @@ The last step is
 
 Totally, the framework of the proposed EM IRLS algorithm was summarized as follows:
 
-1) Choose a starting value $\bm \beta^0$ and $\bm \theta^0$ for $\bm \beta$ and $\bm \theta$. For example, we can initialize $\bm \beta^0 = \bm 0$ and $\bm \theta^0 = \bm 0.5$
+1) Choose a starting value $\bs \beta^0$ and $\bs \theta^0$ for $\bs \beta$ and $\bs \theta$. For example, we can initialize $\bs \beta^0 = \bs 0$ and $\bs \theta^0 = \bs 0.5$
 
 2) Iterate over the E-step and M-step until convergence
 
@@ -150,9 +147,9 @@ E-step: calculate $E(\gamma_{jk})$ and $E(S^{-1}_{jk})$ with estimates of $\Thet
 
 M-step:
 
-a) Update $\bm \beta$ using the IRLS algorithm
+a) Update $\bs \beta$ using the IRLS algorithm
 
-b) Update $\bm \theta$ using the closed form equation
+b) Update $\bs \theta$ using the closed form equation
 
 We assess convergence by the criterion:
 $|d^{(t)}-d^{(t-1)}|/(0.1+|d^{(t)}|)<\epsilon$, where
@@ -161,5 +158,5 @@ the $t^{\text{th}}$ iteration, and $\epsilon$ is a small value (say
 $10^{-5}$).
 
 
-### Other Mixture Priors and Algorithm
+\subsubsection{Other Mixture Priors and Algorithm}
 Other mixture prior can be applied to the Cox Spline model, for example the mixture $t$ distribution and the mixture double exponential distribution, for either more smooth spline functions or more sparse model. The modifications requires to the accommodate the two priors are minimum. The mixture $t$ distribution can be expressed as a mixture normal distribution with additional hyper prior on the variance and can be directly plug into the IRLS estimation in the EM algorithm. The double exponential distribution can lead to the posterior likelihood in the form of a $l_1$ penalized likelihood function where the coordinate descent algorithm can be applied for coefficients estimation. 

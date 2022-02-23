@@ -1,4 +1,4 @@
-# Discussion
+\section{Discussion}
 
 - Summarize the contribution
 

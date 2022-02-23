@@ -30,8 +30,9 @@ output:
     keep_tex: true
     #citation_package: biblatex
 #biblio-style: apa
-bibliography: bibfile.bib
-
+bibliography: "bibfile.bib"
+header-includes: 
+    - \usepackage{amsmath}
 ---
 
 \newcommand{\bs}[1]{\boldsymbol{#1}}
@@ -53,20 +54,20 @@ tar_load(manu_path)
 ```
 
 \newpage
-```{r method, child = "02-method.Rmd", eval = F}
+```{r method, child = "02-method.Rmd"}
 
 ```
 \newpage
 
-```{r simulation, child="03-simulation.Rmd", eval = F}
+```{r simulation, child="03-simulation.Rmd"}
 ```
 \newpage
 
-```{r real_data, child="04-real_data.Rmd", eval = F}
+```{r real_data, child="04-real_data.Rmd"}
 ```
 \newpage
 
-```{r conclusion, child="05-conclusion.Rmd", eval = F}
+```{r conclusion, child="05-conclusion.Rmd"}
 ```
 \newpage
 

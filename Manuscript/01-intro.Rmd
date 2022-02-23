@@ -4,6 +4,7 @@ With the lower cost of data storage and computation, large volume of data are ge
 
 When a variable enters the Cox model as a predictors, an implicit assumption is imposed: effects of the predictor are linear. The linear assumption is restrictive and doubtful in many case. [TODO: add hastie quote] A viable solution is to replace each variable with its functional form such that the modified Cox model retains its interpretability while gaining flexibility to model complex signals. The modified Cox model, hereafter referred as additive Cox model, is successful in dose-repsonse curve modeling literature. These efforts include xxx, xxx, xxx. To clarify, additive Cox model is different from additive hazards models. Additive hazards models mdoel the hazard of predictors on the additive scale. As the two modelling framework answering fundamentally different research question, modling of risk ratio versus risk difference, we limit our focus in the additive Cox models, and defer interested readers to [Lin and Ying (1997)] for additive hazards models review.
 
+
 To extend the additive Cox models to the desired high-dimensional data analysis is non-trivial.
 
 \subsection{Literature review}

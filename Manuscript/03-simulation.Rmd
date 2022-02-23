@@ -1,4 +1,4 @@
-# Simulation Studies
+\section{Simulation Studies}
 The objective o fthe simulation studies is to examine the performance of the proposed model under various settings, including different settings of 
 - sparsity, i.e. number of active variables (whose effect is not zero across covariate range) / total number of covariates included in the model
 - sample size to number of variable ratio, 
@@ -30,7 +30,7 @@ As some of the evaluation metrics are relative, we compare the performance to a 
 - Adaptive COSSO (maybe)
 - group penalized models, group bayesian models
 
-## Simulation Results
+\subsection{Simulation Results}
 
 ### Algorithm Failures
 before delving into the model performance evaluation, we would like to discuss the number of algorithm fails when runing simulations for the compared methods. Supplement Tab xx shows
