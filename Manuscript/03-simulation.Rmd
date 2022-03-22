@@ -1,9 +1,23 @@
 \section{Simulation Studies}
-The objective o fthe simulation studies is to examine the performance of the proposed model under various settings, including different settings of 
-- sparsity, i.e. number of active variables (whose effect is not zero across covariate range) / total number of covariates included in the model
-- sample size to number of variable ratio, 
-- correlation structures among the covariates when for identifiability purpose
-- signal to noise ratio
+In this section, we evaluate the prediction performance of the propsoed model against three state-of-the-art methods for Cox additive models, mgcv, component selection and smoothing operator (COSSO), and adaptive COSSO. mgcv is the implementation of generalized additive models with automatic smoothing, and is the one of the most popular method to model nonlinear signals under the Cox proportional hazard framework. To note, mgcv doesn't support analyses when the number of parameters is larger than the sample size, and would not work in the $p>n$ scenario. COSSO and adaptive COSSO is designed to solve the nonlinear effect modelling in the high-dimensional setting. COSSO is one of the earliest additive model that leverage the sparsity-smoothness penalty, and adpative COSSO improves COSSO by using adaptive weight for penalties aiming to relax from the uniform shrinkage applied to all additive functions. The simulations are conducted with R 4.1.0 on a high-performance 64-bit Linux platform with 48 cores of 2.70GHz eight-core Intel Xeon E5-2680 processors and 24G of RAM per core. The three models of comparison are implemented with R packages \texttt{cosso} 2.1-1, and \texttt{mgcv} 1.8-31 respectively. To make the evaluation fair, we control multiple implementation factors that would alter the performance, including the smoothing function and tuning of the models. We control the dimensionality of the smoothing functions to 10 bases.  We use the most popular cubic spline as the choice of smoothing function for mgcv and the proposed model. COSSO models do not provide any felxibility to define smothing funcitons, and hence use the default choice [todo: add what it is]. We use 5-fold cross-validation to select the tuning parameter among 20 default candidates.
+
+
+\subsection{Data Generating Process}
+To build a comprehensive understanding of the methods performance, we consider multiple factors that are pivotal of high-dimensional data analysis, nonlinear modeling and survival outcomes. We consider the sparsity of the data defined as the ratio of active variables and total number of covariates, the sample size, correlation structure of the predictors, different functional form of the underlying signals (linear functions, sine function, quadrative function and exponential function), censoring rate.  
+
+To describe the data generating process, we generate a total of 1200 data points, where 200 serves as the training data and 1000 serves as the testing data. We consider the number of predictors $p$ to be 4, 10, 50, 100, 200 while limiting the number of active predictors to be 4. We simulate the perdictors $\bs X$ from a multivariate normal distribution MVN$_{200\timesp}(0, \Sigma)$. We consider the variance covariance matrix $\Sigma$ to be auto-regressive (AR) with two parameter, 0 and 0.5, where $AR(0)$ represents the scenario where the predictors are mutually independent.
+
+
+
+focus on our evaluation the following factors that sparsity of the signal, difference choice of additive functions, when designing the simulation study data gernating procees.
+
+
+<!-- Our data generating process is motivated by Bai [todo: add citation]: -->
+<!-- The objective of the simulation studies is to examine the performance of the proposed model under various settings, including different settings of  -->
+<!-- - sparsity, i.e. number of active variables (whose effect is not zero across covariate range) / total number of covariates included in the model -->
+<!-- - sample size to number of variable ratio,  -->
+<!-- - correlation structures among the covariates when for identifiability purpose -->
+
 - mixture of additive functions
   - linear functions
   - sin functions
