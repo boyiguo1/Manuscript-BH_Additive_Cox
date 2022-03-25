@@ -3,46 +3,23 @@ In this section, we evaluate the prediction performance of the propsoed model ag
 
 
 \subsection{Data Generating Process}
-To build a comprehensive understanding of the methods performance, we consider multiple factors that are pivotal of high-dimensional data analysis, nonlinear modeling and survival outcomes. We consider the sparsity of the data defined as the ratio of active variables and total number of covariates, the sample size, correlation structure of the predictors, different functional form of the underlying signals (linear functions, sine function, quadrative function and exponential function), censoring rate.  
+To established a comprehensive understanding of the methods performance, we consider multiple factors that are pivotal to high-dimensional data analysis, nonlinear modeling and survival outcomes. We consider the sparsity of the data defined as the ratio of active variables and total number of covariates, the sample size, correlation structure of the predictors, different functional form of the underlying signals (linear functions, sine function, quadrative function and exponential function), censoring rate.  
 
-To describe the data generating process, we generate a total of 1200 data points, where 200 serves as the training data and 1000 serves as the testing data. We consider the number of predictors $p$ to be 4, 10, 50, 100, 200 while limiting the number of active predictors to be 4. We simulate the perdictors $\bs X$ from a multivariate normal distribution MVN$_{200\timesp}(0, \Sigma)$. We consider the variance covariance matrix $\Sigma$ to be auto-regressive (AR) with two parameter, 0 and 0.5, where $AR(0)$ represents the scenario where the predictors are mutually independent.
-
-
-
-focus on our evaluation the following factors that sparsity of the signal, difference choice of additive functions, when designing the simulation study data gernating procees.
+To describe the data generating process, we generate a total of 1200 data points, where 200 serves as the training data and 1000 serves as the testing data. We consider the number of predictors $p$ to be 4, 10, 50, 100, 200 while limiting the number of active predictors to be 4. We simulate the perdictors $\bs X$ from a multivariate normal distribution MVN$_{200\timesp}(0, \Sigma)$. We consider the variance covariance matrix $\Sigma$ to be auto-regressive (AR) with two parameter, 0 and 0.5, where $AR(0)$ represents the scenario where the predictors are mutually independent. Among the all the predcitors, we choose the first four to be the active predictors, i.e. $f(x_1) = (x+1)^2/5, f(x_2) = \exp(x+1)/25, f(x_3) = 3*sin(x)/2, and f_4(x_4) = (1.4*x+0.5)/2$. The rest of the predictors are inactive, i.e. $f(x_i) = 0$ for $i = 5, \dots, p.$ To simulate the the survival response, we first generate the "true" survival time $T_i$ for each individual from a Weibull distribution with the scale parameter 1 and shape parameter 1.2 [todo: list the distribution form with linear predictor] with the help of R package \textt{simsurv} 1.0.0. Meanwhile to control the censoring rate at 0.15, 0.3, 0.45, we generate the independent censoring time $C_i$ following a weibull distribution with shape parameter 0.8 and the scale parameter estimated using (Wan, F. (2017). Simulating survival data with predefined censoring rates for proportional hazards models. Statistics in medicine, 36(5), 838-854.). To note, there are cases that the estimation of the scale fails using the moethod due to numeric problems. For those iterations, we use median of previously estimated scale parameters of the same simulation setting. Please see the averaged censoring rate in the Supporting Information. The observed censored survival time is the minimum of the "true" survival and censoring time $t_i= min(T_i, C_i)$. The cenroing indicator $d_i$ was set to be $I(C_i>T_i)$.
 
 
-<!-- Our data generating process is motivated by Bai [todo: add citation]: -->
-<!-- The objective of the simulation studies is to examine the performance of the proposed model under various settings, including different settings of  -->
-<!-- - sparsity, i.e. number of active variables (whose effect is not zero across covariate range) / total number of covariates included in the model -->
-<!-- - sample size to number of variable ratio,  -->
-<!-- - correlation structures among the covariates when for identifiability purpose -->
-
-- mixture of additive functions
-  - linear functions
-  - sin functions
-  - quadrative functions
-  - exponential functions
-  
-Particularly relavent to survival outcomes, in addition, we consider various settings of censoring rate, underlying distributions of baseline hazard function, which include commonly used familyes, Exponential, Weibull, Gumptry
-
-"Cross-validated Harrell’s C-index (Harrell Jr et al. 1982, 1984, 1996) and Brier score (Brier 1950) are used as measures of predictive performance."
-
-While the primary focus of the this simulation studies is to examine the predictive performance of the model, and hence, we select the followings as evaluation metrics:
--
-- Caliberation: as we know the $\eta_i$ for the test data, hence, we can compare $\eta_i$ with its estimate $\hat \eta_i$ via mean squared function mean absolute function.
-- Discrimination: We use Uno etal's concordiance index. Even though Harrel's concordiance index is more popular, it suffers from bias when censoring presents.[Cite Rahman et al. 2017]
+[TODO: to talk about the iterations]
 
 In each iteration of the simulation process, we independently generate the training and testing datasets following the previously described data generation process. We use the training dataset to construct each model of comparison and find the \`optimal\` model using 10-fold cross-validation. Then we use the fitted model to make prediction for the testing dataset and calculate the evaluation metrics.
 
 
-? How to validate the data generating process works
+[TODO: to talk about the predictoin performacne evaluations]
 
+"Cross-validated Harrell’s C-index (Harrell Jr et al. 1982, 1984, 1996) and Brier score (Brier 1950) are used as measures of predictive performance."
 
-As some of the evaluation metrics are relative, we compare the performance to a state-of-the-art survival model, which include
-- COSSO
-- Adaptive COSSO (maybe)
-- group penalized models, group bayesian models
+While the primary focus of the this simulation studies is to examine the predictive performance of the model, and hence, we select the followings as evaluation metrics:
+- Discrimination: We use Uno etal's concordiance index. Even though Harrel's concordiance index is more popular, it suffers from bias when censoring presents.[Cite Rahman et al. 2017]
+
 
 \subsection{Simulation Results}
 

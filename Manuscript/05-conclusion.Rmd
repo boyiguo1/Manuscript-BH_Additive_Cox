@@ -7,7 +7,7 @@
   - Variable selection wise
   - COmputation speed wise
 
-
+We could test other Particularly relavent to survival outcomes, in addition, we consider various settings of censoring rate, underlying distributions of baseline hazard function, which include commonly used familyes, Exponential, Weibull, Gumptry.
 
 From the software perspective, the proposed model can be easily extend to delayed entry, stratified Cox models. Explain why and how.
 
@@ -16,3 +16,5 @@ The model can be expanded to accomondate more complicated functional covartiates
 
 
 How to include time dependent covariates and time varying effects.
+
+
