@@ -5,11 +5,11 @@ options(tidyverse.quiet = TRUE)
 
 tar_option_set(
   packages = c(
-              "simsurv", # Simulation packages
-              "tidyverse", "ggplot2", "unglue", # Data wrangling packages
-               "knitr", "rmarkdown", "rticles", # Manuscript packages
-               "xtable" # Making Latex tables
-               ),
+    "simsurv", # Simulation packages
+    "tidyverse", "ggplot2", "unglue", # Data wrangling packages
+    "knitr", "rmarkdown", "rticles", # Manuscript packages
+    "xtable" # Making Latex tables
+  ),
   imports = c("BHAM")
 )
 
@@ -103,14 +103,84 @@ tar_plan(
   #   iteration = "list"
   # ),
 
-# Manuscript --------------------------------------------------------------
-#* Section Paths ####
-tar_files(manu_path,
-          c("Manuscript/01-intro.Rmd", "Manuscript/02-method.Rmd",
-            "Manuscript/03-simulation.Rmd", "Manuscript/04-real_data.Rmd",
-            "Manuscript/05-conclusion.Rmd", "Manuscript/bibfile.bib")
-),
+  # Real Data Analysis ------------------------------------------------------
+  #* Emory Card Biobank -----------------------------------------------------
+  tar_target(ECB_train_path,
+             "Real_Data/Emory_Card_Biobank/Data/Analysis_data_first_cohort.csv",
+             format = "file"),
 
-tar_render(manu, "Manuscript/00-main.Rmd",
-           output_file = "CPH_AM.pdf")
+  tar_target(ECB_train_dat,
+             readr::read_csv(ECB_train_path)),
+
+  tar_target(ECB_var_screen,
+             var_screen(ECB_train_dat)),
+
+  tar_target(ECB_cov,
+             ECB_train_dat %>%
+               select(all_of(ECB_var_screen)) %>%
+               data.matrix),
+
+  # TODO: choose the survival outcomes
+  tar_target(ECB_outcome,
+             ECB_train_dat %>% pull(death3yr)),
+
+  # ** BHAM ---------------------------------------------------------------
+  ECB_sm_df = data.frame(
+    Var = ECB_cov %>% colnames,
+    Func = "s",
+    Args ="bs='cr', k=5"
+  ),
+
+  ECB_sm_obj = construct_smooth_data(ECB_sm_df, ECB_train_dat),
+  ECB_dsn_mat = ECB_sm_obj$data,
+
+  ECB_bamlasso_raw = bamlasso(ECB_dsn_mat, ECB_outcome, family = "binomial",
+                              group = make_group(names(ECB_dsn_mat))),
+
+  ECB_bamlasso_cv = tune.bgam(ECB_bamlasso_raw, s0 = seq(0.005, 0.1, 0.01)),
+
+  ECB_bamlasso_fnl = bamlasso(ECB_dsn_mat, ECB_outcome, family = "binomial",
+                              group = make_group(names(ECB_dsn_mat)),
+                              ss = c(0.065 , 0.5)),
+
+  ECB_bamlasso_insample_msr = measure.bh(ECB_bamlasso_fnl),
+  ECB_bamlasso_var = bamlasso_var_selection(ECB_bamlasso_fnl),
+  # TODO: Use cv.bh to get the measures.
+
+  # *** Plot Non-Linear Functions ###
+  # TODO: to generalize this for a list of plots.
+  ECB_bamlasso_nonlnr = ECB_bamlasso_var$`Non-parametric`[[1]],
+
+  tar_target(
+    ECB_plot_list,
+    plot_smooth_term(ECB_bamlasso_fnl, ECB_bamlasso_nonlnr, ECB_sm_obj$Smooth,
+                     min = min(ECB_cov[, ECB_bamlasso_nonlnr])-0.1,
+                     max = max(ECB_cov[, ECB_bamlasso_nonlnr]) + 0.1)+
+      xlab(str_split(ECB_bamlasso_nonlnr, "[.]")[[1]][1])+
+      theme_pubr()+
+      theme(axis.title.y = element_blank(),
+            axis.text.x = element_blank(),
+            axis.text.y = element_blank()),
+    pattern = map(ECB_bamlasso_nonlnr),
+    iteration = "list"
+  ),
+
+  ECB_gg_plot = ggarrange(plotlist = ECB_plot_list) %>%
+    annotate_figure(left = "Linear Predictor", bottom = "Features"),
+
+  ECB_plot = ggsave(
+    filename = "Manuscript/Figs/ECB_plot.pdf",
+    plot = ECB_gg_plot,
+    device = "pdf"),
+
+  # Manuscript --------------------------------------------------------------
+  #* Section Paths ####
+  tar_files(manu_path,
+            c("Manuscript/01-intro.Rmd", "Manuscript/02-method.Rmd",
+              "Manuscript/03-simulation.Rmd", "Manuscript/04-real_data.Rmd",
+              "Manuscript/05-conclusion.Rmd", "Manuscript/bibfile.bib")
+  ),
+
+  tar_render(manu, "Manuscript/00-main.Rmd",
+             output_file = "CPH_AM.pdf")
 )
