@@ -4,21 +4,20 @@ library(tarchetypes)
 options(tidyverse.quiet = TRUE)
 
 tar_option_set(
-  packages = c("tidyverse", "knitr", "rmarkdown",
-               "ggplot2", "simsurv",
-               "unglue", "xtable")
+  packages = c(
+              "simsurv", # Simulation packages
+              "tidyverse", "ggplot2", "unglue", # Data wrangling packages
+               "knitr", "rmarkdown", "rticles", # Manuscript packages
+               "xtable" # Making Latex tables
+               ),
+  imports = c("BHAM")
 )
 
-## Load your packages, e.g. library(targets).
-# source("./packages.R")
 
 ## Load your R files
 lapply(list.files("./R", full.names = TRUE, recursive = TRUE), source)
 
-## tar_plan supports drake-style targets and also tar_target()
 tar_plan(
-
-
   # Simulation --------------------------------------------------------------
   # tar_files(
   #   sim_res_path,
@@ -107,13 +106,9 @@ tar_plan(
 # Manuscript --------------------------------------------------------------
 #* Section Paths ####
 tar_files(manu_path,
-          setdiff(
-            grep("*.Rmd|*.bib",
-                 list.files("Manuscript", full.names = TRUE),
-                 value = TRUE
-            ),
-            'Manuscript/00-main.Rmd'
-          )
+          c("Manuscript/01-intro.Rmd", "Manuscript/02-method.Rmd",
+            "Manuscript/03-simulation.Rmd", "Manuscript/04-real_data.Rmd",
+            "Manuscript/05-conclusion.Rmd", "Manuscript/bibfile.bib")
 ),
 
 tar_render(manu, "Manuscript/00-main.Rmd",
