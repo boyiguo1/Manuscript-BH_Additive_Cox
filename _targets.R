@@ -7,8 +7,9 @@ tar_option_set(
   packages = c(
     "simsurv", # Simulation packages
     "tidyverse", "ggplot2", "unglue", # Data wrangling packages
-    "knitr", "rmarkdown", "rticles", # Manuscript packages
-    "xtable" # Making Latex tables
+    "knitr", "rmarkdown", "rticles", "xtable", # Manuscript packages
+    "gtsummary","survival",
+    "glmnet", "BHAM", "BhGLM" # Data analysis packages
   ),
   imports = c("BHAM")
 )
@@ -106,7 +107,7 @@ tar_plan(
   # Real Data Analysis ------------------------------------------------------
   #* Emory Card Biobank -----------------------------------------------------
   tar_target(ECB_train_path,
-             "Real_Data/Emory_Card_Biobank/Data/Analysis_data_first_cohort.csv",
+             "Real_Data/Emory_Card_Biobank/Analysis_data_first_cohort.csv",
              format = "file"),
 
   tar_target(ECB_train_dat,
@@ -120,9 +121,21 @@ tar_plan(
                select(all_of(ECB_var_screen)) %>%
                data.matrix),
 
-  # TODO: choose the survival outcomes
   tar_target(ECB_outcome,
-             ECB_train_dat %>% pull(death3yr)),
+             ECB_train_dat %>%
+               select(time = timetodeath3yr,
+                      status = death3yr)),
+
+  # ** Data Sumary --------------------------------------------------------
+
+
+  # ** LASSO ---------------------------------------------------------------
+  ECB_lasso_cv = cv.glmnet(x=ECB_cov, y=Surv(ECB_outcome$time, event = ECB_outcome$status), family = "cox"),
+  ECB_lasso_fnl = glmnet(x=ECB_cov, y=Surv(ECB_outcome$time, event = ECB_outcome$status), family = "cox",
+                         lambda = ECB_lasso_cv$lambda.1se),
+  # In sample measures
+  # pred = predict(ECB_lasso_fnl, newx = ECB_cov),
+  # apply(pred, 2, Cindex, y = Surv(ECB_outcome$time, event = ECB_outcome$status)),
 
   # ** BHAM ---------------------------------------------------------------
   ECB_sm_df = data.frame(
@@ -134,44 +147,44 @@ tar_plan(
   ECB_sm_obj = construct_smooth_data(ECB_sm_df, ECB_train_dat),
   ECB_dsn_mat = ECB_sm_obj$data,
 
-  ECB_bamlasso_raw = bamlasso(ECB_dsn_mat, ECB_outcome, family = "binomial",
-                              group = make_group(names(ECB_dsn_mat))),
+  ECB_bcam_raw = bamlasso(x = ECB_dsn_mat, y = Surv(ECB_outcome$time, event = ECB_outcome$status),
+                          family = "cox", ss = c(0.04, 0.5),
+                          group = make_group(names(ECB_dsn_mat))),
 
-  ECB_bamlasso_cv = tune.bgam(ECB_bamlasso_raw, s0 = seq(0.005, 0.1, 0.01)),
+  ECB_bcam_cv = tune.bgam(ECB_bcam_raw, s0 = seq(0.005, 0.15, 0.01)),
+  #
+  ECB_bcam_fnl = bamlasso(x = ECB_dsn_mat, y = Surv(ECB_outcome$time, event = ECB_outcome$status) ,
+                          family = "cox", ss = c(0.025, 0.5), # TODO: edit
+                          group = make_group(names(ECB_dsn_mat))),
 
-  ECB_bamlasso_fnl = bamlasso(ECB_dsn_mat, ECB_outcome, family = "binomial",
-                              group = make_group(names(ECB_dsn_mat)),
-                              ss = c(0.065 , 0.5)),
-
-  ECB_bamlasso_insample_msr = measure.bh(ECB_bamlasso_fnl),
-  ECB_bamlasso_var = bamlasso_var_selection(ECB_bamlasso_fnl),
-  # TODO: Use cv.bh to get the measures.
+  # ECB_bamlasso_insample_msr = measure.bh(ECB_bcam_fnl),
+  ECB_bcam_var = bamlasso_var_selection(ECB_bcam_fnl),
 
   # *** Plot Non-Linear Functions ###
-  # TODO: to generalize this for a list of plots.
-  ECB_bamlasso_nonlnr = ECB_bamlasso_var$`Non-parametric`[[1]],
-
-  tar_target(
-    ECB_plot_list,
-    plot_smooth_term(ECB_bamlasso_fnl, ECB_bamlasso_nonlnr, ECB_sm_obj$Smooth,
-                     min = min(ECB_cov[, ECB_bamlasso_nonlnr])-0.1,
-                     max = max(ECB_cov[, ECB_bamlasso_nonlnr]) + 0.1)+
-      xlab(str_split(ECB_bamlasso_nonlnr, "[.]")[[1]][1])+
-      theme_pubr()+
-      theme(axis.title.y = element_blank(),
-            axis.text.x = element_blank(),
-            axis.text.y = element_blank()),
-    pattern = map(ECB_bamlasso_nonlnr),
-    iteration = "list"
-  ),
-
-  ECB_gg_plot = ggarrange(plotlist = ECB_plot_list) %>%
-    annotate_figure(left = "Linear Predictor", bottom = "Features"),
-
-  ECB_plot = ggsave(
-    filename = "Manuscript/Figs/ECB_plot.pdf",
-    plot = ECB_gg_plot,
-    device = "pdf"),
+  # # TODO: to generalize this for a list of plots.
+  ECB_bcam_nonlnr = ECB_bcam_var$`Non-parametric`[[1]],
+  #
+  # tar_target(
+  #   ECB_plot_list,
+  #   plot_smooth_term(ECB_bamlasso_fnl, ECB_bamlasso_nonlnr, ECB_sm_obj$Smooth,
+  #                    min = min(ECB_cov[, ECB_bamlasso_nonlnr])-0.1,
+  #                    max = max(ECB_cov[, ECB_bamlasso_nonlnr]) + 0.1)+
+  #     xlab(str_split(ECB_bamlasso_nonlnr, "[.]")[[1]][1])+
+  #     theme_pubr()+
+  #     theme(axis.title.y = element_blank(),
+  #           axis.text.x = element_blank(),
+  #           axis.text.y = element_blank()),
+  #   pattern = map(ECB_bamlasso_nonlnr),
+  #   iteration = "list"
+  # ),
+  #
+  # ECB_gg_plot = ggarrange(plotlist = ECB_plot_list) %>%
+  #   annotate_figure(left = "Linear Predictor", bottom = "Features"),
+  #
+  # ECB_plot = ggsave(
+  #   filename = "Manuscript/Figs/ECB_plot.pdf",
+  #   plot = ECB_gg_plot,
+  #   device = "pdf"),
 
   # Manuscript --------------------------------------------------------------
   #* Section Paths ####
