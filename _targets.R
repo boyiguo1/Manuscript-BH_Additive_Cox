@@ -8,7 +8,7 @@ tar_option_set(
     "simsurv", # Simulation packages
     "tidyverse", "ggplot2", "unglue", # Data wrangling packages
     "knitr", "rmarkdown", "rticles", "xtable", # Manuscript packages
-    "gtsummary","survival",
+    "gtsummary","survival", "ggpubr", "survminer",
     "glmnet", "BHAM", "BhGLM" # Data analysis packages
   ),
   imports = c("BHAM")
@@ -155,36 +155,38 @@ tar_plan(
   #
   ECB_bcam_fnl = bamlasso(x = ECB_dsn_mat, y = Surv(ECB_outcome$time, event = ECB_outcome$status) ,
                           family = "cox", ss = c(0.025, 0.5), # TODO: edit
-                          group = make_group(names(ECB_dsn_mat))),
+                          group = make_group(names(ECB_dsn_mat)),
+                          offset = 0),
+
+
 
   # ECB_bamlasso_insample_msr = measure.bh(ECB_bcam_fnl),
   ECB_bcam_var = bamlasso_var_selection(ECB_bcam_fnl),
 
-  # *** Plot Non-Linear Functions ###
-  # # TODO: to generalize this for a list of plots.
+  # *** Plot Non-Linear Functions ####
   ECB_bcam_nonlnr = ECB_bcam_var$`Non-parametric`[[1]],
-  #
-  # tar_target(
-  #   ECB_plot_list,
-  #   plot_smooth_term(ECB_bamlasso_fnl, ECB_bamlasso_nonlnr, ECB_sm_obj$Smooth,
-  #                    min = min(ECB_cov[, ECB_bamlasso_nonlnr])-0.1,
-  #                    max = max(ECB_cov[, ECB_bamlasso_nonlnr]) + 0.1)+
-  #     xlab(str_split(ECB_bamlasso_nonlnr, "[.]")[[1]][1])+
-  #     theme_pubr()+
-  #     theme(axis.title.y = element_blank(),
-  #           axis.text.x = element_blank(),
-  #           axis.text.y = element_blank()),
-  #   pattern = map(ECB_bamlasso_nonlnr),
-  #   iteration = "list"
-  # ),
-  #
-  # ECB_gg_plot = ggarrange(plotlist = ECB_plot_list) %>%
-  #   annotate_figure(left = "Linear Predictor", bottom = "Features"),
-  #
-  # ECB_plot = ggsave(
-  #   filename = "Manuscript/Figs/ECB_plot.pdf",
-  #   plot = ECB_gg_plot,
-  #   device = "pdf"),
+
+  tar_target(
+    ECB_plot_list,
+    plot_smooth_term(ECB_bcam_fnl, ECB_bcam_nonlnr, ECB_sm_obj$Smooth,
+                     min = min(ECB_cov[, ECB_bcam_nonlnr])-0.1,
+                     max = max(ECB_cov[, ECB_bcam_nonlnr]) + 0.1)+
+      xlab(str_split(ECB_bcam_nonlnr, "[.]")[[1]][1])+
+      theme_pubr()+
+      theme(axis.title.y = element_blank(),
+            axis.text.x = element_blank(),
+            axis.text.y = element_blank()),
+    pattern = map(ECB_bcam_nonlnr),
+    iteration = "list"
+  ),
+
+  ECB_gg_plot = ggarrange(plotlist = ECB_plot_list) %>%
+    annotate_figure(left = "Linear Predictor", bottom = "Features"),
+
+  ECB_plot = ggsave(
+    filename = "Manuscript/Figs/ECB_plot.pdf",
+    plot = ECB_gg_plot,
+    device = "pdf"),
 
   # Manuscript --------------------------------------------------------------
   #* Section Paths ####
