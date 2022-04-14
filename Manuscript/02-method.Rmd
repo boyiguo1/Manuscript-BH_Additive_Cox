@@ -47,8 +47,12 @@ in-depth survey of the topic.
 
 [TODO: introduce smoothing functions]
 
+$$
+h(t|\bs x) = h_0(t)exp(a + \sum\limits^p_{j=1}B_j(x_j)),\qquad E[B_j(x_j)] = 0.
+$$
+
 To encourage proper smoothing of the functions, we adopt the idea of
-smoothing penalties from smoothing spline models \cite{Wood2017}. [TODO:
+smoothing penalties from smoothing spline models \cite{Wood2017}. Smoothing penalty is conventionally formulated as integrated squared second derivative of smooth functions. It's advantages[TODO:
 two sentences to describe smooth penalty] While it is hard to directly
 integrate smoothing penalty with sparsity penalty, @Marra2011 proposed a
 reparameterization to implement smoothing penalty in the design matrix.
@@ -71,6 +75,8 @@ is an augmentation of the coefficient scalar $\beta_j$ of linear space
 and the coefficient vector $\bs \beta^\tp_j$ of non-linear space.
 
 \subsection{Two-part Spike-and-slab LASSO Prior for Smoothing Functions}
+
+There are growing traction to use bayesian hierarhical models to address the high-dimensional data analysis as an alternative to the penalized models. The advantages of Bayesian hierarhical models includes 1) posterior distribution inference and hence uncertainty measures, 2) locally adaptive shrinkage based on data, 3) information borrowing, xxx. We saw braod development in high-dimensional generalized additive models, and survival models. Specifically, previous development of group spike-and-slab LASSO model for survival model. This is also the foundation of the proposed method.
 
 $$
 pl(\beta) = \sum\limits^n_{i=1}d_i\log(\frac{\exp(X_i \beta)}{\sum\limits_{j \in R(t_i)}\exp(X_j\beta)}), 
@@ -165,6 +171,9 @@ extended to the non-Gaussian GAM settings. He focused on the maximum a
 postiori (MAP) estimator of the parameters. While Bai's algorithm is
 fast, it lacks the ability to provide uncertainty measure of the
 estimates.
+
+[A paragraph to introduce spike-and-slab.] Natural disadvantage, for example, prohibited coputational of model fitting algorithm, of Bayesian models doesn't discourage the development of bayesian models in Cox model.
+
 
 We develop a fast deterministic algorithm to fit the ss-Cox model. The
 algorithm is an extension of the previously proposed EM-IRLS. It
