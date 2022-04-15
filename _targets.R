@@ -127,7 +127,8 @@ tar_plan(
                       status = death3yr)),
 
   # ** Data Sumary --------------------------------------------------------
-
+  ECB_time = median(ECB_outcome$time),
+  ECB_event_rate = sum(ECB_outcome$status)/nrow(ECB_outcome),
 
   # ** LASSO ---------------------------------------------------------------
   ECB_lasso_cv = cv.glmnet(x=ECB_cov, y=Surv(ECB_outcome$time, event = ECB_outcome$status), family = "cox"),
@@ -155,11 +156,12 @@ tar_plan(
   #
   ECB_bcam_fnl = bamlasso(x = ECB_dsn_mat, y = Surv(ECB_outcome$time, event = ECB_outcome$status) ,
                           family = "cox", ss = c(0.025, 0.5), # TODO: edit
-                          group = make_group(names(ECB_dsn_mat)),
-                          offset = 0),
+                          group = make_group(names(ECB_dsn_mat))),
 
+  # ECB_bcam_fnl$offset = 0,
+  ECB_bcam_insample_pred = predict(ECB_bcam_fnl, newx = ECB_dsn_mat %>% as.matrix(), type = "link", newoffset = 0),
 
-
+  plot_KM(ECB_outcome, ECB_bcam_insample_pred),
   # ECB_bamlasso_insample_msr = measure.bh(ECB_bcam_fnl),
   ECB_bcam_var = bamlasso_var_selection(ECB_bcam_fnl),
 
