@@ -161,7 +161,7 @@ tar_plan(
   # ECB_bcam_fnl$offset = 0,
   ECB_bcam_insample_pred = predict(ECB_bcam_fnl, newx = ECB_dsn_mat %>% as.matrix(), type = "link", newoffset = 0),
 
-  plot_KM(ECB_outcome, ECB_bcam_insample_pred),
+  # plot_KM(ECB_outcome, ECB_bcam_insample_pred),
   # ECB_bamlasso_insample_msr = measure.bh(ECB_bcam_fnl),
   ECB_bcam_var = bamlasso_var_selection(ECB_bcam_fnl),
 

@@ -1,254 +1,76 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 \section{Cox Proportional Hazard Additive Model}
 
-For each individual, we collect the the covariate variables
-$\bs X_i = (X_{i1}, \dots, X_{ip}) \in \mathbb{R}^{p}$ and the survival
-outcome $(T_i, C_i) \in {\mathbb{R}^+ \times \{0,1\}}$ where $T$ is the
-observed survival time, and $C$ is a binary variable, marking if the
-status. When $C=0$, the observation is censored at the survival time $T$
-and when $C=1$, we observe the event of interest at time $T$. We assume
-non-informative right censoring. We also assume there is no competing
-risk, or multiple occurrence of the event. For the $i$th individual, a
-tuple of three exists $\{t_i, d_i, \bs x_i\}$, where $\bs x_i$ is a
-vector of covariates. In addition, the survival time $t_i$ and the
-censoring indicator $d_i$ are recorded, where $d_i$ takes the value 1
-when censoring happens at the survival time $y_i$, and takes the value 0
-when the event of interest happens. The Cox proportional hazard model is
-formulated as
+For each individual, we collect the the covariate variables $\bs X_i = (X_{i1}, \dots, X_{ip}) \in \mathbb{R}^{p}$ and the survival outcome $(T_i, C_i) \in {\mathbb{R}^+ \times \{0,1\}}$ where $T$ is the observed survival time, and $C$ is a binary variable, marking if the status. When $C=0$, the observation is censored at the survival time $T$ and when $C=1$, we observe the event of interest at time $T$. We assume non-informative right censoring. We also assume there is no competing risk, or multiple occurrence of the event. For the $i$th individual, a tuple of three exists $\{t_i, d_i, \bs x_i\}$, where $\bs x_i$ is a vector of covariates. In addition, the survival time $t_i$ and the censoring indicator $d_i$ are recorded, where $d_i$ takes the value 1 when censoring happens at the survival time $y_i$, and takes the value 0 when the event of interest happens. The Cox proportional hazard model, with additive functions $B_j(x_j) = \beta_jX_j$, is formulated as $$
+h(t|\bs x) = h_0(t)exp(a + \sum\limits^p_{j=1}B_j(x_j)) = h_0(t) \exp(a + \sum\limits^p_{j=1}\beta^T_jX_j).
+$$ For the purpose of identifiability, we impose an constraint on each additive function $E[B_j(x_j)] = 0$. $h(t)$ is the hazard function and $h_0(t)$ is the baseline hazard function. The hazard function $h(t)$ describes the instantaneous rate of event occurrence among people who are still at risk at the moment. It has a one-to-one relationship with the survival function, which describes the distribution of event time. The linear predictor $\bs x \bs \beta$ is also called the **prognostic index**. To be noted, different from GLMs, there is no intercept term necessary in the design matrix $\bs x$, as the baseline hazard function $h_0(t)$ estimates an reference level of survival risk. The baseline hazard function indeed changes when additional measure were taken fro the design matrix, such as centering and scaling, while the coefficients $\bs x$ remain unchanged. We defer to \cite{Klein2003, Ibrahim2001} for in-depth survey of the topic.
 
-The most popular tools to analyze such data include Cox proportional
-hazard model, refered as Cox model hereafter. Cox model is a
-semi-parametric model that assumes proportional hazard. Each participant
-shares a common baseline hazard function of time $t$, $h_0(t)$, and the
-individual hazard given their covariates $\bs x_i$ change on the
-multiplicative scale, mathematically, $$
-h(t;\bs x_i) = h_0(t)\exp(\bs \beta^T \bs x_i).
+Unlike the GLM, the estimation for the coefficients $\bs \beta$ doesn't directly maximize log likelihood due to the functional nature of survival analysis. Instead, we consider to maximize the partial log-likelihood function \cite{cox1972}, mathematically, $$
+pl(\bs \beta) = \sum\limits^n_{i=1}d_i\log\frac{\exp{\bs x_i \bs \beta}}{\sum_{j\in R(t_i)} \exp(\bs x_j \bs \beta)},
+$$ where $R(t_i)$ denotes the risk set at time $t_i$, i.e. the set of all patients who still survived prior to time $t_i$. When tied failure or censoring time exists, a modified partial log-likelihood function can be used \cite{Efron1977}. Conditional on $\beta$, the baseline hazard function $h_0(t_i)$ can be estimated using Breslow estimator \cite{breslow1974}, $$
+\hat h_0(t_i|\beta) = d_i/\sum\limits_{i^\prime \in R(t_i)} exp(X_{i^\prime}\beta).
 $$
 
-To note, intercept term are normally replaced with the baseline hazard
-function $h_0(t)$. where $h(t)$ is the hazard function and $h_0(t)$ is
-the baseline hazard function. The hazard function $h(t)$ describes the
-instantaneous rate of event occurrence among people who are still at
-risk at the moment. It has a one-to-one relationship with the survival
-function, which describes the distribution of event time. The linear
-predictor $\bs x \bs \beta$ is also called the **prognostic index**. To
-be noted, different from GLMs, there is no intercept term necessary in
-the design matrix $\bs x$, as the baseline hazard function $h_0(t)$
-estimates an reference level of survival risk. The baseline hazard
-function indeed changes when additional measure were taken fro the
-design matrix, such as centering and scaling, while the coefficients
-$\bs x$ remain unchanged. We defer to \cite{Klein2003, Ibrahim2001} for
-in-depth survey of the topic.
-
-[TODO: introduce smoothing functions]
-
-$$
-h(t|\bs x) = h_0(t)exp(a + \sum\limits^p_{j=1}B_j(x_j)),\qquad E[B_j(x_j)] = 0.
-$$
-
-To encourage proper smoothing of the functions, we adopt the idea of
-smoothing penalties from smoothing spline models \cite{Wood2017}. Smoothing penalty is conventionally formulated as integrated squared second derivative of smooth functions. It's advantages[TODO:
-two sentences to describe smooth penalty] While it is hard to directly
-integrate smoothing penalty with sparsity penalty, @Marra2011 proposed a
-reparameterization to implement smoothing penalty in the design matrix.
-Given the smoothing penalty matrix $\bs S_j$ is symmetric and positive
-semi-definite for univariate smoothing functions, we apply
-eigendecomposition on the penalty matrix $\bs S = \bs U \bs D \bs U^T$ ,
-where eigenvectors and eigenvalues are arranged in the matrices $\bs U$
-and $\bs D$ respectively. The zero eigenvalue and its corresponding
-eigenvector span the linear space of the smoothing function, which
-allows us to separate the linear space from the smoothing function. By
-multiplying the design matrix $X$ and eigenvector matrix $U$ and
-properly scaling with eigenvalues, we can have a new design matrix such
-that the smoothing function of variable $x_j$ can be written as $$
+To encourage proper smoothing of the functions, we adopt the idea of smoothing penalties from smoothing spline models \cite{Wood2017}. Smoothing penalty is conventionally formulated as integrated squared second derivative of smooth functions. It's advantages[TODO: two sentences to describe smooth penalty] While it is hard to directly integrate smoothing penalty with sparsity penalty, @Marra2011 proposed a reparameterization to implement smoothing penalty in the design matrix. Given the smoothing penalty matrix $\bs S_j$ is symmetric and positive semi-definite for univariate smoothing functions, we apply eigendecomposition on the penalty matrix $\bs S = \bs U \bs D \bs U^T$ , where eigenvectors and eigenvalues are arranged in the matrices $\bs U$ and $\bs D$ respectively. The zero eigenvalue and its corresponding eigenvector span the linear space of the smoothing function, which allows us to separate the linear space from the smoothing function. By multiplying the design matrix $X$ and eigenvector matrix $U$ and properly scaling with eigenvalues, we can have a new design matrix such that the smoothing function of variable $x_j$ can be written as $$
 B_j(x_j) = B_j^0(x_j) + B_j^\tp (x_j) = \beta_j X^0_j + \bs {\beta_j^\tp}^T \bs X_j^\tp ,
-$$ where
-$\bs X_j \equiv \begin{bmatrix} X_j^0 : \bs X_j^{\tp} \end{bmatrix}$ as
-the basis function matrix for the $j$th variable; the coefficients
-$\bs \beta_j \equiv \begin{bmatrix} \beta_j : \bs \beta^\tp_j \end{bmatrix}$
-is an augmentation of the coefficient scalar $\beta_j$ of linear space
-and the coefficient vector $\bs \beta^\tp_j$ of non-linear space.
+$$ where $\bs X_j \equiv \begin{bmatrix} X_j^0 : \bs X_j^{\tp} \end{bmatrix}$ as the basis function matrix for the $j$th variable; the coefficients $\bs \beta_j \equiv \begin{bmatrix} \beta_j : \bs \beta^\tp_j \end{bmatrix}$ is an augmentation of the coefficient scalar $\beta_j$ of linear space and the coefficient vector $\bs \beta^\tp_j$ of non-linear space.
 
 \subsection{Two-part Spike-and-slab LASSO Prior for Smoothing Functions}
+We extend previous spike-and-slab Lasso prior for group predictors \cite{} to accommodate smoothing functions. We see many uses group prior or penalt in the context of GAMs to accomodate the grouping nature of the bases of smoothing functions. However, this approach is vulnerable to excess shinkage on the coefficients and possibly leads to oversmoothed additive function. Hence, we modify the group spike-and-slab Lasso prior to consider not only the correlated nature fo the bases, but also proper smoothing of each additive function. Meanwhile, spike-and-slab Lasso prior has other advantages in high-dimensional data analysis. 1) it provide a natural and continuous process for variable selection. Unlike to its predecor spike-and-slab prior, the spike-and-slab LASSO prior doesn't require thresholding to make decision about the inclusion of the varibales. Secondly, the sSL prior encourages a locally adpative shrinkage on the coefficients. [TODO: add a sentence what this mean.] Last but not least, SSL prior motivates a fast computing algorithm that makes high-dimensional data analysis not only feasible, but also effecient. 
 
-There are growing traction to use bayesian hierarhical models to address the high-dimensional data analysis as an alternative to the penalized models. The advantages of Bayesian hierarhical models includes 1) posterior distribution inference and hence uncertainty measures, 2) locally adaptive shrinkage based on data, 3) information borrowing, xxx. We saw braod development in high-dimensional generalized additive models, and survival models. Specifically, previous development of group spike-and-slab LASSO model for survival model. This is also the foundation of the proposed method.
+[TODO: add a paragraph of group spiek-and-slab lasso prior]
 
-$$
-pl(\beta) = \sum\limits^n_{i=1}d_i\log(\frac{\exp(X_i \beta)}{\sum\limits_{j \in R(t_i)}\exp(X_j\beta)}), 
-$$ where $R(t_i)$ is the risk set at time $t_i$.
+With the 'likelihood' function set up, we further impose the spike-and-slab spline priors on the vector of coefficients $\bs \beta$. The spike-and-slab spline priors are similar as introduced in the Chapter 3, where the coefficients independently follow a mixture distribution of normal distributions or $t$ distributions or double exponential distributions. For simplicity, we introduce the the mixture normal prior distribution. We defer the generalization to the mixture $t$ or mixture double exponential distribution to the following sections. A spike-and-slab normal distribution can be formulated as $$ \beta_{jk} |\gamma_{jk},s_0,s_1 \sim N(0,(1-\gamma_{jk}) s_0 + \gamma_{jk} s_1), s_1 > s_0 > 0$$, Where $\gamma_{jk}$ is a latent indicator variable, taking value of 0 and 1; $s_0$ and $s_1$ are scale parameters, assuming given. Thus the prior is a mixture of the shrinkage prior normal(0, $s_0$) and the weakly informative prior normal(0, $s_1$), which are spike and slab components, respectively. Like any other spike and slab priors, the spike is to contain the minimum to zero effects, while the slab is to allow large effects. The scale parameters $s_0$ and $s_1$ are also considered as tuning parameters, which can be optimized via cross-validation. A discussion of how to choose the scale parameters comes later.
 
-Unlike the GLM, the estimation for the coefficients $\bs \beta$ doesn't
-directly maximize log likelihood due to the functional nature of
-survival analysis. The likelihood function of the censored survival data
-can be expressed as $$
-L(\beta, h_0) = \prod\limits^n_{i=0}[h(t_i)]^{d_i}S(t_i).
-$$ The log-likelihood function for the cox proportional hazard model can
-be derived as $$
-l(\beta, h_0) = \sum^n_{i=1}[-H_0(t_i)exp(X_i\beta) + d_i(log h_o(t_i) + X_i\beta)]
-$$ Given $H_0(t) = \sum\limits_{t_i\leq t}h_0(t_i)$, the log-likelihood
-function can be reformulated as $$
-l(\beta, h_0) = \sum^n_{i=1}[-h_0(t_i)\sum\limits_{i^\prime \in R(t_i)}exp(X_{i^\prime}\beta) + d_i(log h_o(t_i) + X_i\beta)],
-$$ where $R(t_i)$ is the risk set at time $t_i$, i.e. the set of all
-patients who still survived prior to time $t_i$. Conditional on $\beta$,
-the baseline hazard function $h_0(t_i)$ can be estimated using Breslow
-estimator (Breslow 1974), $$
-\hat h_0(t_i|\beta) = d_i/\sum\limits_{i^\prime \in R(t_i)} exp(X_{i^\prime}\beta).
-$$ The resulting log-likelihood can be simplified to the partial
-log-likelihood(Cox 1972) $$
-pl(\bs \beta) = \sum\limits^n_{i=1}d_i\log\frac{\exp{\bs x_i \bs \beta}}{\sum_{j\in R(t_i)} \exp(\bs x_j \bs \beta)},
-$$ where $R(t_i)$ denotes the risk set at time $t_i$. By maximizing the
-partial log-likelihood function, the coefficient vector can be
-estimated. When tied failure or censoring time exists, a modified
-partial log-likelihood function can be used [@Efron1977].
-
-With the 'likelihood' function set up, we further impose the
-spike-and-slab spline priors on the vector of coefficients $\bs \beta$.
-The spike-and-slab spline priors are similar as introduced in the
-Chapter 3, where the coefficients independently follow a mixture
-distribution of normal distributions or $t$ distributions or double
-exponential distributions. For simplicity, we introduce the the mixture
-normal prior distribution. We defer the generalization to the mixture
-$t$ or mixture double exponential distribution to the following
-sections. A spike-and-slab normal distribution can be formulated as
-$$ \beta_{jk} |\gamma_{jk},s_0,s_1 \sim N(0,(1-\gamma_{jk}) s_0 + \gamma_{jk} s_1), s_1 > s_0 > 0$$,
-Where $\gamma_{jk}$ is a latent indicator variable, taking value of 0
-and 1; $s_0$ and $s_1$ are scale parameters, assuming given. Thus the
-prior is a mixture of the shrinkage prior normal(0, $s_0$) and the
-weakly informative prior normal(0, $s_1$), which are spike and slab
-components, respectively. Like any other spike and slab priors, the
-spike is to contain the minimum to zero effects, while the slab is to
-allow large effects. The scale parameters $s_0$ and $s_1$ are also
-considered as tuning parameters, which can be optimized via
-cross-validation. A discussion of how to choose the scale parameters
-comes later.
-
-We specify the distribution of indicator variables by incorporating the
-inherent group structure of basis functions. For the bases of the
-variable $j$, the indicator variables are assume to follow the binomial
-distribution with a probability spline-specific probability $\theta_j$:
-$$
+We specify the distribution of indicator variables by incorporating the inherent group structure of basis functions. For the bases of the variable $j$, the indicator variables are assume to follow the binomial distribution with a probability spline-specific probability $\theta_j$: $$
 \gamma_{jk} | \theta_j \sim Bin(\gamma_{jk}|1, \theta_j).
-$$ This is to leverage the fact that the probability of selecting the
-bases of a smooth function should be similar, while allowing different
-degree of shrinkage for the bases. It is possible to set the indicator
-the same for all the bases, which is previously mentioned in Yang &
-Narisetty (2020) and Bai (Work in progress). Such prior set-ups ignore
-the null space of the smooth function, and entirely removes the variable
-out of the function. In contrasts, it is not problematic in our prior
-set up, as that the penalty for smoothness is locally adaptive for the
-bases and hence retain the the null space if necessary.
+$$ This is to leverage the fact that the probability of selecting the bases of a smooth function should be similar, while allowing different degree of shrinkage for the bases. It is possible to set the indicator the same for all the bases, which is previously mentioned in Yang & Narisetty (2020) and Bai (Work in progress). Such prior set-ups ignore the null space of the smooth function, and entirely removes the variable out of the function. In contrasts, it is not problematic in our prior set up, as that the penalty for smoothness is locally adaptive for the bases and hence retain the the null space if necessary.
 
-We further specify the parameter $\theta_j$ follows a beta distribution
-with given shape parameters $a$ and $b$, $$
+We further specify the parameter $\theta_j$ follows a beta distribution with given shape parameters $a$ and $b$, $$
 \theta_j \sim Beta(a, b).
-$$ The beta distribution is a conjugate prior for the binomial
-distribution and hence provides some computation convenience.
-Specifically, we focus on a special case of beta distribution, uniform
-(0,1) for simplicity and convenience. To note, when the variable have
-large effects in any of the bases, the parameter $\theta_j$ will be
-estimated large, which in turn encourages the model to include the rest
-of bases. The smoothness of each spline function will be further
-estimated via the individual $\gamma_jk$. Hereafter, we refer the
-hierarchical spline Cox Model with the group spike-and-slab mixture
-normal prior as the ss-Cox Spline Model.
+$$ The beta distribution is a conjugate prior for the binomial distribution and hence provides some computation convenience. Specifically, we focus on a special case of beta distribution, uniform (0,1) for simplicity and convenience. To note, when the variable have large effects in any of the bases, the parameter $\theta_j$ will be estimated large, which in turn encourages the model to include the rest of bases. The smoothness of each spline function will be further estimated via the individual $\gamma_jk$. Hereafter, we refer the hierarchical spline Cox Model with the group spike-and-slab mixture normal prior as the ss-Cox Spline Model.
 
  
 
 \subsection{EM-Coordinate Descent Algorithm for Scalable Model Fitting}
 
-Parsimonious computation is always encouraged in high-dimension data
-analysis. Bayesian methodology loses its advantages over Frequentest
-penalized model because of the computation cost. Previous Bayesian
-spline models heavily relies on the MCMC algorithm to establish
-posterior distribution of parameters. One of the exception is Bai (in
-progress), who took advantages of the fast computing EMVS algorithm and
-extended to the non-Gaussian GAM settings. He focused on the maximum a
-postiori (MAP) estimator of the parameters. While Bai's algorithm is
-fast, it lacks the ability to provide uncertainty measure of the
-estimates.
+Parsimonious computation is always encouraged in high-dimension data analysis. Bayesian methodology loses its advantages over Frequentest penalized model because of the computation cost. Previous Bayesian spline models heavily relies on the MCMC algorithm to establish posterior distribution of parameters. One of the exception is Bai (in progress), who took advantages of the fast computing EMVS algorithm and extended to the non-Gaussian GAM settings. He focused on the maximum a postiori (MAP) estimator of the parameters. While Bai's algorithm is fast, it lacks the ability to provide uncertainty measure of the estimates.
 
 [A paragraph to introduce spike-and-slab.] Natural disadvantage, for example, prohibited coputational of model fitting algorithm, of Bayesian models doesn't discourage the development of bayesian models in Cox model.
 
+We develop a fast deterministic algorithm to fit the ss-Cox model. The algorithm is an extension of the previously proposed EM-IRLS. It incorporates the IRLS algorithm into the EM steps to iteratively find the MAP estimates. Thanks to the versatility of IRLS algorithm, the proposed algorithm can dealt with many family of outcomes. Also, the proposed can work not only for the prior previously mentioned, but also some modified priors, for example mixed double exponential.
 
-We develop a fast deterministic algorithm to fit the ss-Cox model. The
-algorithm is an extension of the previously proposed EM-IRLS. It
-incorporates the IRLS algorithm into the EM steps to iteratively find
-the MAP estimates. Thanks to the versatility of IRLS algorithm, the
-proposed algorithm can dealt with many family of outcomes. Also, the
-proposed can work not only for the prior previously mentioned, but also
-some modified priors, for example mixed double exponential.
-
-Recall the mixture normal prior set-up described , we have the prior
-densities, $$
+Recall the mixture normal prior set-up described , we have the prior densities, $$
 \begin{aligned}
 p(\bs \beta | \bs\gamma) &\propto \prod\limits_{j=1}^{p}\prod\limits_{k=1}^{K_j}((1-\gamma_{jk}) s_0 + \gamma_{jk} s_1)^{-1/2}\exp(-1/2(\beta_{jk}^2/((1-\gamma_{jk}) s_0 + \gamma_{jk} s_1)))\\
 p(\bs\gamma | \bs \theta) & = \prod\limits_{j=1}^{p}\prod\limits_{k=1}^{K_j} \theta_j^{\gamma_{jk}} (1-\theta_j)^{1-\gamma_{jk}}.
 \end{aligned}
 $$
 
-We define the parameters of interest as
-$\Theta = {\bs \beta, \bs \theta, \phi}$. The log posterior density of
-$\Theta$ requires a slight modification from the The log-posterior for
-ss-Cox model (up to additive constants). The log likelihood function
-needs to be replaced by the log partial likelihood function. The log
-density is still expressed with a two-part equation, which can be
-maximized separately,
+We define the parameters of interest as $\Theta = {\bs \beta, \bs \theta, \phi}$. The log posterior density of $\Theta$ requires a slight modification from the The log-posterior for ss-Cox model (up to additive constants). The log likelihood function needs to be replaced by the log partial likelihood function. The log density is still expressed with a two-part equation, which can be maximized separately,
 
-$$ \log p(\Theta, \bs \gamma| \textbf{y}, \textbf{X}) = Q_1(\beta, \phi) + Q_2 (\gamma,\theta),$$
-Where
-$$ Q_1(\bs \beta, \phi) = \log pl(\textbf{y}|\bs \beta, \phi) + \log p(\phi) + \sum\limits_{j=1}^p\sum\limits_{k=1}^{K_j} \log p(\beta_{jk}|\gamma_{jk})$$
-and $$
-Q_2(\delta,\theta) = \sum\limits_{j=1}^{p}\sum\limits_{k=1}^{K_j} \left[ \gamma_{jk}\log \theta_j + (1-\gamma_{jk}) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log p(\theta_j) .$$
-The partial log-likelihood $pl(\beta)$ can also be substitute by the
-Breslow or the Effron approximation in the presence of ties., and the
-baseline hazard function $\lambda_0$ is replaced by the Breslow
-estimator.
+$$ \log p(\Theta, \bs \gamma| \textbf{y}, \textbf{X}) = Q_1(\beta, \phi) + Q_2 (\gamma,\theta),$$ Where $$ Q_1(\bs \beta, \phi) = \log pl(\textbf{y}|\bs \beta, \phi) + \log p(\phi) + \sum\limits_{j=1}^p\sum\limits_{k=1}^{K_j} \log p(\beta_{jk}|\gamma_{jk})$$ and $$
+Q_2(\delta,\theta) = \sum\limits_{j=1}^{p}\sum\limits_{k=1}^{K_j} \left[ \gamma_{jk}\log \theta_j + (1-\gamma_{jk}) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log p(\theta_j) .$$ The partial log-likelihood $pl(\beta)$ can also be substitute by the Breslow or the Effron approximation in the presence of ties., and the baseline hazard function $\lambda_0$ is replaced by the Breslow estimator.
 
-Similar to the ssGAMs, we need to calculate the expecataion of the $Q_1$
-and $Q_2$ with respect to the missing data $\gamma_{jk}|\Theta^{t-1}$,
-which yields the same estimation, \begin{align*}
+Similar to the ssGAMs, we need to calculate the expecataion of the $Q_1$ and $Q_2$ with respect to the missing data $\gamma_{jk}|\Theta^{t-1}$, which yields the same estimation, \begin{align*}
 E(Q_1) &= \log p(\textbf{y}|\bs \beta, \phi) + \log p(\phi) + \sum\limits_{j=1}^p\sum\limits_{k=1}^{K_j}E(S^{-1}_{jk})\beta_{jk}^2\\
 E(Q_2) &= \sum\limits_{j=1}^{p}\sum\limits_{k=1}^{K_j} \left[ E(\gamma_{jk})\log \theta_j + (1-E(\gamma_{jk})) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log p(\theta_j)
 \end{align*} where $$
 E(\gamma_{jk}) = p_{jk} = \frac{Pr(\gamma_{jk} = 1|\theta_j)f(\beta_{jk}|\gamma_{jk}=1, s_1) }{Pr(\gamma_{jk} = 1|\theta_j)f(\beta_{jk}|\gamma_{jk}=1, s_1) + Pr(\gamma_{jk} = 0|\theta_j)f(\beta_{jk}|\gamma_{jk}=0, s_0)}
 $$ $$
 E(S^{-1}_{jk}) = \frac{1-p_{jk}}{2s_0} + \frac{p_{jk}}{2s_1}.
-$$ We can see that the estimates of $\gamma_jk, S^{-1}_{jk}$ are larger
-for larger coefficients $\beta_{jk}$, leading to different shrinkage for
-different coefficients. Moreover, to note that, we have different
-shrinkage $S^{-1}_{jk}$for the coefficients $\beta_{jk}$ of the variable
-$x_j$, and hence, we can penalize the null space of the spline
-differently and allow local adaption.
+$$ We can see that the estimates of $\gamma_jk, S^{-1}_{jk}$ are larger for larger coefficients $\beta_{jk}$, leading to different shrinkage for different coefficients. Moreover, to note that, we have different shrinkage $S^{-1}_{jk}$for the coefficients $\beta_{jk}$ of the variable $x_j$, and hence, we can penalize the null space of the spline differently and allow local adaption.
 
-In the M-step, $\bs \beta, \phi$ and $\bs \theta$ can be maximized
-respectively via $E(Q_1)$ and $E(Q_2)$ as $Q_1$ and $Q_2$ are functions
-contain either $\bs \beta$ or $\bs \theta$. Therefore, the coefficients
-$\bs \beta$ are updated by maximizing $E(Q_1)$, where $E(Q_1)$ can be
-treated as $L_2$ penalized likelihood function. Such maximization can be
-easily achieved with IRLS. The disperse parameter $\phi$ is updated if
-applicable. Meanwhile, the probability parameters $\bs \theta$ are
-updated by maximizing $E(Q_2)$. As the beta distribution is a conjugate
-prior for Bernoulli distribution, $\bs \theta$ can be easily updated
-with a closed form equation: $$
+In the M-step, $\bs \beta, \phi$ and $\bs \theta$ can be maximized respectively via $E(Q_1)$ and $E(Q_2)$ as $Q_1$ and $Q_2$ are functions contain either $\bs \beta$ or $\bs \theta$. Therefore, the coefficients $\bs \beta$ are updated by maximizing $E(Q_1)$, where $E(Q_1)$ can be treated as $L_2$ penalized likelihood function. Such maximization can be easily achieved with IRLS. The disperse parameter $\phi$ is updated if applicable. Meanwhile, the probability parameters $\bs \theta$ are updated by maximizing $E(Q_2)$. As the beta distribution is a conjugate prior for Bernoulli distribution, $\bs \theta$ can be easily updated with a closed form equation: $$
 \theta_j = \frac{\sum\limits_{k = 1}^{K_j}p_{jk} + a - 1 }{K_j + a + b -2}.
 $$ The last step is
 
-Totally, the framework of the proposed EM IRLS algorithm was summarized
-as follows:
+Totally, the framework of the proposed EM IRLS algorithm was summarized as follows:
 
-1)  Choose a starting value $\bs \beta^0$ and $\bs \theta^0$ for
-    $\bs \beta$ and $\bs \theta$. For example, we can initialize
-    $\bs \beta^0 = \bs 0$ and $\bs \theta^0 = \bs 0.5$
+1)  Choose a starting value $\bs \beta^0$ and $\bs \theta^0$ for $\bs \beta$ and $\bs \theta$. For example, we can initialize $\bs \beta^0 = \bs 0$ and $\bs \theta^0 = \bs 0.5$
 
 2)  Iterate over the E-step and M-step until convergence
 
-E-step: calculate $E(\gamma_{jk})$ and $E(S^{-1}_{jk})$ with estimates
-of $\Theta$ from previous iteration
+E-step: calculate $E(\gamma_{jk})$ and $E(S^{-1}_{jk})$ with estimates of $\Theta$ from previous iteration
 
 M-step:
 
@@ -256,8 +78,4 @@ a)  Update $\bs \beta$ using the IRLS algorithm
 
 b)  Update $\bs \theta$ using the closed form equation
 
-We assess convergence by the criterion:
-$|d^{(t)}-d^{(t-1)}|/(0.1+|d^{(t)}|)<\epsilon$, where
-$d^{(t)} = -2l(\beta^{(t)},\phi^{(t)})$ is the estimate of deviance at
-the $t^{\text{th}}$ iteration, and $\epsilon$ is a small value (say
-$10^{-5}$).
+We assess convergence by the criterion: $|d^{(t)}-d^{(t-1)}|/(0.1+|d^{(t)}|)<\epsilon$, where $d^{(t)} = -2l(\beta^{(t)},\phi^{(t)})$ is the estimate of deviance at the $t^{\text{th}}$ iteration, and $\epsilon$ is a small value (say $10^{-5}$).

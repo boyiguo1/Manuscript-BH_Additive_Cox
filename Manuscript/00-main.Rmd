@@ -53,19 +53,15 @@ tar_load(manu_path)
 ```{r intro, child = "~/GitHub/Manuscript-BH_Additive_Cox/Manuscript/01-intro.Rmd"}
 ```
 
-\newpage
 ```{r method, child = "~/GitHub/Manuscript-BH_Additive_Cox/Manuscript/02-method.Rmd"}
 
 ```
-\newpage
 
 ```{r simulation, child="~/GitHub/Manuscript-BH_Additive_Cox/Manuscript/03-simulation.Rmd"}
 ```
-\newpage
 
 ```{r real_data, child="~/GitHub/Manuscript-BH_Additive_Cox/Manuscript/04-real_data.Rmd"}
 ```
-\newpage
 
 ```{r conclusion, child="~/GitHub/Manuscript-BH_Additive_Cox/Manuscript/05-conclusion.Rmd"}
 ```
