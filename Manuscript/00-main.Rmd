@@ -54,7 +54,6 @@ tar_load(manu_path)
 ```
 
 ```{r method, child = "~/GitHub/Manuscript-BH_Additive_Cox/Manuscript/02-method.Rmd"}
-
 ```
 
 ```{r simulation, child="~/GitHub/Manuscript-BH_Additive_Cox/Manuscript/03-simulation.Rmd"}
