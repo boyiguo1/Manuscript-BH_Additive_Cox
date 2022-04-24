@@ -37,6 +37,7 @@ header-includes:
 
 \newcommand{\bs}[1]{\boldsymbol{#1}}
 \newcommand{\tp}{*}
+\newcommand{\simiid}{\overset{\text{iid}}{\sim}}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
