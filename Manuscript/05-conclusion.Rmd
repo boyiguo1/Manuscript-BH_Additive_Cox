@@ -7,6 +7,8 @@
   - Variable selection wise
   - COmputation speed wise
 
+Flexible modeling, do not need prior test for linear effects.
+
 We could test other Particularly relavent to survival outcomes, in addition, we consider various settings of censoring rate, underlying distributions of baseline hazard function, which include commonly used familyes, Exponential, Weibull, Gumptry.
 
 Discussing the coefficient structure, and link back to the previous manuscript.

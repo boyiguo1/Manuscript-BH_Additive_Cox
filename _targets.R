@@ -195,7 +195,7 @@ tar_plan(
   tar_files(manu_path,
             c("Manuscript/01-intro.Rmd", "Manuscript/02-method.Rmd",
               "Manuscript/03-simulation.Rmd", "Manuscript/04-real_data.Rmd",
-              "Manuscript/05-conclusion.Rmd", "Manuscript/bibfile.bib")
+              "Manuscript/05-conclusion.Rmd", "Manuscript/references.bib")
   ),
 
   tar_render(manu, "Manuscript/00-main.Rmd",
