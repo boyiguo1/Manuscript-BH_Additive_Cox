@@ -1,3 +1,7 @@
+---
+bibliography: references.bib
+---
+
 \section{Cox Proportional Hazard Additive Model}
 
 For each individual, we collect the the covariate variables $\bs X_i = (X_{i1}, \dots, X_{ip}) \in \mathbb{R}^{p}$ and the survival outcome $(T_i, C_i) \in {\mathbb{R}^+ \times \{0,1\}}$ where $T$ is the observed survival time, and $C$ is a binary variable, marking if the status. When $C=0$, the observation is censored at the survival time $T$ and when $C=1$, we observe the event of interest at time $T$. We assume non-informative right censoring. We also assume there is no competing risk, or multiple occurrence of the event. For the $i$th individual, a tuple of three exists $\{t_i, d_i, \bs x_i\}$, where $\bs x_i$ is a vector of covariates. In addition, the survival time $t_i$ and the censoring indicator $d_i$ are recorded, where $d_i$ takes the value 1 when censoring happens at the survival time $y_i$, and takes the value 0 when the event of interest happens. The Cox proportional hazard model, with additive functions $B_j(x_j) = \beta_jX_j$, is formulated as $$
@@ -56,9 +60,19 @@ The rest of the proposed prior follows the spike-and-slab priors. The inclusion 
 
 Parsimonious computation is always encouraged in high-dimension data analysis. Many Bayesian methods lose their advantages over penalized models because of their reliance on the computationally prohibitive model fitting algorithms. Previous Bayesian additive models relies heavily on the MCMC algorithm to establish posterior distribution of parameters. One of the exception is \cite{bai2021}, who takes advantages of the optimization-based EM procedure and focuses on the maximum a postiori estimates instead of sampling the posterior distribution. Nevertheless, the algorithm is proposed for the generalized model and could be challenging, if not impossible, to extend to the Cox proportional hazard models.
 
-[Add a paragraph if Bayesian model fitting for Cox models are difficult]
-
 We develop a fast deterministic algorithm to fit the proposed spike-and-slab LASSO additive Cox model. The algorithm is an extension of the previously proposed EM-coordinate descent algorithm for group spike-and-slab LASSO Cox \cite{tang2019}. Specifically, we first formulate the spike-and-slab LASSO prior as a double exponential prior with a conditional scale prior. Next, we leverage the relationship between posterior density function and penalized likelihood function, $l_1$ penalized specifically, and maximize the posterior density function via coordinate descent algorithm. The feasibility of the optimization process conditions on some nuisance parameters, and hence, we use the Expectation-Maximization procedure to iteratively update the parameters of interests until convergence. We see that similar strategies achieve great computational convenience compared to versions of Monte Carlo Markov Chain algorithms in the high-dimensional data analysis literature, for example \cite{rockova2014, tang2017, guo2022} to name a few.
+
+In the proposed algorithm, our objective is to find the parameters of interests $\Theta = \{\bs \beta, \bs \theta\}$ that maximize the log joint posterior density of $\Theta, \bs gammas$. In Bayesian survival analysis, it is common to approximate posterior density with the product of partial likelihood function in Equation xx and marginal priors. \cite{sinha2003} Hence, our objective function (up to additive constants) is expressed mathematically,
+\begin{align*}
+\max\limits_{\Theta, \bs \gamma} \log f(\bs\beta, \bs \theta, \bs \gamma |t, d) &= \log pl(\bs \beta)+ \sum\limits_{j=1}^p\left[\log f(\beta_j|\gamma_j)+\sum\limits_{k=1}^{K_j} \log f(\beta^{\tp}_{jk}|\gamma^{\tp}_{j})\right]\| +&\sum\limits_{j=1}^{p} \left[ (\gamma_j+\gamma_{j}^{\tp})\log \theta_j + (2-\gamma_j-\gamma_{j}^{\tp}) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log f(\theta_j).
+\end{align*}
+In case of ties, the partial log-likelihood function can be replaced with Breslow or the Efron approximation [TODO: add citations]. The partial log-likelihood $pl(\beta)$ can also be substitute by the Breslow or the Effron approximation in the presence of ties., and the baseline hazard function $\lambda_0$ is replaced by the Breslow estimator. 
+
+Given the latent inclusion indicator is binary and takes only 0 and 1 as its value, a spike-and-slab LASSO prior, as well as the group version, can be expressed as a double exponential prior whose scale parameter is $s_0$ when $\gamma = 0$ and $s_1$ when $\gamma = 1$, \begin{equation}
+\beta|\gamma, s_0,s_1 \sim DE(0, (1-\gamma_{j}) s_0 + \gamma_{j} s_1). \nonumber
+\end{equation}
+Leveraging the relationship between double exponential prior and LASSO, the product of partial likelihood function and the prior of $\bs \beta$ can be viewed as an $l_1$ penalized partial likelihood function with penalty xxx for $\beta_j$ and $\beta_{jk}$ and optimized with the coordinate descent algorithm [TODO: add citation]. Nevertheless, the optimization requires the knowledge of $\bs \gamma$, which is unknown. To address the problem, we treat the latent indicators $\bs \gamma$ as the "missing data" and use EM algorithm to derive the MAP estimates. Notably, [TO explain the algorithm]
+
 
 [TODO: revise after this]
 
