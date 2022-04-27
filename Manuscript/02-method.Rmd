@@ -62,59 +62,30 @@ Parsimonious computation is always encouraged in high-dimension data analysis. M
 
 We develop a fast deterministic algorithm to fit the proposed spike-and-slab LASSO additive Cox model. The algorithm is an extension of the previously proposed EM-coordinate descent algorithm for group spike-and-slab LASSO Cox \cite{tang2019}. Specifically, we first formulate the spike-and-slab LASSO prior as a double exponential prior with a conditional scale prior. Next, we leverage the relationship between posterior density function and penalized likelihood function, $l_1$ penalized specifically, and maximize the posterior density function via coordinate descent algorithm. The feasibility of the optimization process conditions on some nuisance parameters, and hence, we use the Expectation-Maximization procedure to iteratively update the parameters of interests until convergence. We see that similar strategies achieve great computational convenience compared to versions of Monte Carlo Markov Chain algorithms in the high-dimensional data analysis literature, for example \cite{rockova2014, tang2017, guo2022} to name a few.
 
-In the proposed algorithm, our objective is to find the parameters of interests $\Theta = \{\bs \beta, \bs \theta\}$ that maximize the log joint posterior density of $\Theta, \bs gammas$. In Bayesian survival analysis, it is common to approximate posterior density with the product of partial likelihood function in Equation xx and marginal priors. \cite{sinha2003} Hence, our objective function (up to additive constants) is expressed mathematically,
-\begin{align*}
+In the proposed algorithm, our objective is to find the parameters of interests $\Theta = \{\bs \beta, \bs \theta\}$ that maximize the log joint posterior density of $\Theta, \bs gammas$. In Bayesian survival analysis, it is common to approximate posterior density with the product of partial likelihood function in Equation xx and marginal priors. \cite{sinha2003} Hence, our objective function (up to additive constants) is expressed mathematically, \begin{align*}
 \max\limits_{\Theta, \bs \gamma} \log f(\bs\beta, \bs \theta, \bs \gamma |t, d) &= \log pl(\bs \beta)+ \sum\limits_{j=1}^p\left[\log f(\beta_j|\gamma_j)+\sum\limits_{k=1}^{K_j} \log f(\beta^{\tp}_{jk}|\gamma^{\tp}_{j})\right]\| +&\sum\limits_{j=1}^{p} \left[ (\gamma_j+\gamma_{j}^{\tp})\log \theta_j + (2-\gamma_j-\gamma_{j}^{\tp}) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log f(\theta_j).
-\end{align*}
-In case of ties, the partial log-likelihood function can be replaced with Breslow or the Efron approximation [TODO: add citations]. The partial log-likelihood $pl(\beta)$ can also be substitute by the Breslow or the Effron approximation in the presence of ties., and the baseline hazard function $\lambda_0$ is replaced by the Breslow estimator. 
+\end{align*} In case of ties, the partial log-likelihood function can be replaced with Breslow or the Efron approximation [TODO: add citations]. The partial log-likelihood $pl(\beta)$ can also be substitute by the Breslow or the Effron approximation in the presence of ties., and the baseline hazard function $h_0$ is replaced by the Breslow estimator.
 
 Given the latent inclusion indicator is binary and takes only 0 and 1 as its value, a spike-and-slab LASSO prior, as well as the group version, can be expressed as a double exponential prior whose scale parameter is $s_0$ when $\gamma = 0$ and $s_1$ when $\gamma = 1$, \begin{equation}
 \beta|\gamma, s_0,s_1 \sim DE(0, (1-\gamma_{j}) s_0 + \gamma_{j} s_1). \nonumber
+\end{equation} Leveraging the relationship between double exponential prior and LASSO, the product of partial likelihood function and the prior of $\bs \beta$ can be viewed as an $l_1$ penalized partial likelihood function with penalty $\lambda_j = \{(1-\gamma_{j}) s_0 + \gamma_{j} s_1\}^{-1}$ and $\lambda_j^\tp = \{(1-\gamma_{j}^\tp) s_0 + \gamma_{j}^\tp s_1\}^{-1}$ for $\beta_j$ and $\beta_{jk}$ and optimized with the coordinate descent algorithm [TODO: add citation]. Nevertheless, the optimization requires the knowledge of $\bs \gamma$, which is unknown. To address the problem, we treat the latent indicators $\bs \gamma$ as the "missing data" and use EM algorithm to iteratively derive the MAP estimates. Notably, we establish the expected log joint posterior density of $\Theta, \bs gammas$ with respect to the latent indicators conditioning on the parameters of interest estimated from previous iteration $\Theta^{(t-1)}$.\footnote{The superscription $^{(t)}$ denotes the the parameter estimates at the $t$th iteration.} Hence, we can calculate the equivalent $l_1$ penalty at the $t$-th iteration in the EM algorithm as $\lambda_j^{(t)} = \frac{1-p_{j}^{(t)}}{s_0} + \frac{p_{j}^{(t)}}{s_1}$ and ${\lambda_j^\tp}^{(t)} = \frac{1-{p_{j}^\tp}^{(t)}}{s_0} + \frac{{p_{j}^\tp}^{(t)}}{s_1}$ for $\beta_j$ and $\beta_{jk}$, where $p_{j}^{(t)} \equiv \pr(\gamma_{j}=1|\Theta^{(t-1)})$ and $p_{j}^\tp \equiv \pr(\gamma^\tp_{j}=1|\Theta^{(t-1)})$. To note, for computational convenience, we analytic integrate $\gamma_j$ out of the prior density of $\gamma_j^\tp$. The two quantity $p_j^{(t)}$ and ${p_{j}^\tp}^{(t)}$ can be easily derived with Bayes' theorem and we defer the derivation to \cite{guo2022}. With the expectation set up, we can update $\bs \beta^{(t)}$ with the coordinate descent algorithm as perviously descibed. Meanwhile, conditioning on $\bs \gamma$, the rest of components in Equation (xx) can be optimized independently from the penalized partial likelihood function. It is easy to update $\theta_j^{(t)}$ with a closed-form equation due to the conjugate relationship,
+\begin{equation}
+\theta_j^{(t)} = \frac{p_j^{(t)} + {p_{j}^\tp}^{(t)} + a - 1 }{a + b}.\nonumber
 \end{equation}
-Leveraging the relationship between double exponential prior and LASSO, the product of partial likelihood function and the prior of $\bs \beta$ can be viewed as an $l_1$ penalized partial likelihood function with penalty xxx for $\beta_j$ and $\beta_{jk}$ and optimized with the coordinate descent algorithm [TODO: add citation]. Nevertheless, the optimization requires the knowledge of $\bs \gamma$, which is unknown. To address the problem, we treat the latent indicators $\bs \gamma$ as the "missing data" and use EM algorithm to derive the MAP estimates. Notably, [TO explain the algorithm]
+The E- and M- steps iterates until meeting the convergence criterion $|d^{(t)}-d^{(t-1)}|/(0.1+|d^{(t)}|)<\epsilon$, where $d^{(t)} = -2pl(\bs \beta^{(t)})$ and $\epsilon$ is a small value (say $10^{-5}$)
 
+Totally, the proposed EM-CD algorithm is summarized as follows:
 
-[TODO: revise after this]
+1) Choose a starting value $\bs \beta^{(0)}$ and $\bs \theta^{(0)}$ for $\bs \beta$ and $\bs \theta$. For example, we can initialize $\bs \beta^{(0)} = \bs 0$ and $\bs \theta^{(0)} = \bs 0.5$
 
-It incorporates the IRLS algorithm into the EM steps to iteratively find the MAP estimates. Thanks to the versatility of IRLS algorithm, the proposed algorithm can dealt with many family of outcomes. Also, the proposed can work not only for the prior previously mentioned, but also some modified priors, for example mixed double exponential.
+2) Iterate over the E-step and M-step until convergence
 
-Recall the mixture normal prior set-up described , we have the prior densities, $$
-\begin{aligned}
-p(\bs \beta | \bs\gamma) &\propto \prod\limits_{j=1}^{p}\prod\limits_{k=1}^{K_j}((1-\gamma_{jk}) s_0 + \gamma_{jk} s_1)^{-1/2}\exp(-1/2(\beta_{jk}^2/((1-\gamma_{jk}) s_0 + \gamma_{jk} s_1)))\\
-p(\bs\gamma | \bs \theta) & = \prod\limits_{j=1}^{p}\prod\limits_{k=1}^{K_j} \theta_j^{\gamma_{jk}} (1-\theta_j)^{1-\gamma_{jk}}.
-\end{aligned}
-$$
+    E-step: calculate $E(\gamma_{j})$, $E(\gamma^\tp_{j})$ and $E({S}^{-1}_{j})$, $E({S^\tp}^{-1}_{j})$ with estimates of $\Theta^{(t-1)}$ from previous iteration
 
-We define the parameters of interest as $\Theta = {\bs \beta, \bs \theta, \phi}$. The log posterior density of $\Theta$ requires a slight modification from the The log-posterior for ss-Cox model (up to additive constants). The log likelihood function needs to be replaced by the log partial likelihood function. The log density is still expressed with a two-part equation, which can be maximized separately,
+    M-step:
 
-$$ \log p(\Theta, \bs \gamma| \textbf{y}, \textbf{X}) = Q_1(\beta, \phi) + Q_2 (\gamma,\theta),$$ Where $$ Q_1(\bs \beta, \phi) = \log pl(\textbf{y}|\bs \beta, \phi) + \log p(\phi) + \sum\limits_{j=1}^p\sum\limits_{k=1}^{K_j} \log p(\beta_{jk}|\gamma_{jk})$$ and $$
-Q_2(\delta,\theta) = \sum\limits_{j=1}^{p}\sum\limits_{k=1}^{K_j} \left[ \gamma_{jk}\log \theta_j + (1-\gamma_{jk}) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log p(\theta_j) .$$ The partial log-likelihood $pl(\beta)$ can also be substitute by the Breslow or the Effron approximation in the presence of ties., and the baseline hazard function $\lambda_0$ is replaced by the Breslow estimator.
+    a) Update $\bs \beta^{(t)}$ by optimizing the penalized likelihood function in Equation (xx) using the coordinate descent algorithm
 
-Similar to the ssGAMs, we need to calculate the expecataion of the $Q_1$ and $Q_2$ with respect to the missing data $\gamma_{jk}|\Theta^{t-1}$, which yields the same estimation, \begin{align*}
-E(Q_1) &= \log p(\textbf{y}|\bs \beta, \phi) + \log p(\phi) + \sum\limits_{j=1}^p\sum\limits_{k=1}^{K_j}E(S^{-1}_{jk})\beta_{jk}^2\\
-E(Q_2) &= \sum\limits_{j=1}^{p}\sum\limits_{k=1}^{K_j} \left[ E(\gamma_{jk})\log \theta_j + (1-E(\gamma_{jk})) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log p(\theta_j)
-\end{align*} where $$
-E(\gamma_{jk}) = p_{jk} = \frac{Pr(\gamma_{jk} = 1|\theta_j)f(\beta_{jk}|\gamma_{jk}=1, s_1) }{Pr(\gamma_{jk} = 1|\theta_j)f(\beta_{jk}|\gamma_{jk}=1, s_1) + Pr(\gamma_{jk} = 0|\theta_j)f(\beta_{jk}|\gamma_{jk}=0, s_0)}
-$$ $$
-E(S^{-1}_{jk}) = \frac{1-p_{jk}}{2s_0} + \frac{p_{jk}}{2s_1}.
-$$ We can see that the estimates of $\gamma_jk, S^{-1}_{jk}$ are larger for larger coefficients $\beta_{jk}$, leading to different shrinkage for different coefficients. Moreover, to note that, we have different shrinkage $S^{-1}_{jk}$for the coefficients $\beta_{jk}$ of the variable $x_j$, and hence, we can penalize the null space of the spline differently and allow local adaption.
+    b) Update $\bs \theta^{(t)}$ using the closed-form calculation in Equation (\ref{eq:update_theta})
 
-In the M-step, $\bs \beta, \phi$ and $\bs \theta$ can be maximized respectively via $E(Q_1)$ and $E(Q_2)$ as $Q_1$ and $Q_2$ are functions contain either $\bs \beta$ or $\bs \theta$. Therefore, the coefficients $\bs \beta$ are updated by maximizing $E(Q_1)$, where $E(Q_1)$ can be treated as $L_2$ penalized likelihood function. Such maximization can be easily achieved with IRLS. The disperse parameter $\phi$ is updated if applicable. Meanwhile, the probability parameters $\bs \theta$ are updated by maximizing $E(Q_2)$. As the beta distribution is a conjugate prior for Bernoulli distribution, $\bs \theta$ can be easily updated with a closed form equation: $$
-\theta_j = \frac{\sum\limits_{k = 1}^{K_j}p_{jk} + a - 1 }{K_j + a + b -2}.
-$$ The last step is
-
-Totally, the framework of the proposed EM IRLS algorithm was summarized as follows:
-
-1)  Choose a starting value $\bs \beta^0$ and $\bs \theta^0$ for $\bs \beta$ and $\bs \theta$. For example, we can initialize $\bs \beta^0 = \bs 0$ and $\bs \theta^0 = \bs 0.5$
-
-2)  Iterate over the E-step and M-step until convergence
-
-E-step: calculate $E(\gamma_{jk})$ and $E(S^{-1}_{jk})$ with estimates of $\Theta$ from previous iteration
-
-M-step:
-
-a)  Update $\bs \beta$ using the IRLS algorithm
-
-b)  Update $\bs \theta$ using the closed form equation
-
-We assess convergence by the criterion: $|d^{(t)}-d^{(t-1)}|/(0.1+|d^{(t)}|)<\epsilon$, where $d^{(t)} = -2l(\beta^{(t)},\phi^{(t)})$ is the estimate of deviance at the $t^{\text{th}}$ iteration, and $\epsilon$ is a small value (say $10^{-5}$).
+\subsubsection{Selecting Optimal Scale Values}

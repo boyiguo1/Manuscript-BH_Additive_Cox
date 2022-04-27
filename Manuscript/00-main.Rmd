@@ -34,7 +34,7 @@ bibliography: "references.bib"
 header-includes: 
     - \usepackage{amsmath}
 ---
-
+\newcommand{\pr}{\text{Pr}}
 \newcommand{\bs}[1]{\boldsymbol{#1}}
 \newcommand{\tp}{*}
 \newcommand{\simiid}{\overset{\text{iid}}{\sim}}
