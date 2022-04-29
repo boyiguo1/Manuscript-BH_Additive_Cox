@@ -18,6 +18,10 @@ While the primary focus of the this simulation studies is to examine the predict
 
 \subsection{Simulation Results}
 
+Overall, consisntent performance across different settings of dimensionality, censoring rate and correaltion structure: the proposed bamlasso model performs as good as, if not better than previous methods, including mgcv, cosso, acosso. The improvement is more substaintial as p increases, or higher censoring rate, or there is no correlation structure exists among predictors.
+As expected acosso performs slighely better than cosso.
+-   When correlation structure doesn't exist
+
 ### Algorithm Failures
 
 before delving into the model performance evaluation, we would like to discuss the number of algorithm fails when runing simulations for the compared methods. Supplement Tab xx shows \* mgcv does not work for censarios where the number of coefficients is greater than the number sample size. \* cosso and acosso experienced programming failure particularlay when p is small. Please see appendix for the explaination and bug report. \* the proposed methods programming are robust in all conidtions.

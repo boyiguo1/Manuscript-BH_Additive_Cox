@@ -89,3 +89,5 @@ Totally, the proposed EM-CD algorithm is summarized as follows:
     b) Update $\bs \theta^{(t)}$ using the closed-form calculation in Equation (\ref{eq:update_theta})
 
 \subsubsection{Selecting Optimal Scale Values}
+In the proposed two-part spike-and-slab LASSO prior, we assume the scale parameters $s_0, s_1$ known. As the model performance depends on the values of the two scale parameters, we use cross-validation with respect to a criteria of preference, for example the the partial log-likelihood, confordance index, the survival curves, or the survival prediction error, to decide their optimal values. Meanwhile, previous research showed the value of the slab scale $s_1$ has less impact on the final model and is recommended to be set as a generally large value, e.g. $s_1 = 0.5$, that provides no or weak shrinkage. \cite{tang2019} Hence, instead of constructing a two-dimensional grid, we focus on examining different values of the spike scale $s_0$. Similar to the LASSO implementation in the widely used R package \texttt{glmnet}, we examine a sequence of models with different $s_0$ values and have users to choose from.
+
