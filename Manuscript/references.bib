@@ -14,22 +14,6 @@ volume = {63},
 year = {2013}
 }
 
-
-@article{Leng2006,
-abstract = {We propose a novel model selection method for a nonparametric extension of the Cox proportional hazard model, in the framework of smoothing splines ANOVA models. The method automates the model building and model selection processes simultaneously by penalizing the reproducing kernel Hilbert space norms. On the basis of a reformulation of the penalized partial likelihood, we propose an efficient algorithm to compute the estimate. The solution demonstrates great flexibility and easy interpretability in modeling relative risk functions for censored data. Adaptive choice of the smoothing parameter is discussed. Both simulations and a real example suggest that our proposal is a useful tool for multivariate function estimation and model selection in survival analysis.},
-author = {Leng, Chenlei and Zhang, Hao Helen},
-doi = {10.1080/10485250601027042},
-file = {:C\:/Users/boyiguo1/Desktop/MSNHR.pdf:pdf},
-issn = {10485252},
-journal = {Journal of Nonparametric Statistics},
-keywords = {COSSO,Cox proportional hazard model,Model selection,Penalized likelihood},
-number = {7-8},
-pages = {417--429},
-title = {{Model selection in nonparametric hazard regression}},
-volume = {18},
-year = {2006}
-}
-
 @article{Du2010,
 abstract = {We study the Cox models with semiparametric relative risk, which can be partially linear with one nonparametric component, or multiple additive or nonadditive nonparametric components. A penalized partial likelihood procedure is proposed to simultaneously estimate the parameters and select variables for both the parametric and the nonparametric parts. Two penalties are applied sequentially. The first penalty, governing the smoothness of the multivariate nonlinear covariate effect function, provides a smoothing spline ANOVA framework that is exploited to derive an empirical model selection tool for the nonparametric part. The second penalty, either the smoothlyclipped-absolute- deviation (SCAD) penalty or the adaptive LASSO penalty, achieves variable selection in the parametric part. We show that the resulting estimator of the parametric part possesses the oracle property, and that the estimator of the nonparametric part achieves the optimal rate of convergence. The proposed procedures are shown to work well in simulation experiments, and then applied to a real data example on sexually transmitted diseases. {\textcopyright} Institute of Mathematical Statistics, 2010.},
 author = {Du, Pang and Ma, Shuangge and Liang, Hua},
@@ -564,20 +548,7 @@ year = {2009}
 	langid = {en}
 }
 
-@article{sinha2003,
-	title = {A Bayesian justification of Cox's partial likelihood},
-	author = {Sinha, D.},
-	year = {2003},
-	month = {09},
-	date = {2003-09-01},
-	journal = {Biometrika},
-	pages = {629--641},
-	volume = {90},
-	number = {3},
-	doi = {10.1093/biomet/90.3.629},
-	url = {https://academic.oup.com/biomet/article-lookup/doi/10.1093/biomet/90.3.629},
-	langid = {en}
-}
+
 
 @Manual{R2021,
     title = {R: A Language and Environment for Statistical Computing},
@@ -586,4 +557,96 @@ year = {2009}
     address = {Vienna, Austria},
     year = {2021},
     url = {https://www.R-project.org/},
-  }s
+  }
+
+@article{leng2006,
+	title = {Model selection in nonparametric hazard regression},
+	author = {Leng, Chenlei and Helen Zhang, Hao},
+	year = {2006},
+	month = {10},
+	date = {2006-10},
+	journal = {Journal of Nonparametric Statistics},
+	pages = {417--429},
+	volume = {18},
+	number = {7-8},
+	doi = {10.1080/10485250601027042},
+	url = {http://dx.doi.org/10.1080/10485250601027042},
+	langid = {en}
+}
+
+@article{storlie2011,
+	title = {Surface estimation, variable selection, and the nonparametric oracle property},
+	author = {Storlie, Curtis B. and Bondell, Howard D. and Reich, Brian J. and Zhang, Hao Helen},
+	year = {2011},
+	month = {04},
+	date = {2011-04},
+	journal = {Statistica Sinica},
+	pages = {679},
+	volume = {21},
+	number = {2},
+	doi = {10.5705/ss.2011.030a},
+	url = {http://dx.doi.org/10.5705/ss.2011.030a}
+}
+
+
+
+@article{sinha2003,
+	title = {A Bayesian justification of Cox's partial likelihood},
+	author = {Sinha, Debajyoti and Ibrahim, Joseph G and Chen, Ming-Hui},
+	year = {2003},
+	month = {09},
+	date = {2003-09-01},
+	journal = {Biometrika},
+	pages = {629--641},
+	volume = {90},
+	number = {3},
+	doi = {10.1093/biomet/90.3.629},
+	url = {http://dx.doi.org/10.1093/biomet/90.3.629},
+	langid = {en}
+}
+
+
+@Manual{R_cosso,
+  title = {cosso: Fit Regularized Nonparametric Regression Models Using COSSO
+    Penalty},
+  author = {Zhang, Hao Helen and Lin, Chen-Yen },
+  year = {2013},
+  note = {R package version 2.1-1},
+  url = {https://CRAN.R-project.org/package=cosso}
+}
+
+
+@Manual{R_mgcv,
+  title={mgcv: Mixed GAM Computation Vehicle with Automatic Smoothness Estimation},
+  author={Wood, Simon},
+  year={2022},
+  note = {R package version 1.8-31},
+  url = {https://CRAN.R-project.org/package=mgcv}
+}
+
+
+Article{R_simsurv,
+    title = {Simulating Survival Data Using the {simsurv} {R} Package},
+    author = {Samuel L. Brilleman and Rory Wolfe and Margarita Moreno-Betancur and Michael J. Crowther},
+    journal = {Journal of Statistical Software},
+    year = {2020},
+    volume = {97},
+    number = {3},
+    pages = {1--27},
+    doi = {10.18637/jss.v097.i03},
+  }
+
+@article{wan2016,
+	title = {Simulating survival data with predefined censoring rates for proportional hazards models},
+	author = {Wan, Fei},
+	year = {2016},
+	month = {11},
+	date = {2016-11-21},
+	journal = {Statistics in Medicine},
+	pages = {838--854},
+	volume = {36},
+	number = {5},
+	doi = {10.1002/sim.7178},
+	url = {http://dx.doi.org/10.1002/sim.7178},
+	langid = {en}
+}
