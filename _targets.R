@@ -198,6 +198,12 @@ tar_plan(
               "Manuscript/05-conclusion.Rmd", "Manuscript/references.bib")
   ),
 
+  tar_files(manu_tabs,
+            list.files("Manuscript/Tabs", full.names = TRUE)),
+
+  tar_files(manu_figs,
+            list.files("Manuscript/Figs", full.names = TRUE)),
+
   tar_render(manu, "Manuscript/00-main.Rmd",
              output_file = "CPH_AM.pdf")
 )
