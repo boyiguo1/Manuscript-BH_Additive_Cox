@@ -49,6 +49,23 @@ tar_plan(
 
 
   tar_target(
+    sim_cnr_prop_latex,
+    sim_cnr_prop %>%
+      select(-n_success) %>%
+      mutate(observed = sprintf("%.3f (%.3f)", mean_cns, sd_cns),
+             sim_prmt.p = as.integer(sim_prmt.p)) %>%
+      select(-c(mean_cns, sd_cns)) %>%
+      pivot_wider(names_from = sim_prmt.rho, values_from = observed) %>%
+      arrange(sim_prmt.p, sim_prmt.pi_cns) %>%
+      xtable(
+        caption = "The average and standard deviation of censoring proportion of the simulated data over 50 iterations.",
+        label = "tab:sim_cnr_prop") %>%
+      print(comment = FALSE, include.rownames = FALSE) %>%
+      cat(file = "Manuscript/Tabs/sim_cnr_prop.tex")
+  ),
+
+
+  tar_target(
     sim_fail_prop,
     generate_simulation_mdl_failed_rate(sim_pred_measure_raw)
   ),
@@ -103,6 +120,20 @@ tar_plan(
     pattern = map(metrics),
     iteration = "list"
   ),
+
+  tar_target(
+    sim_deviance_fig,
+    ggsave("Manuscript/Figs/sim_deviance.png",
+           sim_test_viz[[1]],
+           device = "pdf")
+  ),
+
+  tar_target(
+    sim_Cindex_fig,
+    ggsave("Manuscript/Figs/sim_cindex.pdf",
+           sim_test_viz[[2]],
+           device = "pdf")
+  )
 
   # Real Data Analysis ------------------------------------------------------
   #* Emory Card Biobank -----------------------------------------------------
