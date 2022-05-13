@@ -154,14 +154,23 @@ tar_plan(
 
   ECB_bcam_cv = tune.bgam(ECB_bcam_raw, s0 = seq(0.005, 0.15, 0.01)),
   #
-  ECB_bcam_fnl = bamlasso(x = ECB_dsn_mat, y = Surv(ECB_outcome$time, event = ECB_outcome$status) ,
-                          family = "cox", ss = c(0.025, 0.5), # TODO: edit
-                          group = make_group(names(ECB_dsn_mat))),
+  ECB_bcam_fnl = {tmp <- bamlasso(x = ECB_dsn_mat, y = Surv(ECB_outcome$time, event = ECB_outcome$status) ,
+                          family = "cox", ss = c(0.095, 0.5), # TODO: edit
+                          group = make_group(names(ECB_dsn_mat)))
+
+    tmp$offset = 0
+    return(tmp)
+    },
 
   # ECB_bcam_fnl$offset = 0,
   ECB_bcam_insample_pred = predict(ECB_bcam_fnl, newx = ECB_dsn_mat %>% as.matrix(), type = "link", newoffset = 0),
 
-  # plot_KM(ECB_outcome, ECB_bcam_insample_pred),
+  ECB_bcam_KM = plot_KM(ECB_outcome, ECB_bcam_insample_pred),
+  ECB_bcam_KM_pdf = {
+    pdf("Manuscript/Figs/ECB_bcam_KM.pdf")
+    plot_KM(ECB_outcome, ECB_bcam_insample_pred)
+    dev.off()
+  },
   # ECB_bamlasso_insample_msr = measure.bh(ECB_bcam_fnl),
   ECB_bcam_var = bamlasso_var_selection(ECB_bcam_fnl),
 

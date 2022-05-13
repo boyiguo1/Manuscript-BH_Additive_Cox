@@ -74,6 +74,13 @@ tar_load(manu_figs)
 \label{fig:sim_cindex}
 \end{figure}
 
+\clearpage
+
+\begin{figure}[h] 
+\includegraphics{Figs/ECB_bcam_KM}
+\caption{The Kaplan-Meier estimates to show the predictive performacne of the proposed model, including the estimates for the predicted high risk group (blue), predicted low risk group (green), and overall group (red)}
+\label{fig:ECB_bcam_KM}
+\end{figure}
 
 
 <!-- Tables and Figures start here -->

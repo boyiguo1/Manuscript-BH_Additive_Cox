@@ -10,6 +10,9 @@ plot_KM <- function(surv, lp){
         breaks = c(-Inf, median(lp), Inf),
         labels = c("Low", "High"))
     )
+
+  # browser()
   plot(survfit(Surv(time, event = status)~insample_class, data = pred_dat), ylim = c(0.7,1), col = c(3,4), mark.time = TRUE)
   lines(survfit(Surv(time, event = status)~1, data = pred_dat), mark.time = TRUE, col = 2, conf.int = FALSE)
+  legend(0, 0.775, legend = c("Low Risk Group", "High Risk Group", "Overall"), col = c(3,4,2), lty = 1)
 }
