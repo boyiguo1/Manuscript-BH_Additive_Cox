@@ -23,8 +23,8 @@ authors:
   department: Department of Biostatistics
   affiliation: University of Alabama at Birmingham
   location: Birmingham, AL
-abstract: "Cox proportional hazard (PH) model is one of the most popular models in biomedical data analysis. There have been continuing efforts to improve the flexibility of such models for complex signal detection, for example, via additive functions. Nevertheless, the task to extend Cox additive models to accomodate high-dimensional data is nontrivial. When estimating additive functions, commonly used group sparse regularization may introduce excess smoothing shrinkage on additive functions, damaging predictive performance. Moreover, an “all-in-all-out” approach makes functional selection challenging to answer if nonlinear effects exist. We develop an additive Cox PH model to xxx. Notably, we impose a novel spike-and-slab LASSO prior that motivates the bi-level functional selection on additive functions. A scalable and deterministic algorithm, EM-Coordinate Descent, is designed for scalable model fitting. We compare the predictive and computational performance against state-of-the-art models in simulation studies and metabolomics data analysis. The proposed model is broadly applicable to various fields of research, e.g. genomics and population health, via freely available R package BHAM (https://boyiguo1.github.io/BHAM/)"
-keywords: Cox Model; Spike-and-Slab; Scalable; Machine Learning; R Package;
+abstract: "Cox proportional hazard model is one of the most popular models in biomedical data analysis. There have been continuing efforts to improve the flexibility of such models for complex signal detection, for example, via additive functions. Nevertheless, the task to extend Cox additive models to accomodate high-dimensional data is nontrivial. When estimating additive functions, commonly used group sparse regularization may introduce excess smoothing shrinkage on additive functions, damaging predictive performance. Moreover, an “all-in-all-out” approach makes functional selection challenging to answer if nonlinear effects exist. We develop an additive Cox PH model to address these challenges in high-dimensional data analysis. Notably, we impose a novel spike-and-slab LASSO prior that motivates the bi-level functional selection on additive functions. A scalable and deterministic algorithm, EM-Coordinate Descent, is designed for scalable model fitting. We compare the predictive and computational performance against state-of-the-art models in simulation studies and metabolomics data analysis. The proposed model is broadly applicable to various fields of research, e.g. genomics and population health, via freely available R package BHAM (https://boyiguo1.github.io/BHAM/)"
+keywords: Cox Model; Spike-and-Slab; Scalable; Machine Learning; Additive Models;
 output: 
   rticles::arxiv_article:
     keep_tex: true
@@ -82,5 +82,5 @@ tar_load(manu_figs)
 \label{fig:ECB_bcam_KM}
 \end{figure}
 
+\clearpage
 
-<!-- Tables and Figures start here -->
