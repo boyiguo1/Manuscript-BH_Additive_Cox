@@ -29,16 +29,17 @@ library(BhGLM)
 library(BHAM)
 library(survival)
 library(simsurv)
+library(glmnet)
 
 ## Helper Functions
-source("~/Manuscript-BH_Additive_Cox/Sim/Code/find_censor_parameter.R")
-source("~/Manuscript-BH_Additive_Cox/Sim/Code/create_HD_formula.R")
-source("~/Manuscript-BH_Additive_Cox/Sim/Code/make_null_res.R")
+source("Sim/Code/find_censor_parameter.R")
+source("Sim/Code/create_HD_formula.R")
+source("Sim/Code/make_null_res.R")
 
 
 # Data Generating Process -------------------------------------------------
 # * Simulation Parameters -------------------------------------------------
-source("~/Manuscript-BH_Additive_Cox/Sim/Code/sim_pars_funs.R")
+source("Sim/Code/sim_pars_funs.R")
 
 ## Job Name
 job_name <- Sys.getenv('SLURM_JOB_NAME')
@@ -68,15 +69,15 @@ scale.c <- tryCatch({
   find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t),
                         pi.cen = pi_cns,
                         shape_hazard = shape.t, shape_censor = shape.c)
-  },
-  error = function(err) {
-    if(!file.exists("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS"))
-      stop("Please Generate scale_vec, and use 'R/calculate_scales' to generates scale_vec.RDS")
-    scale_vec <- readRDS("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS")
-    scale.c <- scale_vec[[job_name]]
-    if(is.null(scale.c)) stop("No scale for this scenario")
-    return(scale.c)
-  })
+},
+error = function(err) {
+  if(!file.exists("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS"))
+    stop("Please Generate scale_vec, and use 'R/calculate_scales' to generates scale_vec.RDS")
+  scale_vec <- readRDS("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS")
+  scale.c <- scale_vec[[job_name]]
+  if(is.null(scale.c)) stop("No scale for this scenario")
+  return(scale.c)
+})
 
 
 
@@ -101,6 +102,33 @@ train_dat <-  train_dat %>%
 
 
 # Fit Models------------------------------------------------------------------
+
+
+#### Linear Lasso ####
+lasso_mdl <- cv.glmnet(x = data.matrix(train_dat %>% select(starts_with("X"))),
+                       y = train_dat %>% select(time, status) %>% data.matrix,
+                       nfolds = 5, family = "cox")
+
+lasso_fnl_mdl <- glmnet(x = data.matrix(train_dat %>% select(starts_with("X"))),
+                        y = train_dat %>% select(time, status) %>% data.matrix,
+                        family = "cox", lambda = lasso_mdl$lambda.min)
+
+# Prediction
+lasso_train <- measure.cox(Surv(train_dat$time, train_dat$status),
+                           predict(lasso_fnl_mdl,
+                                   newx = data.matrix(train_dat %>% select(starts_with("X"))),
+                                   type = "link")
+)
+lasso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
+                          predict(lasso_fnl_mdl,
+                                  newx = data.matrix(test_dat %>% select(starts_with("X"))),
+                                  type = "link")
+)
+
+# Variable Selection
+lasso_var <- ((lasso_fnl_mdl$beta %>% as.vector())!=0) %>%
+  `names<-`(names(test_dat %>% select(starts_with("X"))))
+
 
 
 # * Spline Specification --------------------------------------------------
