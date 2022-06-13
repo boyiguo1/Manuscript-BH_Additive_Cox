@@ -4,7 +4,7 @@
 ## For the Toy Example
 ## It is equivalent to run
 # n_train <- 200
-# p <- c(4, 10, 50, 100, 200)[1]
+# p <- c(4, 10, 50, 100, 200)[2]
 # rho <- c(0, 0.5)[2]
 # pi_cns <- c(0.15, 0.3, 0.4)[2]
 
@@ -71,9 +71,9 @@ scale.c <- tryCatch({
                         shape_hazard = shape.t, shape_censor = shape.c)
 },
 error = function(err) {
-  if(!file.exists("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS"))
+  if(!file.exists("Sim/Code/scale_vec.RDS"))
     stop("Please Generate scale_vec, and use 'R/calculate_scales' to generates scale_vec.RDS")
-  scale_vec <- readRDS("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS")
+  scale_vec <- readRDS("Sim/Code/scale_vec.RDS")
   scale.c <- scale_vec[[job_name]]
   if(is.null(scale.c)) stop("No scale for this scenario")
   return(scale.c)
@@ -151,7 +151,7 @@ error = function(err) {
 
 mgcv_train <- make_null_res("cox")
 mgcv_test <- make_null_res("cox")
-mgcv_var <- NULL
+mgcv_var <- rep(NA, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
 mgcv_plot <- NULL
 
 if(!is.null(mgcv_mdl)){
@@ -161,7 +161,8 @@ if(!is.null(mgcv_mdl)){
                            predict(mgcv_mdl, newdata=test_dat, type = "link"))
 
   # Variable Selection Results
-
+  mgcv_var <- (summary(mgcv_mdl)$s.table[,"p-value"] < 0.05) %>%
+    `names<-`(names(test_dat %>% select(starts_with("X"))))
 
   # Plotting Results
 }
@@ -189,7 +190,7 @@ if(!is.null(cosso_mdl)){
   )
 }
 
-
+cosso_var <- rep(NA, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
 if(!is.null(cosso_mdl) && !is.null(cosso_tn_mdl)){
   # Prediction
   cosso_train_lp <- predict.cosso(cosso_mdl,
@@ -203,7 +204,8 @@ if(!is.null(cosso_mdl) && !is.null(cosso_tn_mdl)){
   cosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), cosso_test_lp)
 
   # Variable Selection
-  cosso_var <- NULL
+  cosso_var <- rep(FALSE, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
+  cosso_var[predict.cosso(cosso_mdl, M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "nonzero")] <- TRUE
 
   # Effect Plotting
   cosso_plot <- NULL
@@ -212,8 +214,6 @@ if(!is.null(cosso_mdl) && !is.null(cosso_tn_mdl)){
 } else{
   cosso_train <- make_null_res("cox")
   cosso_test <- make_null_res("cox")
-  cosso_var <- NULL
-  cosso_plot <- NULL
 }
 
 
@@ -241,7 +241,7 @@ if(!is.null(acosso_mdl)){
 }
 
 
-
+acosso_var <- rep(NA, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
 if(!is.null(acosso_mdl) && !is.null(acosso_tn_mdl)){
 
   acosso_train_lp <- predict.cosso(acosso_mdl,
@@ -253,6 +253,10 @@ if(!is.null(acosso_mdl) && !is.null(acosso_tn_mdl)){
                                   xnew=test_dat %>% select(starts_with("X")) %>% data.matrix,
                                   M=ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "fit")
   acosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), acosso_test_lp)
+
+  acosso_var <- rep(FALSE, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
+  acosso_var[predict.cosso(acosso_mdl, M=ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "nonzero")] <- TRUE
+
 } else {
   acosso_train <- acosso_test <- make_null_res("cox")
   acosso_var <- acosso_plot <- NULL
@@ -287,7 +291,9 @@ bamlasso_test <- measure.bh(bamlasso_mdl, test_sm_dat, Surv(test_dat$eventtime, 
 
 
 # Variable Selection
-
+bamlasso_vs_part <- bamlasso_var_selection(bamlasso_mdl)
+bamlasso_var <- rep(FALSE, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
+bamlasso_var[bamlasso_vs_part$`Non-parametric`$Variable] <- TRUE
 
 # Effect Plotting
 
@@ -328,21 +334,33 @@ bamlasso_test <- measure.bh(bamlasso_mdl, test_sm_dat, Surv(test_dat$eventtime, 
 # Overall
 ret <- list(
   train_res = list(
+    lasso = lasso_train,
     mgcv = mgcv_train,
     cosso = cosso_train,
     acosso = acosso_train,
-    bacox = bacox_train,
+    # bacox = bacox_train,
     bamlasso = bamlasso_train
   ),
   test_res = list(
+    lasso = lasso_test,
     mgcv = mgcv_test,
     cosso = cosso_test,
     acosso = acosso_test,
-    bacox = bacox_test,
+    # bacox = bacox_test,
     bamlasso = bamlasso_test
   ),
   # scale.c = scale.c,                             # The scale parameter
-  p.cen = mean(train_dat$status==0)              # Censoring proportion in training data
+  p.cen = mean(train_dat$status==0),              # Censoring proportion in training data
+
+  var_slct = list(
+    lasso = lasso_var,
+    mgcv = mgcv_var,
+    cosso = cosso_var,
+    acosso = acosso_var,
+    bamlasso = bamlasso_var
+  ),
+
+  bam_select = bamlasso_vs_part
 )
 
 
