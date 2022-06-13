@@ -32,14 +32,14 @@ library(simsurv)
 library(glmnet)
 
 ## Helper Functions
-source("Sim/Code/find_censor_parameter.R")
-source("Sim/Code/create_HD_formula.R")
-source("Sim/Code/make_null_res.R")
+source("~/Manuscript-BH_Additive_Cox/Sim/Code/find_censor_parameter.R")
+source("~/Manuscript-BH_Additive_Cox/Sim/Code/create_HD_formula.R")
+source("~/Manuscript-BH_Additive_Cox/Sim/Code/make_null_res.R")
 
 
 # Data Generating Process -------------------------------------------------
 # * Simulation Parameters -------------------------------------------------
-source("Sim/Code/sim_pars_funs.R")
+source("~/Manuscript-BH_Additive_Cox/Sim/Code/sim_pars_funs.R")
 
 ## Job Name
 job_name <- Sys.getenv('SLURM_JOB_NAME')
@@ -71,9 +71,9 @@ scale.c <- tryCatch({
                         shape_hazard = shape.t, shape_censor = shape.c)
 },
 error = function(err) {
-  if(!file.exists("Sim/Code/scale_vec.RDS"))
+  if(!file.exists("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS"))
     stop("Please Generate scale_vec, and use 'R/calculate_scales' to generates scale_vec.RDS")
-  scale_vec <- readRDS("Sim/Code/scale_vec.RDS")
+  scale_vec <- readRDS("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS")
   scale.c <- scale_vec[[job_name]]
   if(is.null(scale.c)) stop("No scale for this scenario")
   return(scale.c)
