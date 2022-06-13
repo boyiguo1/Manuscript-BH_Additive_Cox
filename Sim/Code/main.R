@@ -123,12 +123,22 @@ error = function(err) {
 
 mgcv_train <- make_null_res("cox")
 mgcv_test <- make_null_res("cox")
+mgcv_var <- NULL
+mgcv_plot <- NULL
 
 if(!is.null(mgcv_mdl)){
+  # Prediction Results
   mgcv_train <- measure.cox(Surv(train_dat$time, train_dat$status) , mgcv_mdl$linear.predictors)
   mgcv_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
                            predict(mgcv_mdl, newdata=test_dat, type = "link"))
+
+  # Variable Selection Results
+
+
+  # Plotting Results
 }
+
+
 
 # * COSSO -------------------------------------------------------------------
 cosso_mdl <-  tryCatch({cosso(x = train_dat %>% select(starts_with("X")) %>% data.matrix,
@@ -153,7 +163,7 @@ if(!is.null(cosso_mdl)){
 
 
 if(!is.null(cosso_mdl) && !is.null(cosso_tn_mdl)){
-
+  # Prediction
   cosso_train_lp <- predict.cosso(cosso_mdl,
                                   xnew=train_dat %>% select(starts_with("X")) %>% data.matrix,
                                   M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
@@ -164,9 +174,18 @@ if(!is.null(cosso_mdl) && !is.null(cosso_tn_mdl)){
                                  M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
   cosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), cosso_test_lp)
 
+  # Variable Selection
+  cosso_var <- NULL
+
+  # Effect Plotting
+  cosso_plot <- NULL
+
+
 } else{
   cosso_train <- make_null_res("cox")
   cosso_test <- make_null_res("cox")
+  cosso_var <- NULL
+  cosso_plot <- NULL
 }
 
 
@@ -208,6 +227,7 @@ if(!is.null(acosso_mdl) && !is.null(acosso_tn_mdl)){
   acosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), acosso_test_lp)
 } else {
   acosso_train <- acosso_test <- make_null_res("cox")
+  acosso_var <- acosso_plot <- NULL
 }
 
 # * BHAM ----------------------------------------------------------
@@ -233,40 +253,47 @@ bamlasso_mdl <- bamlasso( x = train_smooth_data, y = Surv(train_dat$time, event 
                           family = "cox", group = make_group(names(train_smooth_data)),
                           ss = c(blasso_s0_min, 0.5))
 
+# Prediction
 bamlasso_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bamlasso_mdl$linear.predictors)
 bamlasso_test <- measure.bh(bamlasso_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
 
 
+# Variable Selection
+
+
+# Effect Plotting
+
+
 #** Bacox ----------------------------------------------------------
-bacox_mdl <- tryCatch({bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ .,
-                         data = data.frame(time = train_dat$time, status = train_dat$status,
-                                           train_smooth_data),
-                         prior = mde(), group = make_group(names(train_smooth_data)),
-                         method.coef = bam_group)
-
-bacox_s0_seq <- seq(0.005, 0.1, length.out = 20)    # TODO: need to be optimized
-bacox_cv_res <- tune.bgam(bacox_raw_mdl, nfolds = 5, s0= bacox_s0_seq, verbose = FALSE)
+# bacox_mdl <- tryCatch({bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ .,
+#                          data = data.frame(time = train_dat$time, status = train_dat$status,
+#                                            train_smooth_data),
+#                          prior = mde(), group = make_group(names(train_smooth_data)),
+#                          method.coef = bam_group)
 #
-bacox_s0_min <- bacox_cv_res$s0[which.min(bacox_cv_res$deviance)]
+# bacox_s0_seq <- seq(0.005, 0.1, length.out = 20)    # TODO: need to be optimized
+# bacox_cv_res <- tune.bgam(bacox_raw_mdl, nfolds = 5, s0= bacox_s0_seq, verbose = FALSE)
+# #
+# bacox_s0_min <- bacox_cv_res$s0[which.min(bacox_cv_res$deviance)]
+# #
+# bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
+#                      prior = mde(s0 = bacox_s0_min), group = make_group(names(train_smooth_data)),
+#                      method.coef = make_group(names(train_smooth_data)))
+# },
+# error = function(err) {
+#   return(NULL)
+# })
 #
-bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
-                     prior = mde(s0 = bacox_s0_min), group = make_group(names(train_smooth_data)),
-                     method.coef = make_group(names(train_smooth_data)))
-},
-error = function(err) {
-  return(NULL)
-})
-
-
-
-if(!is.null(bacox_mdl) ){
-  bacox_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bacox_mdl$linear.predictors)
-  # bacox_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
-  #                          predict(mgcv_mdl, newdata=test_dat, type = "link"))
-  bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
-} else {
-  bacox_train <- bacox_test <- make_null_res("cox")
-}
+#
+#
+# if(!is.null(bacox_mdl) ){
+#   bacox_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bacox_mdl$linear.predictors)
+#   # bacox_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
+#   #                          predict(mgcv_mdl, newdata=test_dat, type = "link"))
+#   bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
+# } else {
+#   bacox_train <- bacox_test <- make_null_res("cox")
+# }
 
 # Save Simulation Results -------------------------------------------------
 
