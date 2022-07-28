@@ -6,18 +6,18 @@ authors:
   department: Department of Biostatistics
   affiliation: University of Alabama at Birmingham
   location: Birmingham, AL
-# - name: Byron C. Jaeger
-#   department: Department of Biostatistics and Data Science
-#   affiliation: Wake Forest School of Medicine
-#   location: Winston-Salem, NC
-# - name: AKM Fazlur Rahman
-#   department: Department of Biostatistics
-#   affiliation: University of Alabama at Birmingham
-#   location: Birmingham, AL  
-# - name: D. Leann Long
-#   department: Department of Biostatistics
-#   affiliation: University of Alabama at Birmingham
-#   location: Birmingham, AL 
+- name: Byron C. Jaeger
+  department: Department of Biostatistics and Data Science
+  affiliation: Wake Forest School of Medicine
+  location: Winston-Salem, NC
+- name: AKM Fazlur Rahman
+  department: Department of Biostatistics
+  affiliation: University of Alabama at Birmingham
+  location: Birmingham, AL
+- name: D. Leann Long
+  department: Department of Biostatistics
+  affiliation: University of Alabama at Birmingham
+  location: Birmingham, AL
 - name: Nengjun Yi
   thanks: Corresponding authors \\email{nyi@uab.edu}
   department: Department of Biostatistics
