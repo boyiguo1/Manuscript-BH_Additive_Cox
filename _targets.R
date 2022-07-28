@@ -123,7 +123,7 @@ tar_plan(
 
   tar_target(
     sim_deviance_fig,
-    ggsave("Manuscript/Figs/sim_deviance.png",
+    ggsave("Manuscript/Figs/sim_deviance.pdf",
            sim_test_viz[[1]],
            device = "pdf")
   ),
