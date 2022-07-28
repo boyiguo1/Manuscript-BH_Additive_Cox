@@ -1,29 +1,29 @@
 ---
-title: A scalable and flexible Cox proportional hazard model for high-dimensional survival prediction and functional selection
+title: A scalable and flexible Cox proportional hazards model for high-dimensional survival prediction and functional selection
 authors:
 - name: Boyi Guo
   thanks: Corresponding authors \\email{boyiguo1@uab.edu}
   department: Department of Biostatistics
   affiliation: University of Alabama at Birmingham
   location: Birmingham, AL
-- name: Byron C. Jaeger
-  department: Department of Biostatistics and Data Science
-  affiliation: Wake Forest School of Medicine
-  location: Winston-Salem, NC
-- name: AKM Fazlur Rahman
-  department: Department of Biostatistics
-  affiliation: University of Alabama at Birmingham
-  location: Birmingham, AL  
-- name: D. Leann Long
-  department: Department of Biostatistics
-  affiliation: University of Alabama at Birmingham
-  location: Birmingham, AL 
+# - name: Byron C. Jaeger
+#   department: Department of Biostatistics and Data Science
+#   affiliation: Wake Forest School of Medicine
+#   location: Winston-Salem, NC
+# - name: AKM Fazlur Rahman
+#   department: Department of Biostatistics
+#   affiliation: University of Alabama at Birmingham
+#   location: Birmingham, AL  
+# - name: D. Leann Long
+#   department: Department of Biostatistics
+#   affiliation: University of Alabama at Birmingham
+#   location: Birmingham, AL 
 - name: Nengjun Yi
   thanks: Corresponding authors \\email{nyi@uab.edu}
   department: Department of Biostatistics
   affiliation: University of Alabama at Birmingham
   location: Birmingham, AL
-abstract: "Cox proportional hazard model is one of the most popular models in biomedical data analysis. There have been continuing efforts to improve the flexibility of such models for complex signal detection, for example, via additive functions. Nevertheless, the task to extend Cox additive models to accomodate high-dimensional data is nontrivial. When estimating additive functions, commonly used group sparse regularization may introduce excess smoothing shrinkage on additive functions, damaging predictive performance. Moreover, an “all-in-all-out” approach makes functional selection challenging to answer if nonlinear effects exist. We develop an additive Cox PH model to address these challenges in high-dimensional data analysis. Notably, we impose a novel spike-and-slab LASSO prior that motivates the bi-level functional selection on additive functions. A scalable and deterministic algorithm, EM-Coordinate Descent, is designed for scalable model fitting. We compare the predictive and computational performance against state-of-the-art models in simulation studies and metabolomics data analysis. The proposed model is broadly applicable to various fields of research, e.g. genomics and population health, via freely available R package BHAM (https://boyiguo1.github.io/BHAM/)"
+abstract: "Cox proportional hazards (PH) model is one of the most popular models in biomedical data analysis. There have been continuing efforts to improve the flexibility of such models for complex signal detection, for example, via spline functions. Nevertheless, it is nontrivial to extend to the high-dimensional setting (p>>n). When estimating spline functions, commonly used grouped sparse regularization may induce excess shrinkage, damaging the predictive performance. Moreover, the previous “all-in-all-out” strategy for functional selection fails to answer if nonlinear components exist. We develop an additive Cox PH model that employs a novel spike-and-slab LASSO prior to select the linear and nonlinear components of spline functions. A scalable and deterministic algorithm, EM-Coordinate Descent, is designed for efficient model fitting. We compare the predictive and computational performance against the state-of-the-art models via Monte Carlo studies and metabolomics data analysis. The proposed model is broadly applicable to various research fields, e.g., genomics and population health, via the freely available R package BHAM (https://boyiguo1.github.io/BHAM/)"
 keywords: Cox Model; Spike-and-Slab; Scalable; Machine Learning; Additive Models;
 output: 
   rticles::arxiv_article:
