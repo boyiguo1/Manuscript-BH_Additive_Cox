@@ -4,7 +4,7 @@
 ## For the Toy Example
 ## It is equivalent to run
 # n_train <- 200
-# p <- c(4, 10, 50, 100, 200)[1]
+# p <- c(4, 10, 50, 100, 200)[2]
 # rho <- c(0, 0.5)[2]
 # pi_cns <- c(0.15, 0.3, 0.4)[2]
 
@@ -29,6 +29,7 @@ library(BhGLM)
 library(BHAM)
 library(survival)
 library(simsurv)
+library(glmnet)
 
 ## Helper Functions
 source("~/Manuscript-BH_Additive_Cox/Sim/Code/find_censor_parameter.R")
@@ -68,15 +69,15 @@ scale.c <- tryCatch({
   find_censor_parameter(lambda = exp(-1*train_dat$eta/shape.t),
                         pi.cen = pi_cns,
                         shape_hazard = shape.t, shape_censor = shape.c)
-  },
-  error = function(err) {
-    if(!file.exists("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS"))
-      stop("Please Generate scale_vec, and use 'R/calculate_scales' to generates scale_vec.RDS")
-    scale_vec <- readRDS("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS")
-    scale.c <- scale_vec[[job_name]]
-    if(is.null(scale.c)) stop("No scale for this scenario")
-    return(scale.c)
-  })
+},
+error = function(err) {
+  if(!file.exists("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS"))
+    stop("Please Generate scale_vec, and use 'R/calculate_scales' to generates scale_vec.RDS")
+  scale_vec <- readRDS("~/Manuscript-BH_Additive_Cox/Sim/Code/scale_vec.RDS")
+  scale.c <- scale_vec[[job_name]]
+  if(is.null(scale.c)) stop("No scale for this scenario")
+  return(scale.c)
+})
 
 
 
@@ -103,6 +104,33 @@ train_dat <-  train_dat %>%
 # Fit Models------------------------------------------------------------------
 
 
+#### Linear Lasso ####
+lasso_mdl <- cv.glmnet(x = data.matrix(train_dat %>% select(starts_with("X"))),
+                       y = train_dat %>% select(time, status) %>% data.matrix,
+                       nfolds = 5, family = "cox")
+
+lasso_fnl_mdl <- glmnet(x = data.matrix(train_dat %>% select(starts_with("X"))),
+                        y = train_dat %>% select(time, status) %>% data.matrix,
+                        family = "cox", lambda = lasso_mdl$lambda.min)
+
+# Prediction
+lasso_train <- measure.cox(Surv(train_dat$time, train_dat$status),
+                           predict(lasso_fnl_mdl,
+                                   newx = data.matrix(train_dat %>% select(starts_with("X"))),
+                                   type = "link")
+)
+lasso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
+                          predict(lasso_fnl_mdl,
+                                  newx = data.matrix(test_dat %>% select(starts_with("X"))),
+                                  type = "link")
+)
+
+# Variable Selection
+lasso_var <- ((lasso_fnl_mdl$beta %>% as.vector())!=0) %>%
+  `names<-`(names(test_dat %>% select(starts_with("X"))))
+
+
+
 # * Spline Specification --------------------------------------------------
 mgcv_df <- data.frame(
   Var = grep("X", names(train_dat), value = TRUE),
@@ -123,12 +151,23 @@ error = function(err) {
 
 mgcv_train <- make_null_res("cox")
 mgcv_test <- make_null_res("cox")
+mgcv_var <- rep(NA, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
+mgcv_plot <- NULL
 
 if(!is.null(mgcv_mdl)){
+  # Prediction Results
   mgcv_train <- measure.cox(Surv(train_dat$time, train_dat$status) , mgcv_mdl$linear.predictors)
   mgcv_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
                            predict(mgcv_mdl, newdata=test_dat, type = "link"))
+
+  # Variable Selection Results
+  mgcv_var <- (summary(mgcv_mdl)$s.table[,"p-value"] < 0.05) %>%
+    `names<-`(names(test_dat %>% select(starts_with("X"))))
+
+  # Plotting Results
 }
+
+
 
 # * COSSO -------------------------------------------------------------------
 cosso_mdl <-  tryCatch({cosso(x = train_dat %>% select(starts_with("X")) %>% data.matrix,
@@ -151,9 +190,9 @@ if(!is.null(cosso_mdl)){
   )
 }
 
-
+cosso_var <- rep(NA, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
 if(!is.null(cosso_mdl) && !is.null(cosso_tn_mdl)){
-
+  # Prediction
   cosso_train_lp <- predict.cosso(cosso_mdl,
                                   xnew=train_dat %>% select(starts_with("X")) %>% data.matrix,
                                   M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
@@ -163,6 +202,14 @@ if(!is.null(cosso_mdl) && !is.null(cosso_tn_mdl)){
                                  xnew=test_dat %>% select(starts_with("X")) %>% data.matrix,
                                  M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "fit")
   cosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), cosso_test_lp)
+
+  # Variable Selection
+  cosso_var <- rep(FALSE, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
+  cosso_var[predict.cosso(cosso_mdl, M=ifelse(!is.null(cosso_tn_mdl), cosso_tn_mdl$OptM, 2), type = "nonzero")] <- TRUE
+
+  # Effect Plotting
+  cosso_plot <- NULL
+
 
 } else{
   cosso_train <- make_null_res("cox")
@@ -194,7 +241,7 @@ if(!is.null(acosso_mdl)){
 }
 
 
-
+acosso_var <- rep(NA, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
 if(!is.null(acosso_mdl) && !is.null(acosso_tn_mdl)){
 
   acosso_train_lp <- predict.cosso(acosso_mdl,
@@ -206,8 +253,13 @@ if(!is.null(acosso_mdl) && !is.null(acosso_tn_mdl)){
                                   xnew=test_dat %>% select(starts_with("X")) %>% data.matrix,
                                   M=ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "fit")
   acosso_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status), acosso_test_lp)
+
+  acosso_var <- rep(FALSE, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
+  acosso_var[predict.cosso(acosso_mdl, M=ifelse(!is.null(acosso_tn_mdl), acosso_tn_mdl$OptM, 2), type = "nonzero")] <- TRUE
+
 } else {
   acosso_train <- acosso_test <- make_null_res("cox")
+  acosso_var <- acosso_plot <- NULL
 }
 
 # * BHAM ----------------------------------------------------------
@@ -233,61 +285,82 @@ bamlasso_mdl <- bamlasso( x = train_smooth_data, y = Surv(train_dat$time, event 
                           family = "cox", group = make_group(names(train_smooth_data)),
                           ss = c(blasso_s0_min, 0.5))
 
+# Prediction
 bamlasso_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bamlasso_mdl$linear.predictors)
 bamlasso_test <- measure.bh(bamlasso_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
 
 
+# Variable Selection
+bamlasso_vs_part <- bamlasso_var_selection(bamlasso_mdl)
+bamlasso_var <- rep(FALSE, p) %>% `names<-`(names(test_dat %>% select(starts_with("X"))))
+bamlasso_var[bamlasso_vs_part$`Non-parametric`$Variable] <- TRUE
+
+# Effect Plotting
+
+
 #** Bacox ----------------------------------------------------------
-bacox_mdl <- tryCatch({bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ .,
-                         data = data.frame(time = train_dat$time, status = train_dat$status,
-                                           train_smooth_data),
-                         prior = mde(), group = make_group(names(train_smooth_data)),
-                         method.coef = bam_group)
-
-bacox_s0_seq <- seq(0.005, 0.1, length.out = 20)    # TODO: need to be optimized
-bacox_cv_res <- tune.bgam(bacox_raw_mdl, nfolds = 5, s0= bacox_s0_seq, verbose = FALSE)
+# bacox_mdl <- tryCatch({bacox_raw_mdl <- bacoxph(Surv(time, event = status) ~ .,
+#                          data = data.frame(time = train_dat$time, status = train_dat$status,
+#                                            train_smooth_data),
+#                          prior = mde(), group = make_group(names(train_smooth_data)),
+#                          method.coef = bam_group)
 #
-bacox_s0_min <- bacox_cv_res$s0[which.min(bacox_cv_res$deviance)]
+# bacox_s0_seq <- seq(0.005, 0.1, length.out = 20)    # TODO: need to be optimized
+# bacox_cv_res <- tune.bgam(bacox_raw_mdl, nfolds = 5, s0= bacox_s0_seq, verbose = FALSE)
+# #
+# bacox_s0_min <- bacox_cv_res$s0[which.min(bacox_cv_res$deviance)]
+# #
+# bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
+#                      prior = mde(s0 = bacox_s0_min), group = make_group(names(train_smooth_data)),
+#                      method.coef = make_group(names(train_smooth_data)))
+# },
+# error = function(err) {
+#   return(NULL)
+# })
 #
-bacoxph(Surv(train_dat$time, train_dat$status) ~ ., data = train_smooth_data,
-                     prior = mde(s0 = bacox_s0_min), group = make_group(names(train_smooth_data)),
-                     method.coef = make_group(names(train_smooth_data)))
-},
-error = function(err) {
-  return(NULL)
-})
-
-
-
-if(!is.null(bacox_mdl) ){
-  bacox_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bacox_mdl$linear.predictors)
-  # bacox_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
-  #                          predict(mgcv_mdl, newdata=test_dat, type = "link"))
-  bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
-} else {
-  bacox_train <- bacox_test <- make_null_res("cox")
-}
+#
+#
+# if(!is.null(bacox_mdl) ){
+#   bacox_train <- measure.cox(Surv(train_dat$time, train_dat$status) , bacox_mdl$linear.predictors)
+#   # bacox_test <- measure.cox(Surv(test_dat$eventtime, test_dat$status),
+#   #                          predict(mgcv_mdl, newdata=test_dat, type = "link"))
+#   bacox_test <- measure.bh(bacox_mdl, test_sm_dat, Surv(test_dat$eventtime, test_dat$status))
+# } else {
+#   bacox_train <- bacox_test <- make_null_res("cox")
+# }
 
 # Save Simulation Results -------------------------------------------------
 
 # Overall
 ret <- list(
   train_res = list(
+    lasso = lasso_train,
     mgcv = mgcv_train,
     cosso = cosso_train,
     acosso = acosso_train,
-    bacox = bacox_train,
+    # bacox = bacox_train,
     bamlasso = bamlasso_train
   ),
   test_res = list(
+    lasso = lasso_test,
     mgcv = mgcv_test,
     cosso = cosso_test,
     acosso = acosso_test,
-    bacox = bacox_test,
+    # bacox = bacox_test,
     bamlasso = bamlasso_test
   ),
   # scale.c = scale.c,                             # The scale parameter
-  p.cen = mean(train_dat$status==0)              # Censoring proportion in training data
+  p.cen = mean(train_dat$status==0),              # Censoring proportion in training data
+
+  var_slct = list(
+    lasso = lasso_var,
+    mgcv = mgcv_var,
+    cosso = cosso_var,
+    acosso = acosso_var,
+    bamlasso = bamlasso_var
+  ),
+
+  bam_select = bamlasso_vs_part
 )
 
 
