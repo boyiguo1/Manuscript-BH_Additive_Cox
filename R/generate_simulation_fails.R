@@ -6,7 +6,7 @@ generate_simulation_mdl_failed_rate <- function(raw_dat){
     pmap_dfr(.f = function(train, ...){
       # if(!ncol(msr_df))
       #   return(data.frame(NULL))
-      # browser()
+      browser()
 
       train %>%
         dplyr::summarize(

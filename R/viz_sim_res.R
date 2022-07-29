@@ -20,7 +20,7 @@ viz_sim_res <- function(dat, sec = c("deviance", "Cindex")){
     # filter(str_ends(name, ".mean")) %>%
     mutate(
       method = factor(method,
-                    levels = c("mgcv", "cosso", "acosso", "bacox", "bamlasso")),
+                    levels = c("lasso","mgcv", "cosso", "acosso", "bacox", "bamlasso")),
       rho = factor(rho)
     ) %>%
     ggplot(#data = binom_total_dat,

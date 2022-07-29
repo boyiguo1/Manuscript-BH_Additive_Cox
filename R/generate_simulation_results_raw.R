@@ -9,12 +9,13 @@ generate_simulation_res_raw <- function(sim_summary){
       ret <- list.files(path, full.names = TRUE) %>%
         grep(".rds", ., value = TRUE)%>%
         map_dfr(.f = function(.file){
+          # browser()
           .file %>%
             read_rds() %>%
+            magrittr::extract(c("train_res", "test_res", "p.cen")) %>%
             unlist %>%
             t %>%
             data.frame()
-
         })
 
       # return object
