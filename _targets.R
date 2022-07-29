@@ -7,6 +7,7 @@ tar_option_set(
   packages = c(
     "simsurv", # Simulation packages
     "tidyverse", "ggplot2", "unglue", # Data wrangling packages
+    "yardstick",
     "knitr", "rmarkdown", "rticles", "xtable"#, # Manuscript packages
     # "gtsummary","survival", "ggpubr", "survminer",
     # "glmnet", "BHAM", "BhGLM" # Data analysis packages
@@ -70,6 +71,7 @@ tar_plan(
     generate_simulation_mdl_failed_rate(sim_pred_measure_raw)
   ),
 
+  #* Prediction Results ---------------------------------------------
   tar_target(
     sim_train_res,
     sim_pred_measure_raw %>%
@@ -133,7 +135,25 @@ tar_plan(
     ggsave("Manuscript/Figs/sim_cindex.pdf",
            sim_test_viz[[2]],
            device = "pdf")
-  )
+  ),
+
+  #* Variable Selection Results ---------------------------------------------
+  tar_target(
+    sim_var_sel_raw,
+    generate_simulation_val_sel_raw(sim_summary)
+  ),
+
+  tar_target(
+    sim_var_sel_sum_scores_raw,
+    make_sim_var_metric_raw(sim_var_sel_raw)
+  ),
+
+  #* Bi-level Selection Results ---------------------------------------------
+  # tar_target(
+  #   sim_var_sel_raw,
+  #   generate_simulation_val_sel_raw(sim_summary)
+  # ),
+
 
   # Real Data Analysis ------------------------------------------------------
   #* Emory Card Biobank -----------------------------------------------------
