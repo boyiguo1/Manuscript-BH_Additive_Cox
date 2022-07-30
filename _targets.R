@@ -23,7 +23,8 @@ tar_plan(
   # Simulation --------------------------------------------------------------
   tar_files(
     sim_res_path,
-    list.files("/data/user/boyiguo1/bcam/Res",
+    # list.files("/data/user/boyiguo1/bcam/Res",
+    list.files("Sim/Res/",
                full.names = TRUE)
   ),
 
@@ -147,6 +148,11 @@ tar_plan(
     sim_var_sel_sum_scores_raw,
     make_sim_var_metric_raw(sim_var_sel_raw)
   ),
+
+  tar_target(
+    sim_var_sel_scores,
+    summarize_var_sel_scores(sim_var_sel_sum_scores_raw)
+  )
 
   #* Bi-level Selection Results ---------------------------------------------
   # tar_target(
