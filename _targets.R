@@ -6,9 +6,10 @@ options(tidyverse.quiet = TRUE)
 tar_option_set(
   packages = c(
     "simsurv", # Simulation packages
-    "tidyverse", "ggplot2", "unglue", # Data wrangling packages
+    "tidyverse",  "unglue", # Data wrangling packages
     "yardstick",
-    "knitr", "rmarkdown", "rticles", "xtable"#, # Manuscript packages
+    "knitr", "rmarkdown", "rticles", "xtable", # Manuscript packages
+    "ggplot2", "ggpubr"   #Graphs
     # "gtsummary","survival", "ggpubr", "survminer",
     # "glmnet", "BHAM", "BhGLM" # Data analysis packages
   ),
@@ -152,7 +153,7 @@ tar_plan(
   tar_target(
     sim_var_sel_scores,
     summarize_var_sel_scores(sim_var_sel_sum_scores_raw)
-  )
+  ),
 
   #* Bi-level Selection Results ---------------------------------------------
   # tar_target(
@@ -160,6 +161,18 @@ tar_plan(
   #   generate_simulation_val_sel_raw(sim_summary)
   # ),
 
+  #* Signal Plotting --------------------------------------------------------
+  tar_target(
+    sim_true_sig_plot,
+    plot_true_sig()
+  ),
+
+  tar_target(
+    sim_true_sig_pdf,
+    ggsave("Manuscript/Figs/true_sig_plot.pdf",
+           plot = sim_true_sig_plot,
+           device = "pdf")
+  ),
 
   # Real Data Analysis ------------------------------------------------------
   #* Emory Card Biobank -----------------------------------------------------
