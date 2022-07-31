@@ -20,6 +20,9 @@ tar_option_set(
 ## Load your R files
 lapply(list.files("./R", full.names = TRUE, recursive = TRUE), source)
 
+n_train <- 200
+source("Sim/Code/sim_pars_funs.R")    # Get Sim Functions
+
 tar_plan(
   # Simulation --------------------------------------------------------------
   tar_files(
