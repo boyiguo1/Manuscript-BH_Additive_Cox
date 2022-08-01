@@ -32,7 +32,6 @@ tar_plan(
                full.names = TRUE)
   ),
 
-
   tar_target(
     sim_summary,
     generate_simulation_summary(sim_res_path)
@@ -156,6 +155,21 @@ tar_plan(
   tar_target(
     sim_var_sel_scores,
     summarize_var_sel_scores(sim_var_sel_sum_scores_raw)
+  ),
+
+  tar_target(
+    sim_var_sel_scores_tabs,
+    sim_var_sel_scores %>%
+      filter(rho == 0) %>%
+      select(
+        p, rho, pi_cns, method,
+        recall, precision, mcc
+      ) %>%
+      pivot_wider(
+        names_from = pi_cns,
+        values_from = c(recall, precision, mcc)
+      ) %>%
+      arrange(p, rho)
   ),
 
   #* Bi-level Selection Results ---------------------------------------------
