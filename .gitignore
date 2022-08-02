@@ -39,3 +39,4 @@ start_sim.Rout
 
 # Simulation Results
 /Sim/Res/
+/Sim/Res*
