@@ -36,3 +36,6 @@ _targets/
 *.err
 *.out
 start_sim.Rout
+
+
+Sim/Res*
