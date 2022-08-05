@@ -9,7 +9,7 @@ tar_option_set(
     "tidyverse",  "unglue", # Data wrangling packages
     "yardstick",
     "knitr", "rmarkdown", "rticles", "xtable", # Manuscript packages
-    "ggplot2", "ggpubr"   #Graphs
+    "ggplot2", "ggpubr", "latex2exp"   #Graphs
     # "gtsummary","survival", "ggpubr", "survminer",
     # "glmnet", "BHAM", "BhGLM" # Data analysis packages
   ),
