@@ -1,5 +1,5 @@
 ---
-title: A scalable and flexible Cox proportional hazards model for high-dimensional survival prediction and functional selection
+title: Spike-and-Slab LASSO Additive Cox Model for High-dimensional Survival Prediction And Functional Selection
 authors:
 - name: Boyi Guo
   thanks: Corresponding authors \\email{boyiguo1@uab.edu}
