@@ -49,32 +49,45 @@ Markov chain Mote Carlo (MCMC) algorithms are a natural choice to fit Bayesian h
 
 In this section, we describe a fast and deterministic algorithm to fit the proposed spike-and-slab LASSO additive Cox model. The algorithm is an extension of the previously proposed EM-coordinate descent algorithm for group spike-and-slab LASSO Cox \cite{tang2019}. Specifically, we first write the spike-and-slab LASSO prior as a double exponential prior with a conditional scale parameter. Next, we formulate the double exponential prior as LASSO penalty, which can be optimize via the efficient coordinate descent algorithm \cite{simon2011}. Some nuisance parameters are required but unknown to derive the objective function. Instead, we optimize the expectation of the objective function with respect to these nuisance parameters. The optimization process is implemented via iterative steps until convergence, commonly referred to as the Expectation-Maximization procedure. We previously see that similar strategies achieve great computational convenience compared to versions of Monte Carlo Markov Chain algorithms in the high-dimensional data analysis literature, for example \cite{rockova2014, tang2017, guo2022} to name a few.
 
-In the proposed algorithm, our objective is to find the parameters of interests $\Theta = \{\bs \beta, \bs \theta\}$ that maximize the log joint posterior density of $\Theta, \bs \gamma$. In Bayesian survival analysis, it is common to approximate posterior density with the product of partial likelihood function in Equation \eqref{eq:partial-likelihood} and marginal priors. \cite{sinha2003} Hence, our objective function (up to additive constants) is expressed mathematically, \begin{align}\label{eq:bcam_obj_fun}
-\max\limits_{\Theta, \bs \gamma} \log f(\bs\beta, \bs \theta, \bs \gamma |t, d) &= \log pl(\bs \beta)+ \sum\limits_{j=1}^p\left[\log f(\beta_j|\gamma_j)+\sum\limits_{k=1}^{K_j} \log f(\beta^{\tp}_{jk}|\gamma^{\tp}_{j})\right]\nonumber\\
-+&\sum\limits_{j=1}^{p} \left[ (\gamma_j+\gamma_{j}^{\tp})\log \theta_j + (2-\gamma_j-\gamma_{j}^{\tp}) \log (1-\theta_j)\right] +  \sum\limits_{j=1}^{p}\log f(\theta_j).
-\end{align}
+In the proposed algorithm, our objective is to find the parameters of interests $\Theta = \{\bs \beta, \bs \theta\}$ that maximize the log joint posterior density of $\Theta, \bs \gamma$. In Bayesian survival analysis, it is common to approximate posterior density with the product of partial likelihood function in Equation \eqref{eq:partial-likelihood} and marginal priors. \cite{sinha2003} Hence, our objective function (up to additive constants) is expressed mathematically, 
+$$
+\max\limits_{\Theta, \bs \gamma} \log f(\bs\beta, \bs \theta, \bs \gamma |t, d) = Q_1(\bs \beta) + Q_2(\bs \gamma, \bs \theta),
+$$
+where
+$$
+Q_1 \equiv Q_1(\bs \beta) = 
+pl(\bs \beta)+ \sum\limits_{j=1}^p\left[\log f(\beta_j|\gamma_j)+\sum\limits_{k=1}^{K_j} \log f(\beta^{\tp}_{jk}|\gamma^{\tp}_{j})\right],
+$$
+and 
+$$
+Q_2 \equiv Q_2(\bs \gamma, \bs \theta) = \sum\limits_{j=1}^{p} \left[ (\gamma_j+\gamma_{j}^{\tp})\log \theta_j + (2-\gamma_j-\gamma_{j}^{\tp}) \log (1-\theta_j)\right] + \sum\limits_{j=1}^{p}\log f(\theta_j).
+$$
 
-Given the latent inclusion indicator is binary and takes only 0 and 1 as its value, a spike-and-slab LASSO prior, as well as its group variant, can be expressed as a double exponential prior whose scale parameter is $s_0$ when $\gamma = 0$ and $s_1$ when $\gamma = 1$, \begin{equation}
-\beta|\gamma, s_0,s_1 \sim DE(0, (1-\gamma_{j}) s_0 + \gamma_{j} s_1). \nonumber
-\end{equation} Leveraging the relationship between double exponential prior and LASSO penalty, the product of partial likelihood function and the prior of $\bs \beta$ can be viewed as an $l_1$ penalized partial likelihood function with penalty $\lambda_j = \{(1-\gamma_{j}) s_0 + \gamma_{j} s_1\}^{-1}$ and $\lambda_j^\tp = \{(1-\gamma_{j}^\tp) s_0 + \gamma_{j}^\tp s_1\}^{-1}$ for $\beta_j$ and $\beta_{jk}^\tp$ respectively. This penalized partial likelihood function could be optimized with the coordinate descent algorithm \cite{simon2011} with the knowledge of $\bs \gamma$. Similarly, the remaining of the objective function could be seen as an posterior density function of $\bs \theta$ if $\bs \gamma$ is known and considered data points, and optimized via beta-binomial conjugate relationship. Nevertheless, the latent indicators $\bs \gamma$ are unknown, and the objective function can not be maximized directly.
+Given the latent inclusion indicator is binary and takes only 0 and 1 as its value, a spike-and-slab LASSO prior, as well as its group variant, can be expressed as a double exponential prior whose scale parameter is $s_0$ when $\gamma = 0$ and $s_1$ when $\gamma = 1$, with the density function
+$$
+f(\beta|\gamma) = \frac{1}{2[(1-\gamma)s_0 + \gamma s_1]}\exp(-\frac{|\beta|}{(1-\gamma)s_0 + \gamma s_1})
+$$
+Leveraging the relationship between double exponential prior and LASSO penalty, $Q_1$, the product of partial likelihood function and the prior of $\bs \beta$, can be viewed as an $l_1$ penalized partial likelihood function with penalty parameters $\lambda_j = \{(1-\gamma_{j}) s_0 + \gamma_{j} s_1\}^{-1}$ and $\lambda_j^\tp = \{(1-\gamma_{j}^\tp) s_0 + \gamma_{j}^\tp s_1\}^{-1}$ for $\beta_j$ and $\beta_{jk}^\tp$ respectively. This penalized partial likelihood function can be optimized with the coordinate descent algorithm \cite{simon2011} if with the knowledge of $\bs \gamma$. Similarly, $Q_2$, the prior of $\bs \gamma$ and $\bs \theta$, can be seen as an posterior density function of $\bs \theta$ if $\bs \gamma$ is known and considered data points, and optimized via beta-binomial conjugate relationship. In addition, conditioning on $\bs \gamma$, $Q_1$ and $Q_2$ are independent and can be optimized piece-wise. Nevertheless, the latent indicators $\bs \gamma$ are unknown and the objective function can not be maximized directly.
 
-To address the problem, we treat the latent indicators $\bs \gamma$ as the "missing data" and use EM algorithm to iteratively derive the maximum a postiori estimates of $\Theta$. Notably, we establish the expected log joint posterior density of $\Theta, \bs \gamma$ with respect to the latent indicators conditioning on the parameters of interest estimated from previous iteration $\Theta^{(t-1)}$.\footnote{The superscription $^{(t)}$ denotes the the parameter estimates at the $t$th iteration.} Hence, we can calculate the equivalent $l_1$ penalty at the $t$-th iteration in the EM algorithm as $\lambda_j^{(t)} = \frac{1-p_{j}^{(t)}}{s_0} + \frac{p_{j}^{(t)}}{s_1}$ and ${\lambda_j^\tp}^{(t)} = \frac{1-{p_{j}^\tp}^{(t)}}{s_0} + \frac{{p_{j}^\tp}^{(t)}}{s_1}$ for $\beta_j$ and $\beta_{jk}$, where $p_{j}^{(t)} \equiv \pr(\gamma_{j}=1|\Theta^{(t-1)})$ and $p_{j}^\tp \equiv \pr(\gamma^\tp_{j}=1|\Theta^{(t-1)})$. To note, for computational convenience, we analytic integrate $\gamma_j$ out of the prior density of $\gamma_j^\tp$. The two quantity $p_j^{(t)}$ and ${p_{j}^\tp}^{(t)}$ can be easily derived with Bayes' theorem and we defer the derivation to \cite{guo2022}. With the expectation set up, we can update $\bs \beta^{(t)}$ with the coordinate descent algorithm as previously described. Meanwhile, conditioning on $\bs \gamma$, the rest of components in Equation \eqref{eq:bcam_obj_fun} can be optimized independently from the penalized partial likelihood function. It is easy to update $\theta_j^{(t)}$ with a closed-form equation due to the conjugate relationship, \begin{equation}\label{eq:update_theta}
-\theta_j^{(t)} = \frac{p_j^{(t)} + {p_{j}^\tp}^{(t)} + a - 1 }{a + b}.
-\end{equation} The E- and M- steps iterates until meeting the convergence criterion $|d^{(t)}-d^{(t-1)}|/(0.1+|d^{(t)}|)<\epsilon$, where $d^{(t)} = -2pl(\bs \beta^{(t)})$ and $\epsilon$ is a small value (say $10^{-5}$)
+To address this problem, we treat the latent indicators $\bs \gamma$ as nuisance parameters and use EM algorithm to iteratively derive the maximum a postiori estimates of $\Theta$. Notably, we establish the expected log joint posterior density of $\{\Theta, \bs \gamma\}$ with respect to the latent indicators $\bs \gamma$. At the $t$-th iteration of the EM procedure, we first calculate $E(\gamma) = \text{Pr}(\gamma=1|\beta, \theta) \equiv p^{(t)}$ and $E(\gamma^\tp) = \text{Pr}(\gamma^\tp=1|\bs \beta^\tp, \theta) \equiv {\text{p}^\tp}^{(t)}$ using the estimate of $\bs \beta, \theta$ from the $t-1$ iteration. To reduce the computation load, we analytically integrate $\gamma$ out of the density function of $\gamma^\tp$ such that $\gamma^\tp|\theta \sim Bin(1, \theta^2)$. We defer the derivation to the Supporting Information. Similarly, we can calculate the penalized parameters $E(\lambda) = (1-\text{p}^{(t)})/{s_0} + \text{p}^{(t)}/{s_1}$ and $E(\lambda^\tp) = (1-{\text{p}^\tp}^{(t)})/{s_0} + {\text{p}^\tp}^{(t)}/{s_1}$. Naturally, we have $E(Q_1)$ and $E(Q_2)$ to be maximized independently. We can update $\bs \beta$ with the coordinate descent algorithm; we can update $\theta_j$ with a closed-form equation thanks to the beta-binomial conjugate relationship, \begin{equation}\label{eq:update_theta}
+\theta_j = \frac{\text{p}_j^{(t)} + {\text{p}_j^\tp}^{(t)} + a - 1 }{a + b}.
+\end{equation}
 
 Totally, the proposed EM-CD algorithm is summarized as follows:
 
-1)  Choose a starting value $\bs \beta^{(0)}$ and $\bs \theta^{(0)}$ for $\bs \beta$ and $\bs \theta$. For example, we can initialize $\bs \beta^{(0)} = \bs 0$ and $\bs \theta^{(0)} = \bs 0.5$
+1)  Choose a starting value $\bs \beta^{(0)}$ and $\bs \theta^{(0)}$ for $\bs \beta$ and $\bs \theta$, where the superscription $^{(t)}$ denotes the the parameter estimates at the $t$th iteration. For example, we can initialize $\bs \beta^{(0)} = \bs 0$ and $\bs \theta^{(0)} = \bs 0.5$
 
-2)  Iterate over the E-step and M-step until convergence
+2)  Iterate over the E-step and M-step
 
-    E-step: calculate $E(\gamma_{j})$, $E(\gamma^\tp_{j})$ and $E({S}^{-1}_{j})$, $E({S^\tp}^{-1}_{j})$ with estimates of $\Theta^{(t-1)}$ from previous iteration
+    E-step: calculate $E(\gamma_{j})$, $E(\gamma^\tp_{j})$ and $E(\lambda_j)$, $E(\lambda^\tp_j)$ with estimates of $\Theta^{(t-1)}$ from previous iteration
 
     M-step:
 
-    a)  Update $\bs \beta^{(t)}$ by optimizing the penalized likelihood function in Equation (xx) using the coordinate descent algorithm
+    a)  Update $\bs \beta^{(t)}$ by optimizing the penalized likelihood function $E(Q_1)$ using the coordinate descent algorithm
 
     b)  Update $\bs \theta^{(t)}$ using the closed-form calculation in Equation \eqref{eq:update_theta}
+    
+    The E- and M- steps iterate until meeting the convergence criterion $|d^{(t)}-d^{(t-1)}|/(0.1+|d^{(t)}|)<\epsilon$, where $d^{(t)} = -2pl(\bs \beta^{(t)})$ and $\epsilon$ is a small value (say $10^{-5}$)
 
 \subsubsection{Selecting Optimal Scale Values}
 
