@@ -17,3 +17,15 @@ In each iteration of the simulation process, we independently generate the train
 Across all the simulation settings, the empirical censoring rate is controlled at the desired level (see Table \ref{tab:sim_cnr_prop}). As previously mentioned, mgcv doesn't fit model when the number of parameters exceeds the sample size, and hence ignored in $p = \{100,200\}$ evaluations. We also experience some programming errors when fitting COSSO and adaptive COSSO models when p is small. [TODO: add a sentence describing how much didn't finish, and direct to supporting information Table S2].  The proposed method, BHAM, is robust to programming errors in all examined settings. Our following performance evaluation of each method only use its successful runs.
 
 Overall, we see consistent performance across different settings of dimensionality, censoring rate and correlation structure (see Figure \ref{fig:sim_cindex}): the proposed bamlasso model performs as good as, if not better than previous methods, including mgcv, COSSO, adaptive COSSO. The improvement is more substantial as p increases, or higher censoring rate, or when predictors are independent. As expected, adaptive COSSO performs slightly better than COSSO.
+
+We focus the summary of performance on the C-index metric instead of diviance, as both shows similar performance profile.
+
+1. Linear LASSO model performs consistently the worse among all simulation settings. This indicate that violation of linear assumption can hugely affect the prediction accuracy. 
+2. mgcv performs the best when applicable, i.e. in low dimensional cases. The proposed model BHAM performs comparable when there are fewer censoring events. As the censoring rate increase, the performance difference between BHAM and mgcv becomes more substaintial, [TODO: add a summary  statistics]. Nevertheless, BHAM consistently performs better than COSSO and aCOSSO across all simulation settings, [Add a summary statistics]. The advantage of BHAM over COSSO and aCOSSO diminishes as both censoring rate increases and dimensionality increases. Among all simulation settings, the advantage becomes the smallest when p=200, and censoring rate is 0.45 wihtout any correlation structure among predictors.
+
+BHAM dealt with correlated predictors better than COSSO.
+
+Computational wise, the proposed model have significant computational advantages over the other two high-dimensional additive models. 
+
+We also observe that, coorelation structure among predictors, signal sparsity and censoring rate have impact on the prediction performance. Specifically, when 
+
