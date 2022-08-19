@@ -1,0 +1,52 @@
+---
+title: Spike-and-Slab LASSO Additive Cox Model for High-dimensional Survival Prediction And Functional Selection
+subtitle: "Supporting Information"
+author: Boyi Guo, Byron C. Jaeger, AKM Fazlur Rahman, D. Leann Long, Nengjun Yi
+bibliography: bibfile.bib
+output: 
+  pdf_document:
+    keep_tex: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# library(targets)
+
+# tar_load(manu_tbs)
+
+```
+\newcommand{\tp}{*}
+\newcommand{\pr}{\text{Pr}}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\simiid}{\overset{\text{iid}}{\sim}}
+
+\subsection{Supporting Information 1: Posterior Density of $\gamma$ and $\gamma^\tp$}
+
+Given the spike-and-slab LASSO prior for the spline function 
+
+\begin{align*}
+p_{j} &= \frac{\pr(\gamma_{j} = 1|\theta_j)f(\beta_{j}|\gamma_{j}=1, s_1) }{\pr(\gamma_{j} = 1|\theta_j)f(\beta_{j}|\gamma_{j}=1, s_1) + \pr(\gamma_{j} = 0|\theta_j)f(\beta_{j}|\gamma_{j}=0, s_0)}\\
+p^\tp_{j} &= \frac{\pr(\gamma^{\tp}_{j} = 1|\theta_j)\prod\limits_{k=1}^{K_j}f(\beta_{jk}|\gamma^{\tp}_{j}=1, s_1) }{\pr(\gamma^{\tp}_{j} = 1|\theta_j)\prod\limits_{k=1}^{K_j}f(\beta_{jk}|\gamma^{\tp}_{j}=1, s_1) + \pr(\gamma^{\tp}_{j} = 0|\theta_j)\prod\limits_{k=1}^{K_j}f(\beta_{jk}|\gamma^{\tp}_{j}=0, s_0)}
+\end{align*}
+where $\pr(\gamma_{j} = 1|\theta_j) = \theta_j$, $\pr(\gamma_{j} = 0|\theta_j) = 1-\theta_j$, $\pr(\gamma_{j}^\tp = 1|\theta_j) = \theta_j^2$, $\pr(\gamma_{j}^\tp = 0|\theta_j) = 1-\theta^2_j$, $f(\beta|\gamma=1, s_1) = \text{DE}(\beta|0 , s_1)$, $f(\beta|\gamma=0, s_0) = \text{DE}(\beta|0 , s_0)$.
+
+
+To show $\gamma^\tp|\theta \sim Bin(1, \theta^2)$: 
+
+Given that $\gamma_{j}^\tp | \gamma_{j}, \theta_j \sim Bin(1, \gamma_{j}\theta_j)$ where $\gamma_{j} | \theta_j \sim Bin(1, \theta_j)$, we can derive the marginal distribution of $\gamma_{j}^\tp$ with the following manipulation.
+\begin{align*}
+& \pr(\gamma_j^\tp = 1 | \theta_j)  = \pr(\gamma_j^\tp = 1, \gamma_j = 1 | \theta_j) + \pr(\gamma_j^\tp = 1 , \gamma_j = 0| \theta_j)\\
+= & \pr(\gamma_j^\tp = 1, \gamma_j = 1 | \theta_j) + 0 \qquad \text{[hierarchical structure between }\gamma^\tp \text{ and }\gamma \text{.]}\\
+= & \pr(\gamma_j^\tp = 1| \gamma_j = 1,  \theta_j)\pr(\gamma_j = 1| \theta_j)\\
+= & \theta_j^2\\
+& \pr(\gamma_j^\tp = 0 | \theta_j)  = \pr(\gamma_j^\tp = 0, \gamma_j = 1 | \theta_j) + \pr(\gamma_j^\tp = 0 , \gamma_j = 0| \theta_j)\\
+= & \pr(\gamma_j^\tp = 0, \gamma_j = 1 | \theta_j) + \pr(\gamma_j^\tp = 0, \gamma_j = 0 | \theta_j)\\
+= & \pr(\gamma_j^\tp = 0| \gamma_j = 1,  \theta_j)\pr(\gamma_j = 1| \theta_j) + \pr(\gamma_j^\tp = 0| \gamma_j = 0,  \theta_j)\pr(\gamma_j = 0| \theta_j)\\
+= & (1-\theta_j)\theta_j + 1(1-\theta_j) = 1-\theta_j^2
+\end{align*}
+
+\clearpage
+
+\clearpage
+\subsection{References}
