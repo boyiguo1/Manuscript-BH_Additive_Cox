@@ -68,6 +68,15 @@ tar_load(manu_figs)
 \clearpage
 \input{Tabs/sim_cnr_prop.tex}
 \clearpage
+
+\begin{figure}[h] 
+
+\caption{Nonlinear hazard ratio functions used in the simulation study, including $B_1(x) = (5x-2)^2/20-3, B_2(x) = \exp(x+1)/10, B_3(x_3) = 2*sin(4x)$, and $B_4(x) = (1.4x+0.5)/2$. The blue dotted lines denote the functional estimations under the linearity assumption.}
+\label{fig:sim_fun}
+\end{figure}
+
+\clearpage
+
 \begin{figure}[h] 
 \includegraphics{Figs/sim_cindex.pdf}
 \caption{C-indices of out-of-sample prediction of 50 iterations of simulation studies. The models of comparison include the proposed Bayesian hierarchical additive model (BHAM), component selection and smoothing operator (COSSO), adaptive COSSO, and gcv. mgcv doesn't provide estimation whe number of parameters exceeds sample size i.e. p = 100, 200.}
