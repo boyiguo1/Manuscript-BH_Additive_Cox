@@ -1,0 +1,8 @@
+\section{introduction}
+
+% We defer the review of high-dimensional Cox model to \cite{xu2012} and the triage of flexible Cox model in biomedical data analysis to \cite{Lin2013}.
+
+%for Cox model in the high-dimensional setting is non-trivial. Specifically, how to decide if a function form of predictor should be included and what the appropriate form is extremely challenge as how to balance the signal sparsity and function smoothness is unclear. 
+
+
+To leverage the fact that the probability of selecting the bases of a smooth function should be similar, we have the linear and nonlinear components (if selected) share the inclusion probability $\theta_j$.

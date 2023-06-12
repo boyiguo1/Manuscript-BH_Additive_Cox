@@ -1,0 +1,268 @@
+\begin{thebibliography}{10}
+
+\bibitem{Steenland2004}
+Kyle Steenland and James~A. Deddens.
+\newblock {A practical guide to dose-response analyses and risk assessment in
+  occupational epidemiology}.
+\newblock {\em Epidemiology}, 15(1):63--70, 2004.
+
+\bibitem{gray1992}
+Robert~J. Gray.
+\newblock {Flexible Methods for Analyzing Survival Data Using Splines, with
+  Applications to Breast Cancer Prognosis}.
+\newblock {\em Journal of the American Statistical Association},
+  87(420):942--951, dec 1992.
+
+\bibitem{aalen1980}
+Odd Aalen.
+\newblock A model for nonparametric regression analysis of counting processes.
+\newblock In {\em Mathematical statistics and probability theory}, pages 1--25.
+  Springer, 1980.
+
+\bibitem{lin1997}
+D.~Y. Lin and Zhiliang Ying.
+\newblock {\em Additive Hazards Regression Models for Survival Data}, pages
+  185--198.
+\newblock Springer US, 1997.
+
+\bibitem{Wood2017}
+Simon~N Wood.
+\newblock {\em Generalized additive models: an introduction with R}.
+\newblock CRC press, 2017.
+
+\bibitem{reinsch1967}
+Ch.~H. Reinsch.
+\newblock Smoothing by spline functions.
+\newblock {\em Numerische Mathematik}, 10:177--183, 1967.
+
+\bibitem{tibshirani1997}
+ROBERT TIBSHIRANI.
+\newblock The lasso method for variable selection in the cox model.
+\newblock {\em Statistics in Medicine}, 16(4):385--395, 02 1997.
+
+\bibitem{fan2002}
+Jianqing Fan and Runze Li.
+\newblock Variable selection for cox's proportional hazards model and frailty
+  model.
+\newblock {\em The Annals of Statistics}, 30(1), 02 2002.
+
+\bibitem{zhang2007}
+H.~H. Zhang and W.~Lu.
+\newblock Adaptive lasso for cox's proportional hazards model.
+\newblock {\em Biometrika}, 94(3):691--703, 08 2007.
+
+\bibitem{wu2012}
+Yichao Wu.
+\newblock Elastic net for cox{\textquoteright}s proportional hazards model with
+  a solution path algorithm.
+\newblock {\em Statistica Sinica}, 22(1), 01 2012.
+
+\bibitem{bradic2011}
+Jelena Bradic, Jianqing Fan, and Jiancheng Jiang.
+\newblock Regularization for cox{\textquoteright}s proportional hazards model
+  with np-dimensionality.
+\newblock {\em The Annals of Statistics}, 39(6), 12 2011.
+
+\bibitem{fan2010}
+Jianqing Fan, Yang Feng, and Yichao Wu.
+\newblock {\em High-dimensional variable selection for Cox{\textquoteright}s
+  proportional hazards model}, pages 70--86.
+\newblock Institute of Mathematical Statistics, 2010.
+
+\bibitem{Du2010}
+Pang Du, Shuangge Ma, and Hua Liang.
+\newblock {Penalized variable selection procedure for Cox models with
+  semiparametric relative risk}.
+\newblock {\em Annals of Statistics}, 38(4):2092--2117, 2010.
+
+\bibitem{leng2006}
+Chenlei Leng and Hao Helen~Zhang.
+\newblock Model selection in nonparametric hazard regression.
+\newblock {\em Journal of Nonparametric Statistics}, 18(7-8):417--429, 10 2006.
+
+\bibitem{Lian2013}
+Heng Lian, Jianbo Li, and Yuao Hu.
+\newblock {Shrinkage variable selection and estimation in proportional hazards
+  models with additive structure and high dimensionality}.
+\newblock {\em Computational Statistics and Data Analysis}, 63:99--112, 2013.
+
+\bibitem{Yang2018}
+Guangren Yang, Sumin Hou, Luheng Wang, and Yanqing Sun.
+\newblock {Feature screening in ultrahigh-dimensional additive Cox model}.
+\newblock {\em Journal of Statistical Computation and Simulation},
+  88(6):1117--1133, apr 2018.
+
+\bibitem{Meier2009}
+Lukas Meier, Sara {Van De Geer}, and Peter B{\"{u}}hlmann.
+\newblock {High-dimensional additive modeling}.
+\newblock {\em Annals of Statistics}, 37(6 B):3779--3821, 2009.
+
+\bibitem{scheipl2013}
+Fabian Scheipl, Thomas Kneib, and Ludwig Fahrmeir.
+\newblock Penalized likelihood and bayesian function selection in regression
+  models.
+\newblock {\em AStA Advances in Statistical Analysis}, 97(4):349--385, 10 2013.
+
+\bibitem{bender2018}
+Andreas Bender, Andreas Groll, and Fabian Scheipl.
+\newblock A generalized additive model approach to time-to-event analysis.
+\newblock {\em Statistical Modelling}, 18(3-4):299--321, 06 2018.
+\newblock Publisher: SAGE Publications India.
+
+\bibitem{wu2019}
+Jiacheng Wu and Daniela Witten.
+\newblock Flexible and interpretable models for survival data.
+\newblock {\em Journal of computational and graphical statistics : a joint
+  publication of American Statistical Association, Institute of Mathematical
+  Statistics, Interface Foundation of North America}, 28(4):954--966, 2019.
+\newblock PMID: 32704224 PMCID: PMC7377334.
+
+\bibitem{guo2022}
+Boyi Guo, Byron~C. Jaeger, A.~K. M.~Fazlur Rahman, D.~Leann Long, and Nengjun
+  Yi.
+\newblock Spike-and-slab least absolute shrinkage and selection operator
+  generalized additive models and scalable algorithms for high-dimensional data
+  analysis.
+\newblock {\em Statistics in Medicine}, n/a(n/a).
+
+\bibitem{R2021}
+{R Core Team}.
+\newblock {\em R: A Language and Environment for Statistical Computing}.
+\newblock R Foundation for Statistical Computing, Vienna, Austria, 2021.
+
+\bibitem{Klein2003}
+John~P. Klein and Melvin~L. Moeschberger.
+\newblock {\em {Survival Analysis}}.
+\newblock Statistics for Biology and Health. Springer New York, New York, NY,
+  2003.
+
+\bibitem{cox1972}
+D.~R. Cox.
+\newblock Regression models and life-tables.
+\newblock {\em Journal of the Royal Statistical Society: Series B
+  (Methodological)}, 34(2):187--202, 1972.
+\newblock {\_}eprint:
+  https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.2517-6161.1972.tb00899.x.
+
+\bibitem{Efron1977}
+Bradley Efron.
+\newblock {The efficiency of cox's likelihood function for censored data}.
+\newblock {\em Journal of the American Statistical Association}, 1977.
+
+\bibitem{breslow1974}
+N.~Breslow.
+\newblock Covariance analysis of censored survival data.
+\newblock {\em Biometrics}, 30(1):89, 03 1974.
+
+\bibitem{Marra2011}
+Giampiero Marra and Simon~N Wood.
+\newblock Practical variable selection for generalized additive models.
+\newblock {\em Computational Statistics \& Data Analysis}, 55(7):2372--2387,
+  2011.
+
+\bibitem{tang2019}
+Zaixiang Tang, Shufeng Lei, Xinyan Zhang, Zixuan Yi, Boyi Guo, Jake~Y. Chen,
+  Yueping Shen, and Nengjun Yi.
+\newblock Gsslasso cox: a bayesian hierarchical model for predicting survival
+  and detecting associated genes by incorporating pathway information.
+\newblock {\em BMC Bioinformatics}, 20(1):94, 12 2019.
+
+\bibitem{rockova2018a}
+Veronika {Ro{\v{c}}ková}.
+\newblock Bayesian estimation of sparse signals with a continuous
+  spike-and-slab prior.
+\newblock {\em The Annals of Statistics}, 46(1):401--437, 02 2018.
+\newblock Publisher: Institute of Mathematical Statistics.
+
+\bibitem{rockova2018b}
+Veronika {Ro{\v{c}}ková} and Edward~I. George.
+\newblock The spike-and-slab lasso.
+\newblock {\em Journal of the American Statistical Association},
+  113(521):431--444, 01 2018.
+
+\bibitem{tang2018}
+Zaixiang Tang, Yueping Shen, Yan Li, Xinyan Zhang, Jia Wen,
+  {Chen{\textquoteright}ao} Qian, Wenzhuo Zhuang, Xinghua Shi, and Nengjun Yi.
+\newblock Group spike-and-slab lasso generalized linear models for disease
+  prediction and associated genes detection by incorporating pathway
+  information.
+\newblock {\em Bioinformatics}, 34(6):901--910, 03 2018.
+
+\bibitem{chipman2006}
+Hugh Chipman.
+\newblock Prior distributions for bayesian analysis of screening experiments.
+\newblock In {\em Screening}, pages 236--267. Springer, 2006.
+
+\bibitem{bai2021}
+Ray Bai.
+\newblock Spike-and-slab group lasso for consistent estimation and variable
+  selection in non-gaussian generalized additive models.
+\newblock {\em arXiv:2007.07021 [stat]}, 06 2021.
+\newblock arXiv: 2007.07021.
+
+\bibitem{simon2011}
+Noah Simon, Jerome Friedman, Trevor Hastie, and Rob Tibshirani.
+\newblock Regularization paths for cox's proportional hazards model via
+  coordinate descent.
+\newblock {\em Journal of Statistical Software}, 39(5), 2011.
+
+\bibitem{rockova2014}
+Veronika {Ro{\v{c}}ková} and Edward~I. George.
+\newblock Emvs: The em approach to bayesian variable selection.
+\newblock {\em Journal of the American Statistical Association},
+  109(506):828--846, 04 2014.
+
+\bibitem{tang2017}
+Zaixiang Tang, Yueping Shen, Xinyan Zhang, and Nengjun Yi.
+\newblock The spike-and-slab lasso cox model for survival prediction and
+  associated genes detection.
+\newblock {\em Bioinformatics}, 33(18):2799--2807, 05 2017.
+
+\bibitem{sinha2003}
+Debajyoti Sinha, Joseph~G Ibrahim, and Ming-Hui Chen.
+\newblock A bayesian justification of cox's partial likelihood.
+\newblock {\em Biometrika}, 90(3):629--641, 09 2003.
+
+\bibitem{storlie2011}
+Curtis~B. Storlie, Howard~D. Bondell, Brian~J. Reich, and Hao~Helen Zhang.
+\newblock Surface estimation, variable selection, and the nonparametric oracle
+  property.
+\newblock {\em Statistica Sinica}, 21(2):679, 04 2011.
+
+\bibitem{R_cosso}
+Hao~Helen Zhang and Chen-Yen Lin.
+\newblock {\em cosso: Fit Regularized Nonparametric Regression Models Using
+  COSSO Penalty}, 2013.
+\newblock R package version 2.1-1.
+
+\bibitem{R_mgcv}
+Simon Wood.
+\newblock {\em mgcv: Mixed GAM Computation Vehicle with Automatic Smoothness
+  Estimation}, 2022.
+\newblock R package version 1.8-31.
+
+\bibitem{R_simsurv}
+Samuel~L. Brilleman, Rory Wolfe, Margarita Moreno-Betancur, and Michael~J.
+  Crowther.
+\newblock Simulating survival data using the {simsurv} {R} package.
+\newblock {\em Journal of Statistical Software}, 97(3):1--27, 2020.
+
+\bibitem{wan2016}
+Fei Wan.
+\newblock Simulating survival data with predefined censoring rates for
+  proportional hazards models.
+\newblock {\em Statistics in Medicine}, 36(5):838--854, 11 2016.
+
+\bibitem{wang2007}
+Lifeng Wang, Guang Chen, and Hongzhe Li.
+\newblock Group scad regression analysis for microarray time course gene
+  expression data.
+\newblock {\em Bioinformatics}, 23(12):1486--1494, 06 2007.
+
+\bibitem{cui2021}
+Erjia Cui, Ciprian~M. Crainiceanu, and Andrew Leroux.
+\newblock Additive functional cox model.
+\newblock {\em Journal of Computational and Graphical Statistics},
+  30(3):780--793, 01 2021.
+
+\end{thebibliography}
