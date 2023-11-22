@@ -1,5 +1,13 @@
+#' Generate the success rate for each simulation setting
+#'
+#' @param path a vector of paths containing the folder path containing all
+#'  individual iterations under the same simulaiton scenario
+#'
+#' @return a data.frame containing the simulaiton setting parameters and the
+#' success rate for each simulation setting
+#' @export
+
 generate_simulation_summary <- function(path){
-  # browser()
 
   # Tmp helper for renaming simulation parameters
   paste_sim_prmt_front <- function(vec){
@@ -8,9 +16,10 @@ generate_simulation_summary <- function(path){
 
 
   map_dfr(path, .f = function(sim){
-    # sim <- sims[2]
-    sim.df <- unglue_data(sim,
-                          "{}/bcam_sim_p={p},rho={rho},pi_cns={pi_cns}") %>%
+    sim.df <- unglue_data(
+      sim,
+      "{}/bcam_sim_p={p},rho={rho},pi_cns={pi_cns}"
+    ) %>%
       mutate_all(as.numeric) %>%
       rename_all(paste_sim_prmt_front)
 
@@ -18,7 +27,7 @@ generate_simulation_summary <- function(path){
     fls <- fls[grep(".rds", x=fls)]
     n <- length(fls)
 
-    data.frame(sim.df, n_success = n, path = sim)
+    data.frame(sim.df, n_success_it = n, path = sim)
 
   })
 }
